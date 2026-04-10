@@ -19,11 +19,17 @@
 
     /* LOGIN */
     .login-container {
-      min-height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
       background: radial-gradient(circle at 10% 30%, #1e2b4f, #0f172a);
+      z-index: 1000;
+      transition: none; /* Elimina cualquier transición que cause flash */
     }
     .login-card {
       background: rgba(255,255,255,0.98);
@@ -34,6 +40,12 @@
       max-width: 400px;
       box-shadow: 0 25px 45px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.2);
       text-align: center;
+    }
+    .logo-institucional {
+      width: 100px;
+      height: auto;
+      margin-bottom: 1rem;
+      border-radius: 20px;
     }
     .login-card h2 {
       font-size: 1.8rem;
@@ -103,6 +115,11 @@
       display: flex;
       align-items: center;
       gap: 12px;
+    }
+    .logo-area img {
+      height: 50px;
+      width: auto;
+      border-radius: 12px;
     }
     .logo-icon {
       font-size: 2.4rem;
@@ -370,7 +387,8 @@
 
 <div id="loginContainer" class="login-container">
   <div class="login-card">
-    <div class="logo-icon" style="font-size: 3rem;">🎓</div>
+    <!-- Aquí puedes poner tu logo institucional. Reemplaza la imagen base64 por la URL de tu logo -->
+    <img class="logo-institucional" id="logoLogin" src="https://drive.google.com/file/d/10uoX_XfeinL6xBZPvbSO_muaiy02tgOA/preview" alt="Logo">
     <h2>Control Estudiantil</h2>
     <p style="color:#4b5563">INEB San Raymundo</p>
     <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off">
@@ -382,7 +400,8 @@
 <div id="appContainer" class="app-container">
   <div class="glass-header">
     <div class="logo-area">
-      <span class="logo-icon">📚</span>
+      <!-- Logo en el header -->
+      <img id="logoHeader" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%231e3a8a'/%3E%3Ctext x='50' y='68' font-size='50' text-anchor='middle' fill='white'%3E🎓%3C/text%3E%3C/svg%3E" alt="Logo" style="height:50px;">
       <h1>Control Estudiantil INEB</h1>
     </div>
     <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
@@ -470,7 +489,8 @@
 
 <script>
   // ==================== CONFIGURACIÓN ====================
-  const API_URL = "https://script.google.com/macros/s/AKfycbzJvctWaW7MYT5Iz6ZfsrDi4L9Z0mZj7XQpDb-jsCrXuX8aB6Y1zjZ-S28VbVjv6_zF/exec";
+  // IMPORTANTE: Reemplaza esta URL con la de tu Web App después de desplegar
+  const API_URL = "https://script.google.com/macros/s/AKfycbw49zVrVtcNhglYTNqTMZKDPSBq6gkf7yspB5n14Vo9LkHKCQwJaXZPmEEJO4XAUzjd/exec";
   let estudiantesGlobal = [];
   let currentPage = 1;
   const rowsPerPage = 8;
@@ -524,6 +544,7 @@
       if (res.success) {
         localStorage.setItem('logged', 'true');
         localStorage.setItem('role', res.role);
+        // Ocultar login y mostrar app de inmediato (sin flash)
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         cargarListaEstudiantes();
@@ -629,7 +650,6 @@
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          // Calidad 0.6 para reducir tamaño
           const base64 = canvas.toDataURL('image/jpeg', 0.6);
           resolve(base64);
         };
@@ -641,31 +661,25 @@
     });
   }
 
-  // Subida de foto con manejo específico
   async function subirFotoSiNecesaria() {
     const fileInput = document.getElementById('fotoInput');
     if (!fileInput.files.length) return currentFotoUrl;
     
     const file = fileInput.files[0];
-    // Validar tamaño máximo 2MB
     if (file.size > 2 * 1024 * 1024) {
       throw new Error("La foto no debe superar 2MB. Comprímela antes.");
     }
     
     const nombreEst = document.getElementById('nombre').value.trim();
     if (!nombreEst) throw new Error("Escribe el nombre antes de subir foto");
-    
     const grado = document.getElementById('grado').value;
     if (!grado) throw new Error("Selecciona el grado");
     
-    // Sanitizar nombre: eliminar caracteres problemáticos
     const nombreLimpio = nombreEst.replace(/[\\/:*?"<>|]/g, '_');
-    
     const base64Completo = await comprimirFoto(file);
-    const base64 = base64Completo.split(',')[1]; // Quitar metadata
+    const base64 = base64Completo.split(',')[1];
     if (!base64) throw new Error("Error al procesar la imagen");
     
-    // Timeout específico más largo para la foto (30 segundos)
     const res = await callApi('subirFoto', { 
       base64: base64, 
       nombre: nombreLimpio, 
