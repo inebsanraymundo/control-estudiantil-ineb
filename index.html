@@ -20,31 +20,63 @@
 
 <div class="toolbar">
 
-<button onclick="nuevo()">Nuevo</button>
-<button onclick="guardar()">Guardar</button>
-<button onclick="actualizar()">Actualizar</button>
-<button onclick="borrar()">Archivar</button>
+<button onclick="nuevo()">🆕 Nuevo</button>
+<button onclick="guardar()">💾 Guardar</button>
+<button onclick="actualizar()">✏️ Actualizar</button>
+<button onclick="borrar()">🗄️ Archivar</button>
+<button onclick="limpiar()">🧹 Limpiar</button>
 
 <input type="text" id="buscarCodigo" placeholder="Código estudiante">
-<button onclick="buscar()">Buscar</button>
+<button onclick="buscar()">🔎 Buscar</button>
 
 </div>
 
-<form id="formulario">
+<form id="formulario" autocomplete="off">
 
 <h3>DATOS DEL ESTUDIANTE</h3>
 
+<div class="contenedor-estudiante">
+
+<div class="datos-estudiante">
+
 <div class="grid">
 <input id="codigo" placeholder="Código personal">
+
 <input id="nombre" placeholder="Nombres y apellidos">
-<input id="edad" placeholder="Edad">
+
+<select id="genero">
+<option value="">Género</option>
+<option>Masculino</option>
+<option>Femenino</option>
+</select>
+
+<input id="edad" type="number" placeholder="Edad">
+
 <input id="fechaNacimiento" type="date">
-<input id="telefono" placeholder="Teléfono">
-<input id="emergencia" placeholder="Teléfono emergencia">
-<input id="genero" placeholder="Género">
-<input id="enfermedad" placeholder="Enfermedad crónica">
+
+<input id="telefono" type="tel" placeholder="Teléfono">
+
+<input id="emergencia" type="tel" placeholder="Teléfono emergencia">
+
 <input id="grado" placeholder="Grado">
+
+<input id="enfermedad" placeholder="Enfermedad crónica">
+
 <input id="direccion" placeholder="Dirección">
+</div>
+
+</div>
+
+<div class="foto-box">
+
+<img id="previewFoto" src="" class="foto">
+
+<input type="file" id="foto" accept="image/*">
+
+<input type="hidden" id="fotoURL">
+
+</div>
+
 </div>
 
 <h3>DATOS DEL PADRE</h3>
@@ -52,7 +84,7 @@
 <div class="grid">
 <input id="padreNombre" placeholder="Nombre del padre">
 <input id="padreDpi" placeholder="DPI padre">
-<input id="padreTelefono" placeholder="Teléfono padre">
+<input id="padreTelefono" type="tel" placeholder="Teléfono padre">
 </div>
 
 <h3>DATOS DE LA MADRE</h3>
@@ -60,7 +92,7 @@
 <div class="grid">
 <input id="madreNombre" placeholder="Nombre de la madre">
 <input id="madreDpi" placeholder="DPI madre">
-<input id="madreTelefono" placeholder="Teléfono madre">
+<input id="madreTelefono" type="tel" placeholder="Teléfono madre">
 </div>
 
 <h3>ENCARGADO</h3>
@@ -68,7 +100,7 @@
 <div class="grid">
 <input id="encargadoNombre" placeholder="Nombre encargado">
 <input id="encargadoDpi" placeholder="DPI encargado">
-<input id="encargadoTelefono" placeholder="Teléfono encargado">
+<input id="encargadoTelefono" type="tel" placeholder="Teléfono encargado">
 </div>
 
 </form>
