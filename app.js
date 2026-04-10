@@ -99,3 +99,72 @@ location.href="login.html"
 function exportar(){
 api("exportar")
 }
+
+document.getElementById("enc_padre")?.addEventListener("change",()=>{
+
+if(enc_padre.checked){
+
+set("encargado",val("padre"))
+set("dpi_enc",val("dpi_padre"))
+set("tel_enc",val("tel_padre"))
+
+}
+
+})
+
+document.getElementById("enc_madre")?.addEventListener("change",()=>{
+
+if(enc_madre.checked){
+
+set("encargado",val("madre"))
+set("dpi_enc",val("dpi_madre"))
+set("tel_enc",val("tel_madre"))
+
+}
+
+})
+
+async function buscarNombre(){
+
+const txt=document.getElementById("buscarTxt").value
+
+const r=await api("buscarNombre",{txt})
+
+pintarTabla(r.data)
+
+}
+
+function pintarTabla(data){
+
+const tb=document.querySelector("#tabla tbody")
+tb.innerHTML=""
+
+data.forEach(d=>{
+
+tb.innerHTML+=`
+
+<tr onclick="cargar('${d[2]}')">
+<td>${d[2]}</td>
+<td>${d[1]}</td>
+<td>${d[11]}</td>
+<td>${d[5]}</td>
+</tr>
+
+`
+
+})
+
+}
+
+async function cargar(codigo){
+
+const r=await api("buscar",{codigo})
+
+let d=r.data
+
+set("nombre",d[1])
+set("codigo",d[2])
+set("edad",d[3])
+set("telefono",d[5])
+
+}
