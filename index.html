@@ -144,14 +144,13 @@
       }
     }
 
-    /* FORMULARIO (MODERNO) */
+    /* FORMULARIO */
     .form-card {
       background: white;
       border-radius: 1.8rem;
       padding: 1.5rem;
       box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
       border: 1px solid #eef2ff;
-      transition: all 0.2s;
     }
     .form-title {
       font-size: 1.4rem;
@@ -471,7 +470,7 @@
 
 <script>
   // ==================== CONFIGURACIÓN ====================
-  const API_URL = "https://script.google.com/macros/s/AKfycbw49zVrVtcNhglYTNqTMZKDPSBq6gkf7yspB5n14Vo9LkHKCQwJaXZPmEEJO4XAUzjd/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzJvctWaW7MYT5Iz6ZfsrDi4L9Z0mZj7XQpDb-jsCrXuX8aB6Y1zjZ-S28VbVjv6_zF/exec";
   let estudiantesGlobal = [];
   let currentPage = 1;
   const rowsPerPage = 8;
@@ -493,14 +492,25 @@
     document.getElementById('loaderOverlay').style.display = show ? 'flex' : 'none';
   }
 
-  // Llamada genérica a API
-  async function callApi(action, data = {}) {
-    const payload = { action, data };
-    const res = await fetch(API_URL, {
-      method: 'POST',
-      body: JSON.stringify(payload)
-    });
-    return await res.json();
+  // Llamada genérica a API con timeout y manejo de errores
+  async function callApi(action, data = {}, timeoutMs = 20000) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, data }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return await res.json();
+    } catch (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') throw new Error('La petición tardó demasiado tiempo');
+      throw err;
+    }
   }
 
   // ==================== LOGIN ====================
@@ -509,17 +519,21 @@
     const p = document.getElementById('loginPass').value;
     if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
     showLoader(true);
-    const res = await callApi('login', { u, p });
-    showLoader(false);
-    if (res.success) {
-      localStorage.setItem('logged', 'true');
-      localStorage.setItem('role', res.role);
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'block';
-      cargarListaEstudiantes();
-    } else {
-      showMessage(res.msg || "Credenciales incorrectas", true);
+    try {
+      const res = await callApi('login', { u, p });
+      if (res.success) {
+        localStorage.setItem('logged', 'true');
+        localStorage.setItem('role', res.role);
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        cargarListaEstudiantes();
+      } else {
+        showMessage(res.msg || "Credenciales incorrectas", true);
+      }
+    } catch (err) {
+      showMessage("Error de conexión: " + err.message, true);
     }
+    showLoader(false);
   };
 
   function cerrarSesion() {
@@ -532,14 +546,18 @@
   // ==================== CRUD ====================
   async function cargarListaEstudiantes() {
     showLoader(true);
-    const res = await callApi('listarTodos');
-    showLoader(false);
-    if (res.success) {
-      estudiantesGlobal = res.data;
-      filtrarEstudiantes();
-    } else {
-      showMessage("Error al cargar datos", true);
+    try {
+      const res = await callApi('listarTodos');
+      if (res.success) {
+        estudiantesGlobal = res.data;
+        filtrarEstudiantes();
+      } else {
+        showMessage("Error al cargar datos", true);
+      }
+    } catch (err) {
+      showMessage("Error de red: " + err.message, true);
     }
+    showLoader(false);
   }
 
   function filtrarEstudiantes() {
@@ -592,39 +610,69 @@
     }
   }
 
-  // Comprimir foto a base64
+  // Compresión mejorada: tamaño máximo 600px, calidad 0.6
   function comprimirFoto(file) {
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement('canvas');
-          let width = img.width, height = img.height;
-          const max = 800;
-          if (width > max) { height *= max / width; width = max; }
-          canvas.width = width; canvas.height = height;
+          let width = img.width;
+          let height = img.height;
+          const maxSize = 600;
+          if (width > maxSize) {
+            height = (height * maxSize) / width;
+            width = maxSize;
+          }
+          canvas.width = width;
+          canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          resolve(canvas.toDataURL('image/jpeg', 0.7));
+          // Calidad 0.6 para reducir tamaño
+          const base64 = canvas.toDataURL('image/jpeg', 0.6);
+          resolve(base64);
         };
+        img.onerror = reject;
         img.src = e.target.result;
       };
+      reader.onerror = reject;
       reader.readAsDataURL(file);
     });
   }
 
+  // Subida de foto con manejo específico
   async function subirFotoSiNecesaria() {
     const fileInput = document.getElementById('fotoInput');
     if (!fileInput.files.length) return currentFotoUrl;
+    
     const file = fileInput.files[0];
+    // Validar tamaño máximo 2MB
+    if (file.size > 2 * 1024 * 1024) {
+      throw new Error("La foto no debe superar 2MB. Comprímela antes.");
+    }
+    
     const nombreEst = document.getElementById('nombre').value.trim();
     if (!nombreEst) throw new Error("Escribe el nombre antes de subir foto");
+    
     const grado = document.getElementById('grado').value;
+    if (!grado) throw new Error("Selecciona el grado");
+    
+    // Sanitizar nombre: eliminar caracteres problemáticos
+    const nombreLimpio = nombreEst.replace(/[\\/:*?"<>|]/g, '_');
+    
     const base64Completo = await comprimirFoto(file);
-    const base64 = base64Completo.split(',')[1];
-    const res = await callApi('subirFoto', { base64, nombre: nombreEst, grado });
-    if (!res.success) throw new Error("Error al subir foto");
+    const base64 = base64Completo.split(',')[1]; // Quitar metadata
+    if (!base64) throw new Error("Error al procesar la imagen");
+    
+    // Timeout específico más largo para la foto (30 segundos)
+    const res = await callApi('subirFoto', { 
+      base64: base64, 
+      nombre: nombreLimpio, 
+      grado: grado 
+    }, 30000);
+    
+    if (!res.success) throw new Error(res.msg || "Error al subir foto");
     return res.url;
   }
 
@@ -690,68 +738,76 @@
 
   async function editarEstudiante(codigo) {
     showLoader(true);
-    const res = await callApi('buscar', { codigo });
-    showLoader(false);
-    if (res.success && res.data) {
-      const d = res.data;
-      document.getElementById('nombre').value = d[1];
-      document.getElementById('codigo').value = d[2];
-      document.getElementById('edad').value = d[3];
-      document.getElementById('fecha').value = d[4];
-      document.getElementById('telefono').value = d[5];
-      document.getElementById('emergencia').value = d[6];
-      document.getElementById('genero').value = d[7];
-      document.getElementById('enfermedad').value = d[8];
-      document.getElementById('detalle_enf').value = d[9];
-      document.getElementById('zurdo').value = d[10];
-      document.getElementById('grado').value = d[11];
-      document.getElementById('etnia').value = d[12];
-      document.getElementById('direccion').value = d[13];
-      document.getElementById('aldea').value = d[14];
-      document.getElementById('padre').value = d[15];
-      document.getElementById('dpi_padre').value = d[16];
-      document.getElementById('tel_padre').value = d[17];
-      document.getElementById('madre').value = d[18];
-      document.getElementById('dpi_madre').value = d[19];
-      document.getElementById('tel_madre').value = d[20];
-      document.getElementById('enc_padre').value = d[21];
-      document.getElementById('enc_madre').value = d[22];
-      document.getElementById('encargado').value = d[23];
-      document.getElementById('dpi_enc').value = d[24];
-      document.getElementById('tel_enc').value = d[25];
-      document.getElementById('dir_enc').value = d[26];
-      document.getElementById('aldea_enc').value = d[27];
-      document.getElementById('relacion').value = d[28];
-      document.getElementById('tel_extra').value = d[29];
-      currentFotoUrl = d[32] || "";
-      if (currentFotoUrl) {
-        const preview = document.getElementById('previewImg');
-        preview.src = currentFotoUrl;
-        preview.style.display = 'block';
+    try {
+      const res = await callApi('buscar', { codigo });
+      if (res.success && res.data) {
+        const d = res.data;
+        document.getElementById('nombre').value = d[1];
+        document.getElementById('codigo').value = d[2];
+        document.getElementById('edad').value = d[3];
+        document.getElementById('fecha').value = d[4];
+        document.getElementById('telefono').value = d[5];
+        document.getElementById('emergencia').value = d[6];
+        document.getElementById('genero').value = d[7];
+        document.getElementById('enfermedad').value = d[8];
+        document.getElementById('detalle_enf').value = d[9];
+        document.getElementById('zurdo').value = d[10];
+        document.getElementById('grado').value = d[11];
+        document.getElementById('etnia').value = d[12];
+        document.getElementById('direccion').value = d[13];
+        document.getElementById('aldea').value = d[14];
+        document.getElementById('padre').value = d[15];
+        document.getElementById('dpi_padre').value = d[16];
+        document.getElementById('tel_padre').value = d[17];
+        document.getElementById('madre').value = d[18];
+        document.getElementById('dpi_madre').value = d[19];
+        document.getElementById('tel_madre').value = d[20];
+        document.getElementById('enc_padre').value = d[21];
+        document.getElementById('enc_madre').value = d[22];
+        document.getElementById('encargado').value = d[23];
+        document.getElementById('dpi_enc').value = d[24];
+        document.getElementById('tel_enc').value = d[25];
+        document.getElementById('dir_enc').value = d[26];
+        document.getElementById('aldea_enc').value = d[27];
+        document.getElementById('relacion').value = d[28];
+        document.getElementById('tel_extra').value = d[29];
+        currentFotoUrl = d[32] || "";
+        if (currentFotoUrl) {
+          const preview = document.getElementById('previewImg');
+          preview.src = currentFotoUrl;
+          preview.style.display = 'block';
+        } else {
+          document.getElementById('previewImg').style.display = 'none';
+        }
+        editMode = true;
+        editCodigo = codigo;
+        document.getElementById('codigo').disabled = true;
+        document.getElementById('formTitle').innerHTML = '✏️ Editando estudiante';
+        document.getElementById('btnGuardar').innerHTML = '🔄 Actualizar';
       } else {
-        document.getElementById('previewImg').style.display = 'none';
+        showMessage("No se encontró el estudiante", true);
       }
-      editMode = true;
-      editCodigo = codigo;
-      document.getElementById('codigo').disabled = true;
-      document.getElementById('formTitle').innerHTML = '✏️ Editando estudiante';
-      document.getElementById('btnGuardar').innerHTML = '🔄 Actualizar';
-    } else {
-      showMessage("No se encontró el estudiante", true);
+    } catch (err) {
+      showMessage("Error al cargar datos: " + err.message, true);
     }
+    showLoader(false);
   }
 
   async function archivarEstudiante(codigo) {
     if (!confirm("¿Archivar este estudiante? (se ocultará de la tabla)")) return;
     showLoader(true);
-    const res = await callApi('borrar', { codigo });
-    showLoader(false);
-    if (res.success) {
-      showMessage("Estudiante archivado");
-      cargarListaEstudiantes();
-    } else {
-      showMessage("Error al archivar", true);
+    try {
+      const res = await callApi('borrar', { codigo });
+      if (res.success) {
+        showMessage("Estudiante archivado");
+        cargarListaEstudiantes();
+      } else {
+        showMessage("Error al archivar", true);
+      }
+    } catch (err) {
+      showMessage("Error de red", true);
     }
+    showLoader(false);
   }
 
   function resetFormulario() {
@@ -769,22 +825,26 @@
 
   async function exportarExcel() {
     showLoader(true);
-    const res = await callApi('exportar');
-    showLoader(false);
-    if (res.success && res.data) {
-      const headers = res.data[0];
-      const rows = res.data.slice(1);
-      let csv = headers.join(',') + '\n';
-      rows.forEach(row => csv += row.map(cell => `"${cell}"`).join(',') + '\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = 'estudiantes_activos.csv';
-      link.click();
-      showMessage("Exportación completa");
-    } else {
-      showMessage("Error al exportar", true);
+    try {
+      const res = await callApi('exportar');
+      if (res.success && res.data) {
+        const headers = res.data[0];
+        const rows = res.data.slice(1);
+        let csv = headers.join(',') + '\n';
+        rows.forEach(row => csv += row.map(cell => `"${cell}"`).join(',') + '\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'estudiantes_activos.csv';
+        link.click();
+        showMessage("Exportación completa");
+      } else {
+        showMessage("Error al exportar", true);
+      }
+    } catch (err) {
+      showMessage("Error de red", true);
     }
+    showLoader(false);
   }
 
   // Preview foto local
@@ -801,6 +861,7 @@
   });
 
   document.getElementById('btnGuardar').onclick = guardarEstudiante;
+  
   // Verificar sesión al cargar
   window.onload = () => {
     if (localStorage.getItem('logged') === 'true') {
