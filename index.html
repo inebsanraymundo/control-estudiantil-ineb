@@ -40,9 +40,36 @@
 <div class="datos-estudiante">
 
 <div class="grid">
+
 <input id="codigo" placeholder="Código personal">
 
 <input id="nombre" placeholder="Nombres y apellidos">
+
+<input id="grado" list="listaGrados" placeholder="Grado (ej: 1A)">
+
+<datalist id="listaGrados">
+<option value="1A">
+<option value="1B">
+<option value="1C">
+<option value="1D">
+<option value="1E">
+<option value="1F">
+<option value="1G">
+
+<option value="2A">
+<option value="2B">
+<option value="2C">
+<option value="2D">
+<option value="2E">
+<option value="2F">
+<option value="2G">
+
+<option value="3A">
+<option value="3B">
+<option value="3C">
+<option value="3D">
+<option value="3E">
+</datalist>
 
 <select id="genero">
 <option value="">Género</option>
@@ -58,18 +85,17 @@
 
 <input id="emergencia" type="tel" placeholder="Teléfono emergencia">
 
-<input id="grado" placeholder="Grado">
-
 <input id="enfermedad" placeholder="Enfermedad crónica">
 
 <input id="direccion" placeholder="Dirección">
+
 </div>
 
 </div>
 
 <div class="foto-box">
 
-<img id="previewFoto" src="" class="foto">
+<img id="previewFoto" class="foto">
 
 <input type="file" id="foto" accept="image/*">
 
