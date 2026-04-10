@@ -33,6 +33,12 @@ box-shadow:0 0 4px rgba(0,0,0,.1);
 margin-bottom:10px;
 }
 
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+}
+
 input,select{
 width:100%;
 padding:6px;
@@ -76,15 +82,38 @@ CONTROL ESTUDIANTIL INEB
 
 <div class="card">
 
-<label>Nombre completo</label>
-<input type="text" id="nombre">
+<div class="grid">
 
-<label>Código</label>
-<input type="text" id="codigo">
+<input id="nombre" placeholder="Nombres y apellidos">
+<input id="codigo" placeholder="Código personal">
+<input id="edad" placeholder="Edad actual">
 
-<label>Grado</label>
+<input id="fecha" type="date" placeholder="Fecha nacimiento">
+<input id="telefono" placeholder="Teléfono">
+<input id="emergencia" placeholder="Tel. emergencia">
+
+<select id="genero">
+<option value="">Género</option>
+<option>Masculino</option>
+<option>Femenino</option>
+</select>
+
+<select id="enfermedad">
+<option value="">¿Enfermedad crónica?</option>
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<input id="detalle_enf" placeholder="Indique cual">
+
+<select id="zurdo">
+<option value="">Zurdo o diestro</option>
+<option>Zurdo</option>
+<option>Diestro</option>
+</select>
+
 <select id="grado">
-<option value="">Seleccione</option>
+<option value="">Grado a cursar</option>
 <option>1A</option>
 <option>1B</option>
 <option>1C</option>
@@ -92,7 +121,6 @@ CONTROL ESTUDIANTIL INEB
 <option>1E</option>
 <option>1F</option>
 <option>1G</option>
-
 <option>2A</option>
 <option>2B</option>
 <option>2C</option>
@@ -100,7 +128,6 @@ CONTROL ESTUDIANTIL INEB
 <option>2E</option>
 <option>2F</option>
 <option>2G</option>
-
 <option>3A</option>
 <option>3B</option>
 <option>3C</option>
@@ -108,9 +135,48 @@ CONTROL ESTUDIANTIL INEB
 <option>3E</option>
 </select>
 
+<input id="etnia" placeholder="Comunidad étnica">
+
+<input id="direccion" placeholder="Dirección">
+<input id="aldea" placeholder="Aldea o caserío">
+
+<input id="padre" placeholder="Nombre del padre">
+<input id="dpi_padre" placeholder="DPI padre">
+<input id="tel_padre" placeholder="Tel padre">
+
+<input id="madre" placeholder="Nombre madre">
+<input id="dpi_madre" placeholder="DPI madre">
+<input id="tel_madre" placeholder="Tel madre">
+
+<select id="enc_padre">
+<option value="">Encargado es padre</option>
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<select id="enc_madre">
+<option value="">Encargado es madre</option>
+<option>SI</option>
+<option>NO</option>
+</select>
+
+<input id="encargado" placeholder="Nombre encargado">
+<input id="dpi_enc" placeholder="DPI encargado">
+<input id="tel_enc" placeholder="Tel encargado">
+
+<input id="dir_enc" placeholder="Dirección encargado">
+<input id="aldea_enc" placeholder="Aldea encargado">
+<input id="relacion" placeholder="Relación">
+
+<input id="tel_extra" placeholder="Tel adicional">
+
+</div>
+
+<br>
+
 <label>Fotografía</label>
 <input type="file" id="foto" accept="image/*">
-
+<br>
 <img id="preview" class="foto-preview">
 
 <br><br>
@@ -120,11 +186,6 @@ CONTROL ESTUDIANTIL INEB
 </div>
 
 </div>
-
-<!-- =========================
-     CREADOR DEL SISTEMA
-     NO ELIMINAR
-========================= -->
 
 <div id="credito-creador">
 Sistema desarrollado por Lic. José Antonio Ortiz Corzo
@@ -141,21 +202,16 @@ opacity:.55;
 z-index:999999;
 pointer-events:none;
 user-select:none;
-font-family:Arial, Helvetica, sans-serif;
-letter-spacing:.3px;
 }
 </style>
 
 <script>
 
-const API="ttps://script.google.com/macros/s/AKfycbx25_fsecpcURES_bHUTrCygTuwvReKAIMNP2yJ5oburrNAGjyuZLCyfulCDd7asHj4/exec"
-
-
+const API="https://script.google.com/macros/s/AKfycbx25_fsecpcURES_bHUTrCygTuwvReKAIMNP2yJ5oburrNAGjyuZLCyfulCDd7asHj4/exec"
 
 document.getElementById("foto").addEventListener("change",function(e){
 
 const file=e.target.files[0]
-
 if(!file) return
 
 const reader=new FileReader()
@@ -168,15 +224,9 @@ reader.readAsDataURL(file)
 
 })
 
-
-
 async function guardar(){
 
-const nombre=document.getElementById("nombre").value
-const codigo=document.getElementById("codigo").value
-const grado=document.getElementById("grado").value
 const img=document.getElementById("preview").src
-
 let base64=""
 
 if(img){
@@ -193,8 +243,8 @@ body:JSON.stringify({
 action:"subirFoto",
 data:{
 base64:base64,
-nombre:nombre,
-grado:grado
+nombre:document.getElementById("nombre").value,
+grado:document.getElementById("grado").value
 }
 })
 })
@@ -209,10 +259,43 @@ method:"POST",
 body:JSON.stringify({
 action:"guardar",
 data:{
-nombre:nombre,
-codigo:codigo,
-grado:grado,
+
+nombre:nombre.value,
+codigo:codigo.value,
+edad:edad.value,
+fecha:fecha.value,
+telefono:telefono.value,
+emergencia:emergencia.value,
+genero:genero.value,
+enfermedad:enfermedad.value,
+detalle_enf:detalle_enf.value,
+zurdo:zurdo.value,
+grado:grado.value,
+etnia:etnia.value,
+direccion:direccion.value,
+aldea:aldea.value,
+
+padre:padre.value,
+dpi_padre:dpi_padre.value,
+tel_padre:tel_padre.value,
+
+madre:madre.value,
+dpi_madre:dpi_madre.value,
+tel_madre:tel_madre.value,
+
+enc_padre:enc_padre.value,
+enc_madre:enc_madre.value,
+
+encargado:encargado.value,
+dpi_enc:dpi_enc.value,
+tel_enc:tel_enc.value,
+dir_enc:dir_enc.value,
+aldea_enc:aldea_enc.value,
+relacion:relacion.value,
+tel_extra:tel_extra.value,
+
 foto:fotoURL
+
 }
 })
 })
