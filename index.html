@@ -1,114 +1,99 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Estudiantil INEB San Raymundo</title>
+body{
+font-family:'Segoe UI',Tahoma;
+margin:0;
+background:#f0f2f5;
+}
 
-<link rel="stylesheet" href="styles.css">
-<script src="config.js"></script>
-<script src="api.js"></script>
-<script src="app.js"></script>
+.header{
+display:flex;
+align-items:center;
+padding:15px;
+background:linear-gradient(90deg,#000,#333);
+color:white;
+box-shadow:0 2px 5px rgba(0,0,0,.2);
+}
 
-</head>
+.logo{
+height:65px;
+margin-right:15px;
+}
 
-<body>
+.toolbar{
+background:white;
+padding:10px;
+display:flex;
+gap:10px;
+flex-wrap:wrap;
+box-shadow:0 2px 5px rgba(0,0,0,.1);
+}
 
-<div class="header">
-<img src="logo.png" class="logo">
-<div>
-<h1>Control Estudiantil</h1>
-<h2>INEB San Raymundo</h2>
-</div>
-</div>
+button{
+background:#ffd600;
+border:none;
+padding:10px 15px;
+border-radius:6px;
+cursor:pointer;
+font-weight:600;
+transition:.2s;
+}
 
-<div class="toolbar">
-<button onclick="nuevo()">Nuevo</button>
-<button onclick="guardar()">Guardar</button>
-<button onclick="buscar()">Buscar</button>
-<button onclick="imprimir()">Imprimir</button>
-<button id="exportBtn" onclick="exportar()">Exportar</button>
-<button onclick="logout()">Salir</button>
-</div>
+button:hover{
+background:#ffcc00;
+transform:scale(1.03);
+}
 
-<form id="form">
+form{
+margin:20px;
+}
 
-<h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
+h3{
+background:linear-gradient(90deg,#ffd600,#ffea00);
+padding:8px;
+border-radius:5px;
+font-size:15px;
+box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
 
-<div class="grid">
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:10px;
+margin-bottom:15px;
+}
 
-<input placeholder="NOMBRES Y APELLIDOS" id="nombre">
-<input placeholder="CÓDIGO PERSONAL" id="codigo">
-<input placeholder="EDAD ACTUAL" id="edad">
-<input type="date" id="fecha">
-<input placeholder="TELÉFONO" id="telefono">
-<input placeholder="TEL. DE EMERGENCIA" id="emergencia">
+input,select{
+padding:10px;
+border-radius:6px;
+border:1px solid #ccc;
+background:white;
+transition:.2s;
+}
 
-<select id="genero">
-<option>GÉNERO</option>
-<option>MASCULINO</option>
-<option>FEMENINO</option>
-</select>
+input:focus,select:focus{
+outline:none;
+border:1px solid #ffd600;
+box-shadow:0 0 5px rgba(255,214,0,.5);
+}
 
-<select id="enfermedad">
-<option>PADECE ENFERMEDAD</option>
-<option>NO</option>
-<option>SI</option>
-</select>
+form{
+background:white;
+padding:20px;
+border-radius:8px;
+box-shadow:0 3px 10px rgba(0,0,0,.1);
+}
 
-<input placeholder="INDIQUE CUAL" id="detalle_enf">
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:linear-gradient(120deg,#000,#444);
+}
 
-<select id="zurdo">
-<option>ZURDO O DIESTRO</option>
-<option>ZURDO</option>
-<option>DIESTRO</option>
-</select>
-
-<input placeholder="GRADO A CURSAR" id="grado">
-<input placeholder="COMUNIDAD ÉTNICA" id="etnia">
-<input placeholder="DIRECCIÓN" id="direccion">
-<input placeholder="ALDEA O CASERÍO" id="aldea">
-
-</div>
-
-<h3>DATOS DEL PADRE</h3>
-
-<div class="grid">
-<input placeholder="NOMBRE DEL PADRE" id="padre">
-<input placeholder="DPI" id="dpi_padre">
-<input placeholder="TELÉFONO" id="tel_padre">
-</div>
-
-<h3>DATOS DE LA MADRE</h3>
-
-<div class="grid">
-<input placeholder="NOMBRE DE LA MADRE" id="madre">
-<input placeholder="DPI" id="dpi_madre">
-<input placeholder="TELÉFONO" id="tel_madre">
-</div>
-
-<h3>OPCIONALES</h3>
-
-<div class="grid">
-<label><input type="checkbox" id="enc_padre"> Encargado es el padre</label>
-<label><input type="checkbox" id="enc_madre"> Encargado es la madre</label>
-</div>
-
-<h3>DATOS DEL ENCARGADO</h3>
-
-<div class="grid">
-
-<input placeholder="NOMBRE ENCARGADO" id="encargado">
-<input placeholder="DPI" id="dpi_enc">
-<input placeholder="TELÉFONO" id="tel_enc">
-<input placeholder="DIRECCIÓN" id="dir_enc">
-<input placeholder="ALDEA" id="aldea_enc">
-<input placeholder="RELACIÓN" id="relacion">
-<input placeholder="TEL ADICIONAL" id="tel_extra">
-
-</div>
-
-</form>
-
-</body>
-</html>
+.login-box{
+background:white;
+padding:30px;
+border-radius:10px;
+box-shadow:0 5px 20px rgba(0,0,0,.3);
+width:300px;
+}
