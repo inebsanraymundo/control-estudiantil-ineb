@@ -1,3 +1,15 @@
+const role=localStorage.getItem("role")
+
+if(!role){
+location.href="login.html"
+}
+
+if(role!="admin"){
+document.addEventListener("DOMContentLoaded",()=>{
+document.getElementById("exportBtn").style.display="none"
+})
+}
+
 function datos(){
 
 return{
