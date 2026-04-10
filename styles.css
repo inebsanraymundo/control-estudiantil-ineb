@@ -55,3 +55,23 @@ background:black;
 color:white;
 padding:5px;
 }
+
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:black;
+}
+
+.login-box{
+background:white;
+padding:30px;
+width:300px;
+text-align:center;
+}
+
+.login-box input{
+width:100%;
+margin:5px 0;
+}
