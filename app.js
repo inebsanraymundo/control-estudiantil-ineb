@@ -1,49 +1,52 @@
-async function guardar(){
+function datos(){
 
-let data={
-nombre:nombre.value,
-codigo:codigo.value,
-edad:edad.value
+return{
+
+nombre:val("nombre"),
+codigo:val("codigo"),
+edad:val("edad"),
+fecha:val("fecha"),
+telefono:val("telefono")
+
 }
 
-let r=await api("guardar",data)
+}
 
-alert(r.msg)
+function val(id){
+return document.getElementById(id).value
+}
+
+async function guardar(){
+
+const r=await api("guardar",datos())
+alert("Guardado")
 
 }
 
 async function buscar(){
 
-let r=await api("buscar",{codigo:codigo.value})
+const codigo=val("codigo")
 
-if(r.data){
+const r=await api("buscar",{codigo})
 
-nombre.value=r.data[0]
-edad.value=r.data[2]
+if(!r.data)return
 
-}
-
-}
-
-async function actualizar(){
-
-await api("actualizar",{
-codigo:codigo.value,
-nombre:nombre.value
-})
-
-alert("Actualizado")
+document.getElementById("nombre").value=r.data[1]
 
 }
 
-async function borrar(){
-
-await api("borrar",{codigo:codigo.value})
-
-alert("Archivado 7 días")
-
+function nuevo(){
+document.getElementById("form").reset()
 }
 
 function imprimir(){
 window.print()
+}
+
+function logout(){
+location.href="login.html"
+}
+
+function exportar(){
+api("exportar")
 }
