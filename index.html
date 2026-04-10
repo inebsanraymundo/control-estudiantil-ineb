@@ -1,137 +1,227 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Control Estudiantil INEB</title>
 
-<link rel="stylesheet" href="styles.css">
+<style>
+
+body{
+font-family: Arial, Helvetica, sans-serif;
+margin:0;
+background:#f5f6fa;
+}
+
+header{
+background:#1e3a8a;
+color:white;
+padding:10px;
+text-align:center;
+font-weight:bold;
+}
+
+.container{
+padding:15px;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:8px;
+box-shadow:0 0 4px rgba(0,0,0,.1);
+margin-bottom:10px;
+}
+
+input,select{
+width:100%;
+padding:6px;
+margin-top:4px;
+margin-bottom:8px;
+border:1px solid #ccc;
+border-radius:4px;
+}
+
+button{
+background:#1e3a8a;
+color:white;
+border:none;
+padding:8px 12px;
+border-radius:4px;
+cursor:pointer;
+}
+
+button:hover{
+background:#162d66;
+}
+
+.foto-preview{
+width:120px;
+height:140px;
+border:1px solid #ccc;
+object-fit:cover;
+border-radius:4px;
+}
+
+</style>
 
 </head>
-
 <body>
 
-<div class="header">
-<img src="logo.png" class="logo">
-<div>
-<h2>INEB</h2>
-<h1>CONTROL ESTUDIANTIL</h1>
-</div>
-</div>
+<header>
+CONTROL ESTUDIANTIL INEB
+</header>
 
-<div class="toolbar">
+<div class="container">
 
-<button onclick="nuevo()">🆕 Nuevo</button>
-<button onclick="guardar()">💾 Guardar</button>
-<button onclick="actualizar()">✏️ Actualizar</button>
-<button onclick="borrar()">🗄️ Archivar</button>
-<button onclick="limpiar()">🧹 Limpiar</button>
+<div class="card">
 
-<input type="text" id="buscarCodigo" placeholder="Código estudiante">
-<button onclick="buscar()">🔎 Buscar</button>
+<label>Nombre completo</label>
+<input type="text" id="nombre">
 
-</div>
+<label>Código</label>
+<input type="text" id="codigo">
 
-<form id="formulario" autocomplete="off">
+<label>Grado</label>
+<select id="grado">
+<option value="">Seleccione</option>
+<option>1A</option>
+<option>1B</option>
+<option>1C</option>
+<option>1D</option>
+<option>1E</option>
+<option>1F</option>
+<option>1G</option>
 
-<h3>DATOS DEL ESTUDIANTE</h3>
+<option>2A</option>
+<option>2B</option>
+<option>2C</option>
+<option>2D</option>
+<option>2E</option>
+<option>2F</option>
+<option>2G</option>
 
-<div class="contenedor-estudiante">
-
-<div class="datos-estudiante">
-
-<div class="grid">
-
-<input id="codigo" placeholder="Código personal">
-
-<input id="nombre" placeholder="Nombres y apellidos">
-
-<input id="grado" list="listaGrados" placeholder="Grado (ej: 1A)">
-
-<datalist id="listaGrados">
-<option value="1A">
-<option value="1B">
-<option value="1C">
-<option value="1D">
-<option value="1E">
-<option value="1F">
-<option value="1G">
-
-<option value="2A">
-<option value="2B">
-<option value="2C">
-<option value="2D">
-<option value="2E">
-<option value="2F">
-<option value="2G">
-
-<option value="3A">
-<option value="3B">
-<option value="3C">
-<option value="3D">
-<option value="3E">
-</datalist>
-
-<select id="genero">
-<option value="">Género</option>
-<option>Masculino</option>
-<option>Femenino</option>
+<option>3A</option>
+<option>3B</option>
+<option>3C</option>
+<option>3D</option>
+<option>3E</option>
 </select>
 
-<input id="edad" type="number" placeholder="Edad">
-
-<input id="fechaNacimiento" type="date">
-
-<input id="telefono" type="tel" placeholder="Teléfono">
-
-<input id="emergencia" type="tel" placeholder="Teléfono emergencia">
-
-<input id="enfermedad" placeholder="Enfermedad crónica">
-
-<input id="direccion" placeholder="Dirección">
-
-</div>
-
-</div>
-
-<div class="foto-box">
-
-<img id="previewFoto" class="foto">
-
+<label>Fotografía</label>
 <input type="file" id="foto" accept="image/*">
 
-<input type="hidden" id="fotoURL">
+<img id="preview" class="foto-preview">
+
+<br><br>
+
+<button onclick="guardar()">Guardar</button>
 
 </div>
 
 </div>
 
-<h3>DATOS DEL PADRE</h3>
+<!-- =========================
+     CREADOR DEL SISTEMA
+     NO ELIMINAR
+========================= -->
 
-<div class="grid">
-<input id="padreNombre" placeholder="Nombre del padre">
-<input id="padreDpi" placeholder="DPI padre">
-<input id="padreTelefono" type="tel" placeholder="Teléfono padre">
+<div id="credito-creador">
+Sistema desarrollado por José Antonio Ortiz Corzo
 </div>
 
-<h3>DATOS DE LA MADRE</h3>
+<style>
+#credito-creador{
+position:fixed;
+bottom:4px;
+right:8px;
+font-size:10px;
+color:#777;
+opacity:.55;
+z-index:999999;
+pointer-events:none;
+user-select:none;
+font-family:Arial, Helvetica, sans-serif;
+letter-spacing:.3px;
+}
+</style>
 
-<div class="grid">
-<input id="madreNombre" placeholder="Nombre de la madre">
-<input id="madreDpi" placeholder="DPI madre">
-<input id="madreTelefono" type="tel" placeholder="Teléfono madre">
-</div>
+<script>
 
-<h3>ENCARGADO</h3>
+const API="PEGAR_AQUI_TU_WEBAPP_URL"
 
-<div class="grid">
-<input id="encargadoNombre" placeholder="Nombre encargado">
-<input id="encargadoDpi" placeholder="DPI encargado">
-<input id="encargadoTelefono" type="tel" placeholder="Teléfono encargado">
-</div>
 
-</form>
 
-<script src="script.js"></script>
+document.getElementById("foto").addEventListener("change",function(e){
+
+const file=e.target.files[0]
+
+if(!file) return
+
+const reader=new FileReader()
+
+reader.onload=function(evt){
+document.getElementById("preview").src=evt.target.result
+}
+
+reader.readAsDataURL(file)
+
+})
+
+
+
+async function guardar(){
+
+const nombre=document.getElementById("nombre").value
+const codigo=document.getElementById("codigo").value
+const grado=document.getElementById("grado").value
+const img=document.getElementById("preview").src
+
+let base64=""
+
+if(img){
+base64=img.split(",")[1]
+}
+
+let fotoURL=""
+
+if(base64){
+
+const subida=await fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"subirFoto",
+data:{
+base64:base64,
+nombre:nombre,
+grado:grado
+}
+})
+})
+
+const res=await subida.json()
+fotoURL=res.url
+
+}
+
+await fetch(API,{
+method:"POST",
+body:JSON.stringify({
+action:"guardar",
+data:{
+nombre:nombre,
+codigo:codigo,
+grado:grado,
+foto:fotoURL
+}
+})
+})
+
+alert("Guardado correctamente")
+
+}
+
+</script>
 
 </body>
 </html>
