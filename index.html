@@ -6,52 +6,109 @@
 <title>Control Estudiantil INEB San Raymundo</title>
 
 <link rel="stylesheet" href="styles.css">
+<script src="config.js"></script>
+<script src="api.js"></script>
+<script src="app.js"></script>
+
 </head>
 
 <body>
 
-<header>
+<div class="header">
 <img src="logo.png" class="logo">
 <div>
-<h1>CONTROL ESTUDIANTIL</h1>
-<h2>INEB SAN RAYMUNDO</h2>
+<h1>Control Estudiantil</h1>
+<h2>INEB San Raymundo</h2>
 </div>
-</header>
-
-<div class="container">
-
-<section class="card">
-<h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
-
-<input id="nombre" placeholder="Apellidos y nombres">
-<input id="codigo" placeholder="Código personal">
-
-<div class="grid">
-<input id="edad" placeholder="Edad">
-<input id="fecha" placeholder="Fecha nacimiento">
-<input id="telefono" placeholder="Teléfono">
-<input id="emergencia" placeholder="Tel emergencia">
-<input id="genero" placeholder="Género">
-<input id="grado" placeholder="Grado">
 </div>
 
-</section>
-
-<section class="buttons">
-
+<div class="toolbar">
+<button onclick="nuevo()">Nuevo</button>
 <button onclick="guardar()">Guardar</button>
 <button onclick="buscar()">Buscar</button>
-<button onclick="actualizar()">Actualizar</button>
-<button onclick="borrar()">Borrar</button>
 <button onclick="imprimir()">Imprimir</button>
+<button id="exportBtn" onclick="exportar()">Exportar</button>
+<button onclick="logout()">Salir</button>
+</div>
 
-</section>
+<form id="form">
+
+<h3>DATOS PERSONALES DEL ESTUDIANTE</h3>
+
+<div class="grid">
+
+<input placeholder="NOMBRES Y APELLIDOS" id="nombre">
+<input placeholder="CÓDIGO PERSONAL" id="codigo">
+<input placeholder="EDAD ACTUAL" id="edad">
+<input type="date" id="fecha">
+<input placeholder="TELÉFONO" id="telefono">
+<input placeholder="TEL. DE EMERGENCIA" id="emergencia">
+
+<select id="genero">
+<option>GÉNERO</option>
+<option>MASCULINO</option>
+<option>FEMENINO</option>
+</select>
+
+<select id="enfermedad">
+<option>PADECE ENFERMEDAD</option>
+<option>NO</option>
+<option>SI</option>
+</select>
+
+<input placeholder="INDIQUE CUAL" id="detalle_enf">
+
+<select id="zurdo">
+<option>ZURDO O DIESTRO</option>
+<option>ZURDO</option>
+<option>DIESTRO</option>
+</select>
+
+<input placeholder="GRADO A CURSAR" id="grado">
+<input placeholder="COMUNIDAD ÉTNICA" id="etnia">
+<input placeholder="DIRECCIÓN" id="direccion">
+<input placeholder="ALDEA O CASERÍO" id="aldea">
 
 </div>
 
-<script src="config.js"></script>
-<script src="api.js"></script>
-<script src="app.js"></script>
+<h3>DATOS DEL PADRE</h3>
+
+<div class="grid">
+<input placeholder="NOMBRE DEL PADRE" id="padre">
+<input placeholder="DPI" id="dpi_padre">
+<input placeholder="TELÉFONO" id="tel_padre">
+</div>
+
+<h3>DATOS DE LA MADRE</h3>
+
+<div class="grid">
+<input placeholder="NOMBRE DE LA MADRE" id="madre">
+<input placeholder="DPI" id="dpi_madre">
+<input placeholder="TELÉFONO" id="tel_madre">
+</div>
+
+<h3>OPCIONALES</h3>
+
+<div class="grid">
+<label><input type="checkbox" id="enc_padre"> Encargado es el padre</label>
+<label><input type="checkbox" id="enc_madre"> Encargado es la madre</label>
+</div>
+
+<h3>DATOS DEL ENCARGADO</h3>
+
+<div class="grid">
+
+<input placeholder="NOMBRE ENCARGADO" id="encargado">
+<input placeholder="DPI" id="dpi_enc">
+<input placeholder="TELÉFONO" id="tel_enc">
+<input placeholder="DIRECCIÓN" id="dir_enc">
+<input placeholder="ALDEA" id="aldea_enc">
+<input placeholder="RELACIÓN" id="relacion">
+<input placeholder="TEL ADICIONAL" id="tel_extra">
+
+</div>
+
+</form>
 
 </body>
 </html>
