@@ -1,310 +1,816 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Control Estudiantil INEB</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>INEB - Control Estudiantil</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+    }
 
-<style>
+    body {
+      background: linear-gradient(145deg, #f0f4fa 0%, #e6edf4 100%);
+      min-height: 100vh;
+    }
 
-body{
-font-family: Arial, Helvetica, sans-serif;
-margin:0;
-background:#f5f6fa;
-}
+    /* LOGIN */
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 10% 30%, #1e2b4f, #0f172a);
+    }
+    .login-card {
+      background: rgba(255,255,255,0.98);
+      backdrop-filter: blur(2px);
+      border-radius: 2rem;
+      padding: 2rem 2rem 2.5rem;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 25px 45px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.2);
+      text-align: center;
+    }
+    .login-card h2 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .login-card input {
+      width: 100%;
+      padding: 14px 18px;
+      margin: 12px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 60px;
+      font-size: 1rem;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+    .login-card input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.2);
+    }
+    .login-card button {
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 60px;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .login-card button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
 
-header{
-background:#1e3a8a;
-color:white;
-padding:10px;
-text-align:center;
-font-weight:bold;
-}
+    /* MAIN APP */
+    .app-container {
+      display: none;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px;
+    }
 
-.container{
-padding:15px;
-}
+    /* HEADER */
+    .glass-header {
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      font-size: 2.4rem;
+    }
+    .logo-area h1 {
+      font-size: 1.5rem;
+      background: linear-gradient(120deg, #0f2b4d, #2563eb);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .btn-logout {
+      background: #ef4444;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .btn-logout:hover {
+      background: #dc2626;
+      transform: scale(0.98);
+    }
 
-.card{
-background:white;
-padding:15px;
-border-radius:8px;
-box-shadow:0 0 4px rgba(0,0,0,.1);
-margin-bottom:10px;
-}
+    /* LAYOUT PRINCIPAL */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.8rem;
+    }
+    @media (max-width: 900px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
 
-.grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-}
+    /* FORMULARIO (MODERNO) */
+    .form-card {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      border: 1px solid #eef2ff;
+      transition: all 0.2s;
+    }
+    .form-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 3px solid #ffd600;
+      display: inline-block;
+    }
+    .section-title {
+      background: #f1f5f9;
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: 1rem 0 0.8rem 0;
+      color: #1e293b;
+    }
+    .grid-2cols {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .form-group label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #334155;
+      text-transform: uppercase;
+    }
+    .form-group input, .form-group select {
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: #fefefe;
+      transition: all 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+    }
+    .photo-preview-area {
+      margin-top: 15px;
+      text-align: center;
+    }
+    .photo-preview {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 20px;
+      border: 2px solid #ffd600;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .btn-primary {
+      background: linear-gradient(95deg, #1e3a8a, #2563eb);
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 10px 18px;
+      border-radius: 40px;
+      cursor: pointer;
+    }
 
-input,select{
-width:100%;
-padding:6px;
-margin-top:4px;
-margin-bottom:8px;
-border:1px solid #ccc;
-border-radius:4px;
-}
-
-button{
-background:#1e3a8a;
-color:white;
-border:none;
-padding:8px 12px;
-border-radius:4px;
-cursor:pointer;
-}
-
-button:hover{
-background:#162d66;
-}
-
-.foto-preview{
-width:120px;
-height:140px;
-border:1px solid #ccc;
-object-fit:cover;
-border-radius:4px;
-}
-
-</style>
-
+    /* TABLA */
+    .table-card {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+    }
+    .search-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .search-bar input {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 60px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+    .btn-export {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 1.2rem;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th {
+      text-align: left;
+      padding: 14px 10px;
+      background: #f8fafc;
+      color: #1f2937;
+      font-weight: 600;
+    }
+    td {
+      padding: 12px 10px;
+      border-bottom: 1px solid #eef2ff;
+      vertical-align: middle;
+    }
+    .student-img {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      object-fit: cover;
+      background: #f1f5f9;
+      border: 2px solid #ffd600;
+    }
+    .action-btn {
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      margin: 0 6px;
+      transition: transform 0.1s;
+    }
+    .edit-btn { color: #3b82f6; }
+    .archive-btn { color: #f97316; }
+    .action-btn:hover { transform: scale(1.1); }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .pagination button {
+      background: white;
+      border: 1px solid #cbd5e1;
+      padding: 6px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+    .pagination button.active {
+      background: #1e3a8a;
+      color: white;
+      border-color: #1e3a8a;
+    }
+    /* LOADER */
+    .loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000;
+    }
+    .spinner {
+      width: 55px;
+      height: 55px;
+      border: 5px solid white;
+      border-top: 5px solid #ffd600;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      background: #1e293b;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 60px;
+      font-weight: 500;
+      z-index: 2100;
+      animation: fadeOut 3s forwards;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+    }
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateY(0); }
+      70% { opacity: 1; }
+      100% { opacity: 0; transform: translateY(20px); visibility: hidden; }
+    }
+    .required:after {
+      content: " *";
+      color: #ef4444;
+    }
+  </style>
 </head>
 <body>
 
-<header>
-CONTROL ESTUDIANTIL INEB
-</header>
-
-<div class="container">
-
-<div class="card">
-
-<div class="grid">
-
-<input id="nombre" placeholder="Nombres y apellidos">
-<input id="codigo" placeholder="Código personal">
-<input id="edad" placeholder="Edad actual">
-
-<input id="fecha" type="date" placeholder="Fecha nacimiento">
-<input id="telefono" placeholder="Teléfono">
-<input id="emergencia" placeholder="Tel. emergencia">
-
-<select id="genero">
-<option value="">Género</option>
-<option>Masculino</option>
-<option>Femenino</option>
-</select>
-
-<select id="enfermedad">
-<option value="">¿Enfermedad crónica?</option>
-<option>SI</option>
-<option>NO</option>
-</select>
-
-<input id="detalle_enf" placeholder="Indique cual">
-
-<select id="zurdo">
-<option value="">Zurdo o diestro</option>
-<option>Zurdo</option>
-<option>Diestro</option>
-</select>
-
-<select id="grado">
-<option value="">Grado a cursar</option>
-<option>1A</option>
-<option>1B</option>
-<option>1C</option>
-<option>1D</option>
-<option>1E</option>
-<option>1F</option>
-<option>1G</option>
-<option>2A</option>
-<option>2B</option>
-<option>2C</option>
-<option>2D</option>
-<option>2E</option>
-<option>2F</option>
-<option>2G</option>
-<option>3A</option>
-<option>3B</option>
-<option>3C</option>
-<option>3D</option>
-<option>3E</option>
-</select>
-
-<input id="etnia" placeholder="Comunidad étnica">
-
-<input id="direccion" placeholder="Dirección">
-<input id="aldea" placeholder="Aldea o caserío">
-
-<input id="padre" placeholder="Nombre del padre">
-<input id="dpi_padre" placeholder="DPI padre">
-<input id="tel_padre" placeholder="Tel padre">
-
-<input id="madre" placeholder="Nombre madre">
-<input id="dpi_madre" placeholder="DPI madre">
-<input id="tel_madre" placeholder="Tel madre">
-
-<select id="enc_padre">
-<option value="">Encargado es padre</option>
-<option>SI</option>
-<option>NO</option>
-</select>
-
-<select id="enc_madre">
-<option value="">Encargado es madre</option>
-<option>SI</option>
-<option>NO</option>
-</select>
-
-<input id="encargado" placeholder="Nombre encargado">
-<input id="dpi_enc" placeholder="DPI encargado">
-<input id="tel_enc" placeholder="Tel encargado">
-
-<input id="dir_enc" placeholder="Dirección encargado">
-<input id="aldea_enc" placeholder="Aldea encargado">
-<input id="relacion" placeholder="Relación">
-
-<input id="tel_extra" placeholder="Tel adicional">
-
+<div id="loginContainer" class="login-container">
+  <div class="login-card">
+    <div class="logo-icon" style="font-size: 3rem;">🎓</div>
+    <h2>Control Estudiantil</h2>
+    <p style="color:#4b5563">INEB San Raymundo</p>
+    <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off">
+    <input type="password" id="loginPass" placeholder="Contraseña">
+    <button onclick="iniciarSesion()">Ingresar al sistema</button>
+  </div>
 </div>
 
-<br>
+<div id="appContainer" class="app-container">
+  <div class="glass-header">
+    <div class="logo-area">
+      <span class="logo-icon">📚</span>
+      <h1>Control Estudiantil INEB</h1>
+    </div>
+    <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+  </div>
 
-<label>Fotografía</label>
-<input type="file" id="foto" accept="image/*">
-<br>
-<img id="preview" class="foto-preview">
+  <div class="dashboard">
+    <!-- Formulario -->
+    <div class="form-card">
+      <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
+      <form id="studentForm">
+        <div class="section-title">📋 Datos personales</div>
+        <div class="grid-2cols">
+          <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
+          <div class="form-group required"><label>Código único</label><input type="text" id="codigo"></div>
+          <div class="form-group"><label>Edad</label><input type="number" id="edad"></div>
+          <div class="form-group"><label>Fecha nacimiento</label><input type="date" id="fecha"></div>
+          <div class="form-group"><label>Teléfono</label><input type="text" id="telefono"></div>
+          <div class="form-group"><label>Tel emergencia</label><input type="text" id="emergencia"></div>
+          <div class="form-group"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
+          <div class="form-group"><label>Enfermedad crónica</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>Detalle enfermedad</label><input type="text" id="detalle_enf"></div>
+          <div class="form-group"><label>Zurdo/Diestro</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
+          <div class="form-group required"><label>Grado</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
+          <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
+          <div class="form-group"><label>Dirección</label><input type="text" id="direccion"></div>
+          <div class="form-group"><label>Aldea</label><input type="text" id="aldea"></div>
+        </div>
 
-<br><br>
+        <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
+        <div class="grid-2cols">
+          <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
+          <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
+          <div class="form-group"><label>Tel padre</label><input type="text" id="tel_padre"></div>
+          <div class="form-group"><label>Nombre madre</label><input type="text" id="madre"></div>
+          <div class="form-group"><label>DPI madre</label><input type="text" id="dpi_madre"></div>
+          <div class="form-group"><label>Tel madre</label><input type="text" id="tel_madre"></div>
+        </div>
 
-<button onclick="guardar()">Guardar</button>
+        <div class="section-title">👤 Encargado</div>
+        <div class="grid-2cols">
+          <div class="form-group"><label>¿Encargado es padre?</label><select id="enc_padre"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>¿Encargado es madre?</label><select id="enc_madre"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>Nombre encargado</label><input type="text" id="encargado"></div>
+          <div class="form-group"><label>DPI encargado</label><input type="text" id="dpi_enc"></div>
+          <div class="form-group"><label>Tel encargado</label><input type="text" id="tel_enc"></div>
+          <div class="form-group"><label>Dirección encargado</label><input type="text" id="dir_enc"></div>
+          <div class="form-group"><label>Aldea encargado</label><input type="text" id="aldea_enc"></div>
+          <div class="form-group"><label>Relación</label><input type="text" id="relacion"></div>
+          <div class="form-group"><label>Tel extra</label><input type="text" id="tel_extra"></div>
+        </div>
 
+        <div class="section-title">📸 Fotografía</div>
+        <input type="file" id="fotoInput" accept="image/*">
+        <div class="photo-preview-area">
+          <img id="previewImg" class="photo-preview" style="display: none;">
+        </div>
+
+        <div style="display: flex; gap: 12px; margin-top: 20px;">
+          <button type="button" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
+          <button type="button" class="btn-secondary" onclick="resetFormulario()">🗑️ Limpiar</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Tabla y búsqueda -->
+    <div class="table-card">
+      <div class="search-bar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre... (escribe en vivo)" onkeyup="filtrarEstudiantes()">
+        <button class="btn-export" onclick="exportarExcel()">📎 Exportar Excel</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Foto</th><th>Nombre</th><th>Código</th><th>Grado</th><th>Teléfono</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tablaBody"></tbody>
+        </table>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    </div>
+  </div>
 </div>
 
-</div>
-
-<div id="credito-creador">
-Sistema desarrollado por Lic. José Antonio Ortiz Corzo
-</div>
-
-<style>
-#credito-creador{
-position:fixed;
-bottom:4px;
-right:8px;
-font-size:10px;
-color:#777;
-opacity:.55;
-z-index:999999;
-pointer-events:none;
-user-select:none;
-}
-</style>
+<div id="loaderOverlay" class="loader-overlay"><div class="spinner"></div></div>
 
 <script>
+  // ==================== CONFIGURACIÓN ====================
+  const API_URL = "https://script.google.com/macros/s/AKfycbx25_fsecpcURES_bHUTrCygTuwvReKAIMNP2yJ5oburrNAGjyuZLCyfulCDd7asHj4/exec"; // REEMPLAZAR
+  let estudiantesGlobal = [];
+  let currentPage = 1;
+  const rowsPerPage = 8;
+  let editMode = false;
+  let editCodigo = null;
+  let currentFotoUrl = "";
 
-const API="https://script.google.com/macros/s/AKfycbx25_fsecpcURES_bHUTrCygTuwvReKAIMNP2yJ5oburrNAGjyuZLCyfulCDd7asHj4/exec"
+  // Helper mensajes
+  function showMessage(text, isError = false) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = text;
+    toast.style.background = isError ? '#dc2626' : '#10b981';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+  }
 
-document.getElementById("foto").addEventListener("change",function(e){
+  function showLoader(show) {
+    document.getElementById('loaderOverlay').style.display = show ? 'flex' : 'none';
+  }
 
-const file=e.target.files[0]
-if(!file) return
+  // Llamada genérica a API
+  async function callApi(action, data = {}) {
+    const payload = { action, data };
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  }
 
-const reader=new FileReader()
+  // ==================== LOGIN ====================
+  window.iniciarSesion = async () => {
+    const u = document.getElementById('loginUser').value;
+    const p = document.getElementById('loginPass').value;
+    if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
+    showLoader(true);
+    const res = await callApi('login', { u, p });
+    showLoader(false);
+    if (res.success) {
+      localStorage.setItem('logged', 'true');
+      localStorage.setItem('role', res.role);
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+      cargarListaEstudiantes();
+    } else {
+      showMessage(res.msg || "Credenciales incorrectas", true);
+    }
+  };
 
-reader.onload=function(evt){
-document.getElementById("preview").src=evt.target.result
-}
+  function cerrarSesion() {
+    localStorage.clear();
+    document.getElementById('appContainer').style.display = 'none';
+    document.getElementById('loginContainer').style.display = 'flex';
+    resetFormulario();
+  }
 
-reader.readAsDataURL(file)
+  // ==================== CRUD ====================
+  async function cargarListaEstudiantes() {
+    showLoader(true);
+    const res = await callApi('listarTodos');
+    showLoader(false);
+    if (res.success) {
+      estudiantesGlobal = res.data;
+      filtrarEstudiantes();
+    } else {
+      showMessage("Error al cargar datos", true);
+    }
+  }
 
-})
+  function filtrarEstudiantes() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    const filtrados = estudiantesGlobal.filter(e => e.nombre.toLowerCase().includes(searchTerm));
+    currentPage = 1;
+    renderizarTabla(filtrados);
+  }
 
-async function guardar(){
+  function renderizarTabla(lista) {
+    const tbody = document.getElementById('tablaBody');
+    tbody.innerHTML = '';
+    const start = (currentPage - 1) * rowsPerPage;
+    const paginated = lista.slice(start, start + rowsPerPage);
+    paginated.forEach(est => {
+      const row = tbody.insertRow();
+      const celFoto = row.insertCell(0);
+      const img = document.createElement('img');
+      img.src = est.foto || 'https://via.placeholder.com/45?text=NO';
+      img.className = 'student-img';
+      img.onerror = () => img.src = 'https://via.placeholder.com/45?text=📷';
+      celFoto.appendChild(img);
+      row.insertCell(1).textContent = est.nombre;
+      row.insertCell(2).textContent = est.codigo;
+      row.insertCell(3).textContent = est.grado;
+      row.insertCell(4).textContent = est.telefono || '—';
+      const accCel = row.insertCell(5);
+      const btnEdit = document.createElement('button');
+      btnEdit.innerHTML = '✏️';
+      btnEdit.className = 'action-btn edit-btn';
+      btnEdit.title = 'Editar';
+      btnEdit.onclick = () => editarEstudiante(est.codigo);
+      const btnArchive = document.createElement('button');
+      btnArchive.innerHTML = '📦';
+      btnArchive.className = 'action-btn archive-btn';
+      btnArchive.title = 'Archivar';
+      btnArchive.onclick = () => archivarEstudiante(est.codigo);
+      accCel.appendChild(btnEdit);
+      accCel.appendChild(btnArchive);
+    });
+    const totalPages = Math.ceil(lista.length / rowsPerPage);
+    const pagDiv = document.getElementById('pagination');
+    pagDiv.innerHTML = '';
+    for (let i = 1; i <= totalPages; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add('active');
+      btn.onclick = () => { currentPage = i; renderizarTabla(lista); };
+      pagDiv.appendChild(btn);
+    }
+  }
 
-const img=document.getElementById("preview").src
-let base64=""
+  // Comprimir foto a base64
+  function comprimirFoto(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width, height = img.height;
+          const max = 800;
+          if (width > max) { height *= max / width; width = max; }
+          canvas.width = width; canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
 
-if(img){
-base64=img.split(",")[1]
-}
+  async function subirFotoSiNecesaria() {
+    const fileInput = document.getElementById('fotoInput');
+    if (!fileInput.files.length) return currentFotoUrl;
+    const file = fileInput.files[0];
+    const nombreEst = document.getElementById('nombre').value.trim();
+    if (!nombreEst) throw new Error("Escribe el nombre antes de subir foto");
+    const grado = document.getElementById('grado').value;
+    const base64Completo = await comprimirFoto(file);
+    const base64 = base64Completo.split(',')[1];
+    const res = await callApi('subirFoto', { base64, nombre: nombreEst, grado });
+    if (!res.success) throw new Error("Error al subir foto");
+    return res.url;
+  }
 
-let fotoURL=""
+  async function guardarEstudiante() {
+    const nombre = document.getElementById('nombre').value.trim();
+    const codigo = document.getElementById('codigo').value.trim();
+    const grado = document.getElementById('grado').value;
+    if (!nombre || !codigo || !grado) {
+      showMessage("Nombre, código y grado son obligatorios", true);
+      return;
+    }
+    showLoader(true);
+    try {
+      let fotoUrl = currentFotoUrl;
+      if (document.getElementById('fotoInput').files.length) {
+        fotoUrl = await subirFotoSiNecesaria();
+      }
+      const data = {
+        nombre, codigo, edad: document.getElementById('edad').value,
+        fecha: document.getElementById('fecha').value,
+        telefono: document.getElementById('telefono').value,
+        emergencia: document.getElementById('emergencia').value,
+        genero: document.getElementById('genero').value,
+        enfermedad: document.getElementById('enfermedad').value,
+        detalle_enf: document.getElementById('detalle_enf').value,
+        zurdo: document.getElementById('zurdo').value,
+        grado: grado,
+        etnia: document.getElementById('etnia').value,
+        direccion: document.getElementById('direccion').value,
+        aldea: document.getElementById('aldea').value,
+        padre: document.getElementById('padre').value,
+        dpi_padre: document.getElementById('dpi_padre').value,
+        tel_padre: document.getElementById('tel_padre').value,
+        madre: document.getElementById('madre').value,
+        dpi_madre: document.getElementById('dpi_madre').value,
+        tel_madre: document.getElementById('tel_madre').value,
+        enc_padre: document.getElementById('enc_padre').value,
+        enc_madre: document.getElementById('enc_madre').value,
+        encargado: document.getElementById('encargado').value,
+        dpi_enc: document.getElementById('dpi_enc').value,
+        tel_enc: document.getElementById('tel_enc').value,
+        dir_enc: document.getElementById('dir_enc').value,
+        aldea_enc: document.getElementById('aldea_enc').value,
+        relacion: document.getElementById('relacion').value,
+        tel_extra: document.getElementById('tel_extra').value,
+        foto: fotoUrl
+      };
+      const action = editMode ? 'actualizar' : 'guardar';
+      if (editMode) data.codigo = editCodigo;
+      const res = await callApi(action, data);
+      if (res.success) {
+        showMessage(editMode ? "Actualizado correctamente" : "Guardado exitoso");
+        resetFormulario();
+        cargarListaEstudiantes();
+      } else {
+        showMessage(res.msg || "Error al guardar", true);
+      }
+    } catch (err) {
+      showMessage(err.message, true);
+    }
+    showLoader(false);
+  }
 
-if(base64){
+  async function editarEstudiante(codigo) {
+    showLoader(true);
+    const res = await callApi('buscar', { codigo });
+    showLoader(false);
+    if (res.success && res.data) {
+      const d = res.data;
+      document.getElementById('nombre').value = d[1];
+      document.getElementById('codigo').value = d[2];
+      document.getElementById('edad').value = d[3];
+      document.getElementById('fecha').value = d[4];
+      document.getElementById('telefono').value = d[5];
+      document.getElementById('emergencia').value = d[6];
+      document.getElementById('genero').value = d[7];
+      document.getElementById('enfermedad').value = d[8];
+      document.getElementById('detalle_enf').value = d[9];
+      document.getElementById('zurdo').value = d[10];
+      document.getElementById('grado').value = d[11];
+      document.getElementById('etnia').value = d[12];
+      document.getElementById('direccion').value = d[13];
+      document.getElementById('aldea').value = d[14];
+      document.getElementById('padre').value = d[15];
+      document.getElementById('dpi_padre').value = d[16];
+      document.getElementById('tel_padre').value = d[17];
+      document.getElementById('madre').value = d[18];
+      document.getElementById('dpi_madre').value = d[19];
+      document.getElementById('tel_madre').value = d[20];
+      document.getElementById('enc_padre').value = d[21];
+      document.getElementById('enc_madre').value = d[22];
+      document.getElementById('encargado').value = d[23];
+      document.getElementById('dpi_enc').value = d[24];
+      document.getElementById('tel_enc').value = d[25];
+      document.getElementById('dir_enc').value = d[26];
+      document.getElementById('aldea_enc').value = d[27];
+      document.getElementById('relacion').value = d[28];
+      document.getElementById('tel_extra').value = d[29];
+      currentFotoUrl = d[32] || "";
+      if (currentFotoUrl) {
+        const preview = document.getElementById('previewImg');
+        preview.src = currentFotoUrl;
+        preview.style.display = 'block';
+      } else {
+        document.getElementById('previewImg').style.display = 'none';
+      }
+      editMode = true;
+      editCodigo = codigo;
+      document.getElementById('codigo').disabled = true;
+      document.getElementById('formTitle').innerHTML = '✏️ Editando estudiante';
+      document.getElementById('btnGuardar').innerHTML = '🔄 Actualizar';
+    } else {
+      showMessage("No se encontró el estudiante", true);
+    }
+  }
 
-const subida=await fetch(API,{
-method:"POST",
-body:JSON.stringify({
-action:"subirFoto",
-data:{
-base64:base64,
-nombre:document.getElementById("nombre").value,
-grado:document.getElementById("grado").value
-}
-})
-})
+  async function archivarEstudiante(codigo) {
+    if (!confirm("¿Archivar este estudiante? (se ocultará de la tabla)")) return;
+    showLoader(true);
+    const res = await callApi('borrar', { codigo });
+    showLoader(false);
+    if (res.success) {
+      showMessage("Estudiante archivado");
+      cargarListaEstudiantes();
+    } else {
+      showMessage("Error al archivar", true);
+    }
+  }
 
-const res=await subida.json()
-fotoURL=res.url
+  function resetFormulario() {
+    document.getElementById('studentForm').reset();
+    document.getElementById('previewImg').style.display = 'none';
+    document.getElementById('previewImg').src = '';
+    currentFotoUrl = '';
+    editMode = false;
+    editCodigo = null;
+    document.getElementById('codigo').disabled = false;
+    document.getElementById('formTitle').innerHTML = '➕ Nuevo estudiante';
+    document.getElementById('btnGuardar').innerHTML = '💾 Guardar estudiante';
+    document.getElementById('fotoInput').value = '';
+  }
 
-}
+  async function exportarExcel() {
+    showLoader(true);
+    const res = await callApi('exportar');
+    showLoader(false);
+    if (res.success && res.data) {
+      const headers = res.data[0];
+      const rows = res.data.slice(1);
+      let csv = headers.join(',') + '\n';
+      rows.forEach(row => csv += row.map(cell => `"${cell}"`).join(',') + '\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = 'estudiantes_activos.csv';
+      link.click();
+      showMessage("Exportación completa");
+    } else {
+      showMessage("Error al exportar", true);
+    }
+  }
 
-await fetch(API,{
-method:"POST",
-body:JSON.stringify({
-action:"guardar",
-data:{
+  // Preview foto local
+  document.getElementById('fotoInput').addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const preview = document.getElementById('previewImg');
+        preview.src = ev.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(e.target.files[0]);
+    }
+  });
 
-nombre:nombre.value,
-codigo:codigo.value,
-edad:edad.value,
-fecha:fecha.value,
-telefono:telefono.value,
-emergencia:emergencia.value,
-genero:genero.value,
-enfermedad:enfermedad.value,
-detalle_enf:detalle_enf.value,
-zurdo:zurdo.value,
-grado:grado.value,
-etnia:etnia.value,
-direccion:direccion.value,
-aldea:aldea.value,
-
-padre:padre.value,
-dpi_padre:dpi_padre.value,
-tel_padre:tel_padre.value,
-
-madre:madre.value,
-dpi_madre:dpi_madre.value,
-tel_madre:tel_madre.value,
-
-enc_padre:enc_padre.value,
-enc_madre:enc_madre.value,
-
-encargado:encargado.value,
-dpi_enc:dpi_enc.value,
-tel_enc:tel_enc.value,
-dir_enc:dir_enc.value,
-aldea_enc:aldea_enc.value,
-relacion:relacion.value,
-tel_extra:tel_extra.value,
-
-foto:fotoURL
-
-}
-})
-})
-
-alert("Guardado correctamente")
-
-}
-
+  document.getElementById('btnGuardar').onclick = guardarEstudiante;
+  // Verificar sesión al cargar
+  window.onload = () => {
+    if (localStorage.getItem('logged') === 'true') {
+      document.getElementById('loginContainer').style.display = 'none';
+      document.getElementById('appContainer').style.display = 'block';
+      cargarListaEstudiantes();
+    } else {
+      document.getElementById('loginContainer').style.display = 'flex';
+    }
+  };
 </script>
-
 </body>
 </html>
