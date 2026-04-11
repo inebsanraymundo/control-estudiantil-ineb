@@ -517,7 +517,7 @@
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        // NO incluyas 'Content-Type': 'application/json' para evitar preflight
         body: JSON.stringify({ action, data }),
         signal: controller.signal
       });
