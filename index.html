@@ -29,7 +29,7 @@
       align-items: center;
       background: radial-gradient(circle at 10% 30%, #1e2b4f, #0f172a);
       z-index: 1000;
-      transition: none; /* Elimina cualquier transición que cause flash */
+      transition: none;
     }
     .login-card {
       background: rgba(255,255,255,0.98);
@@ -115,11 +115,6 @@
       display: flex;
       align-items: center;
       gap: 12px;
-    }
-    .logo-area img {
-      height: 50px;
-      width: auto;
-      border-radius: 12px;
     }
     .logo-icon {
       font-size: 2.4rem;
@@ -336,6 +331,7 @@
       color: white;
       border-color: #1e3a8a;
     }
+
     /* LOADER */
     .loader-overlay {
       position: fixed;
@@ -399,8 +395,7 @@
 <div id="appContainer" class="app-container">
   <div class="glass-header">
     <div class="logo-area">
-      <!-- Logo en el header -->
-      <img id="logoHeader" src="logo.png" alt="Logo" style="height:50px;">
+      <img id="logoHeader" src="logo.png" alt="Logo" style="height:50px; border-radius: 12px;">
       <h1>Control Estudiantil INEB</h1>
     </div>
     <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
@@ -429,7 +424,7 @@
           <div class="form-group"><label>Aldea</label><input type="text" id="aldea"></div>
         </div>
 
-        <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
+        <div class="section-title">👨👩👧 Padres / Tutores</div>
         <div class="grid-2cols">
           <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
           <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
@@ -488,6 +483,7 @@
 
 <script>
   // ==================== CONFIGURACIÓN ====================
+  // Asegúrate de reemplazar "TU_NUEVO_ENLACE_AQUI" por tu endpoint real si actualizaste el Google App Script:
   const API_URL = "https://script.google.com/macros/s/AKfycbyrNca6fnSaU94iIJQtIsT_oK_HrEjLw8ywsIU2b1HQw0mlGzqc8tqptfMcP8LcEghA/exec";
   let estudiantesGlobal = [];
   let currentPage = 1;
@@ -510,14 +506,13 @@
     document.getElementById('loaderOverlay').style.display = show ? 'flex' : 'none';
   }
 
-  // Llamada genérica a API con timeout y manejo de errores
+  // Llamada genérica a API
   async function callApi(action, data = {}, timeoutMs = 20000) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
-        // NO incluyas 'Content-Type': 'application/json' para evitar preflight
         body: JSON.stringify({ action, data }),
         signal: controller.signal
       });
@@ -542,7 +537,6 @@
       if (res.success) {
         localStorage.setItem('logged', 'true');
         localStorage.setItem('role', res.role);
-        // Ocultar login y mostrar app de inmediato (sin flash)
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         cargarListaEstudiantes();
@@ -579,57 +573,75 @@
     showLoader(false);
   }
 
+  /* CORRECCIÓN 1: Solución robusta para toLowerCase() */
   function filtrarEstudiantes() {
     const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const filtrados = estudiantesGlobal.filter(e => e.nombre.toLowerCase().includes(searchTerm));
+    
+    const filtrados = estudiantesGlobal.filter(e => {
+      // Uso de un operador seguro para garantizar cadena
+      const nombreValido = e.nombre ? String(e.nombre).toLowerCase() : "";
+      return nombreValido.includes(searchTerm);
+    });
+    
     currentPage = 1;
     renderizarTabla(filtrados);
   }
 
+  /* CORRECCIÓN 3: Evitar el bucle infinito en onerror */
   function renderizarTabla(lista) {
     const tbody = document.getElementById('tablaBody');
     tbody.innerHTML = '';
     const start = (currentPage - 1) * rowsPerPage;
     const paginated = lista.slice(start, start + rowsPerPage);
+    
     paginated.forEach(est => {
       const row = tbody.insertRow();
+      
       const celFoto = row.insertCell(0);
       const img = document.createElement('img');
       img.src = est.foto || 'https://via.placeholder.com/45?text=NO';
       img.className = 'student-img';
-      img.onerror = () => img.src = 'https://via.placeholder.com/45?text=📷';
+      // Evitamos el bucle anulando el evento this.onerror
+      img.onerror = function() {
+        this.onerror = null; 
+        this.src = 'https://via.placeholder.com/45?text=📷';
+      };
       celFoto.appendChild(img);
+      
       row.insertCell(1).textContent = est.nombre;
       row.insertCell(2).textContent = est.codigo;
       row.insertCell(3).textContent = est.grado;
       row.insertCell(4).textContent = est.telefono || '—';
+      
       const accCel = row.insertCell(5);
       const btnEdit = document.createElement('button');
       btnEdit.innerHTML = '✏️';
       btnEdit.className = 'action-btn edit-btn';
       btnEdit.title = 'Editar';
       btnEdit.onclick = () => editarEstudiante(est.codigo);
+      
       const btnArchive = document.createElement('button');
       btnArchive.innerHTML = '📦';
       btnArchive.className = 'action-btn archive-btn';
       btnArchive.title = 'Archivar';
       btnArchive.onclick = () => archivarEstudiante(est.codigo);
+      
       accCel.appendChild(btnEdit);
       accCel.appendChild(btnArchive);
     });
+    
     const totalPages = Math.ceil(lista.length / rowsPerPage);
     const pagDiv = document.getElementById('pagination');
     pagDiv.innerHTML = '';
     for (let i = 1; i <= totalPages; i++) {
-      const btn = document.createElement('button');
-      btn.textContent = i;
-      if (i === currentPage) btn.classList.add('active');
-      btn.onclick = () => { currentPage = i; renderizarTabla(lista); };
-      pagDiv.appendChild(btn);
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        if (i === currentPage) btn.classList.add('active');
+        btn.onclick = () => { currentPage = i; renderizarTabla(lista); };
+        pagDiv.appendChild(btn);
     }
   }
 
-  // Compresión mejorada: tamaño máximo 600px, calidad 0.6
   function comprimirFoto(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -676,7 +688,6 @@
     const nombreLimpio = nombreEst.replace(/[\\/:*?"<>|]/g, '_');
     const base64Completo = await comprimirFoto(file);
     const base64 = base64Completo.split(',')[1];
-    if (!base64) throw new Error("Error al procesar la imagen");
     
     const res = await callApi('subirFoto', { 
       base64: base64, 
@@ -732,9 +743,11 @@
         tel_extra: document.getElementById('tel_extra').value,
         foto: fotoUrl
       };
+      
       const action = editMode ? 'actualizar' : 'guardar';
       if (editMode) data.codigo = editCodigo;
       const res = await callApi(action, data);
+      
       if (res.success) {
         showMessage(editMode ? "Actualizado correctamente" : "Guardado exitoso");
         resetFormulario();
@@ -754,48 +767,66 @@
       const res = await callApi('buscar', { codigo });
       if (res.success && res.data) {
         const d = res.data;
-        document.getElementById('nombre').value = d[1];
-        document.getElementById('codigo').value = d[2];
-        document.getElementById('edad').value = d[3];
-        document.getElementById('fecha').value = d[4];
-        document.getElementById('telefono').value = d[5];
-        document.getElementById('emergencia').value = d[6];
-        document.getElementById('genero').value = d[7];
-        document.getElementById('enfermedad').value = d[8];
-        document.getElementById('detalle_enf').value = d[9];
-        document.getElementById('zurdo').value = d[10];
-        document.getElementById('grado').value = d[11];
-        document.getElementById('etnia').value = d[12];
-        document.getElementById('direccion').value = d[13];
-        document.getElementById('aldea').value = d[14];
-        document.getElementById('padre').value = d[15];
-        document.getElementById('dpi_padre').value = d[16];
-        document.getElementById('tel_padre').value = d[17];
-        document.getElementById('madre').value = d[18];
-        document.getElementById('dpi_madre').value = d[19];
-        document.getElementById('tel_madre').value = d[20];
-        document.getElementById('enc_padre').value = d[21];
-        document.getElementById('enc_madre').value = d[22];
-        document.getElementById('encargado').value = d[23];
-        document.getElementById('dpi_enc').value = d[24];
-        document.getElementById('tel_enc').value = d[25];
-        document.getElementById('dir_enc').value = d[26];
-        document.getElementById('aldea_enc').value = d[27];
-        document.getElementById('relacion').value = d[28];
-        document.getElementById('tel_extra').value = d[29];
+        document.getElementById('nombre').value = d[1] || "";
+        document.getElementById('codigo').value = d[2] || "";
+        document.getElementById('edad').value = d[3] || "";
+        
+        /* CORRECCIÓN 2: Tratamiento Seguro de Fecha */
+        try {
+          if(d[4]) {
+             const dateObj = new Date(d[4]);
+             if(!isNaN(dateObj.getTime())){
+                document.getElementById('fecha').value = dateObj.toISOString().split('T')[0];
+             } else {
+                document.getElementById('fecha').value = "";
+             }
+          } else {
+             document.getElementById('fecha').value = "";
+          }
+        } catch(e) { document.getElementById('fecha').value = ""; }
+        
+        document.getElementById('telefono').value = d[5] || "";
+        document.getElementById('emergencia').value = d[6] || "";
+        document.getElementById('genero').value = d[7] || "Masculino";
+        document.getElementById('enfermedad').value = d[8] || "NO";
+        document.getElementById('detalle_enf').value = d[9] || "";
+        document.getElementById('zurdo').value = d[10] || "Diestro";
+        document.getElementById('grado').value = d[11] || "1A";
+        document.getElementById('etnia').value = d[12] || "";
+        document.getElementById('direccion').value = d[13] || "";
+        document.getElementById('aldea').value = d[14] || "";
+        document.getElementById('padre').value = d[15] || "";
+        document.getElementById('dpi_padre').value = d[16] || "";
+        document.getElementById('tel_padre').value = d[17] || "";
+        document.getElementById('madre').value = d[18] || "";
+        document.getElementById('dpi_madre').value = d[19] || "";
+        document.getElementById('tel_madre').value = d[20] || "";
+        document.getElementById('enc_padre').value = d[21] || "NO";
+        document.getElementById('enc_madre').value = d[22] || "NO";
+        document.getElementById('encargado').value = d[23] || "";
+        document.getElementById('dpi_enc').value = d[24] || "";
+        document.getElementById('tel_enc').value = d[25] || "";
+        document.getElementById('dir_enc').value = d[26] || "";
+        document.getElementById('aldea_enc').value = d[27] || "";
+        document.getElementById('relacion').value = d[28] || "";
+        document.getElementById('tel_extra').value = d[29] || "";
+        
         currentFotoUrl = d[32] || "";
-        if (currentFotoUrl) {
+        if (currentFotoUrl && currentFotoUrl.trim() !== "") {
           const preview = document.getElementById('previewImg');
           preview.src = currentFotoUrl;
           preview.style.display = 'block';
         } else {
           document.getElementById('previewImg').style.display = 'none';
         }
+        
         editMode = true;
         editCodigo = codigo;
         document.getElementById('codigo').disabled = true;
         document.getElementById('formTitle').innerHTML = '✏️ Editando estudiante';
         document.getElementById('btnGuardar').innerHTML = '🔄 Actualizar';
+        // Scroll hacia arriba para verse al editar
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
         showMessage("No se encontró el estudiante", true);
       }
@@ -835,6 +866,7 @@
     document.getElementById('fotoInput').value = '';
   }
 
+  /* CORRECCIÓN 4: Prevención de corrupción en comillas internas en CSV */
   async function exportarExcel() {
     showLoader(true);
     try {
@@ -843,7 +875,15 @@
         const headers = res.data[0];
         const rows = res.data.slice(1);
         let csv = headers.join(',') + '\n';
-        rows.forEach(row => csv += row.map(cell => `"${cell}"`).join(',') + '\n');
+        
+        rows.forEach(row => {
+          csv += row.map(cell => {
+             // Comillas escapadas para evitar que textos con coma o comillas corrompan Excel
+             const escaped = String(cell || "").replace(/"/g, '""');
+             return `"${escaped}"`;
+          }).join(',') + '\n';
+        });
+        
         const blob = new Blob([csv], { type: 'text/csv' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
