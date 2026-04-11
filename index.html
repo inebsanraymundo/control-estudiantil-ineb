@@ -558,20 +558,27 @@
 
   // ==================== CRUD ====================
   async function cargarListaEstudiantes() {
-    showLoader(true);
-    try {
-      const res = await callApi('listarTodos');
-      if (res.success) {
-        estudiantesGlobal = res.data;
-        filtrarEstudiantes();
-      } else {
-        showMessage("Error al cargar datos", true);
+      showLoader(true);
+      try {
+        const res = await callApi('listarTodos');
+        if (res.success) {
+          
+          // Mapeamos los resultados para asegurar formato (Programación Defensiva)
+          estudiantesGlobal = res.data.map(e => ({
+            ...e,
+            nombre: e.nombre ? String(e.nombre) : "",
+            codigo: e.codigo ? String(e.codigo) : ""
+          }));
+          
+          filtrarEstudiantes();
+        } else {
+          showMessage("Error al cargar datos", true);
+        }
+      } catch (err) {
+        showMessage("Error de red: " + err.message, true);
       }
-    } catch (err) {
-      showMessage("Error de red: " + err.message, true);
+      showLoader(false);
     }
-    showLoader(false);
-  }
 
   /* CORRECCIÓN 1: Solución robusta para toLowerCase() */
   function filtrarEstudiantes() {
