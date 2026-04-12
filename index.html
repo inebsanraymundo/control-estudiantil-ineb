@@ -51,21 +51,42 @@
     #previewImg{width:100px;height:100px;border-radius:18px;object-fit:cover;border:3px dashed #cbd5e1;background:#f8fafc;transition:.2s;display:block}
     .avatar-upload-area:hover #previewImg{border-color:#3b82f6;opacity:.85}
     .upload-badge{position:absolute;bottom:-5px;right:-5px;background:#3b82f6;color:white;border-radius:50%;width:28px;height:28px;display:flex;justify-content:center;align-items:center;box-shadow:0 4px 6px rgba(0,0,0,.15);font-size:.9rem}
-    .name-code-col{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:600px){.photo-name-row{flex-direction:column;align-items:center}.name-code-col{grid-template-columns:1fr}}
+    /* Columna nombre+código al lado de la foto: línea 1=nombre(full), línea 2=código(compacto) */
+    .name-code-col{flex:1;display:flex;flex-direction:column;gap:8px}
+    .name-code-top{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:end}
+    .name-code-top .fg-codigo input{max-width:130px}
+    @media(max-width:600px){.photo-name-row{flex-direction:column;align-items:center}.name-code-top{grid-template-columns:1fr}}
 
     /* FORM ROWS */
     .form-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-end}
-    .form-row.three{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+    /* 4 cols iguales */
     .form-row.four{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+    /* Línea 2: grado(auto) | clave(auto) | tel(flex) | cambio(auto) */
+    .row-line2{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;margin-bottom:10px;align-items:end}
+    /* Línea 3: edad(auto) | fecha(auto) | emergencia(1fr) | genero(auto) */
+    .row-line3{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;margin-bottom:10px;align-items:end}
+    /* Línea 4: enfermedad(1fr) | detalle(2fr) */
+    .row-line4{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px;align-items:end}
     .grid-2cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
     .form-group{display:flex;flex-direction:column;gap:4px}
     .form-group label{font-size:.7rem;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
     .form-group input,.form-group select{padding:8px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fefefe;font-size:.9rem;transition:all .2s;width:100%}
     .form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-    /* Campos compactos (respuesta corta) */
-    .fg-xs input,.fg-xs select{max-width:75px}
-    .fg-sm input,.fg-sm select{max-width:110px}
+    /* Campos compactos */
+    .fg-xs input,.fg-xs select{max-width:70px}
+    .fg-sm input,.fg-sm select{max-width:108px}
+    /* teléfono 10 dígitos (~120px) */
+    .fg-tel10 input{max-width:130px}
+    /* fecha compacta */
+    .fg-fecha input{max-width:155px}
+    /* cambio sección compacto */
+    .fg-cambio select{max-width:80px}
+    /* Responsive móvil: todas las row-grid colapsan a 2 columnas */
+    @media(max-width:600px){
+      .row-line2,.row-line3{grid-template-columns:1fr 1fr}
+      .row-line4{grid-template-columns:1fr}
+      .form-row.four{grid-template-columns:1fr 1fr}
+    }
 
     /* BOTONES FORMULARIO */
     .form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
@@ -187,7 +208,7 @@
 
         <div class="section-title">📋 Datos personales</div>
 
-        <!-- LÍNEA 1: Foto | Nombre | Código -->
+        <!-- LÍNEA 1: Foto | [Nombre completo (arriba) | Código (abajo, compacto)] -->
         <div class="photo-name-row">
           <div class="avatar-col">
             <div class="avatar-upload-area">
@@ -199,44 +220,45 @@
             </div>
           </div>
           <div class="name-code-col">
-            <div class="form-group required" style="grid-column:1/-1"><label>Nombre completo</label><input type="text" id="nombre"></div>
-            <div class="form-group required"><label>Código único</label><input type="text" id="codigo"></div>
-            <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3" style="max-width:70px"></div>
+            <!-- Fila superior: Nombre completo (full) -->
+            <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
+            <!-- Fila inferior: Código (compacto, máx 10 chars) -->
+            <div class="name-code-top">
+              <div class="form-group required fg-codigo"><label>Código único</label><input type="text" id="codigo" maxlength="10"></div>
+            </div>
           </div>
         </div>
 
-        <!-- LÍNEA 2: Grado | Teléfono | Cambio sección -->
-        <div class="form-row">
+        <!-- LÍNEA 2: Grado/Sección | Clave | Teléfono (10 dígitos) | ¿Cambió Sección? -->
+        <div class="row-line2">
           <div class="form-group fg-sm required">
             <label>Grado / Sección</label>
-            <select id="grado" style="max-width:105px">
+            <select id="grado" style="min-width:90px">
               <option>1A</option><option>1B</option><option>1C</option>
               <option>2A</option><option>2B</option><option>2C</option>
               <option>3A</option><option>3B</option>
             </select>
           </div>
-          <div class="form-group" style="flex:1"><label>Teléfono</label><input type="text" id="telefono"></div>
-          <div class="form-group fg-sm">
-            <label>¿Cambió Sección?</label>
-            <select id="cambio_seccion" style="max-width:80px"><option>NO</option><option>SI</option></select>
-          </div>
+          <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
+          <div class="form-group fg-tel10"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10" placeholder="_ _ _ _ _ _ _ _ _ _"></div>
+          <div class="form-group fg-cambio"><label>¿Cambió Sección?</label><select id="cambio_seccion"><option>NO</option><option>SI</option></select></div>
         </div>
 
-        <!-- LÍNEA 3: Edad | Fecha nacimiento | Tel. emergencia -->
-        <div class="form-row three">
-          <div class="form-group"><label>Edad</label><input type="number" id="edad" min="10" max="25" style="max-width:70px"></div>
-          <div class="form-group"><label>Fecha nacimiento</label><input type="date" id="fecha"></div>
-          <div class="form-group"><label>Tel. emergencia</label><input type="text" id="emergencia"></div>
+        <!-- LÍNEA 3: Edad | Fecha nacimiento | Tel. emergencia | Género -->
+        <div class="row-line3">
+          <div class="form-group fg-xs"><label>Edad</label><input type="number" id="edad" min="10" max="25"></div>
+          <div class="form-group fg-fecha"><label>Fecha Nacimiento</label><input type="date" id="fecha"></div>
+          <div class="form-group"><label>Tel. Emergencia</label><input type="tel" id="emergencia" maxlength="10" placeholder="_ _ _ _ _ _ _ _ _ _"></div>
+          <div class="form-group fg-sm"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
         </div>
 
-        <!-- LÍNEA 4: Género | Enfermedad | Detalle enfermedad -->
-        <div class="form-row three">
-          <div class="form-group"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
-          <div class="form-group"><label>Enfermedad crónica</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
-          <div class="form-group"><label>Detalle enfermedad</label><input type="text" id="detalle_enf"></div>
+        <!-- LÍNEA 4: Adec. Curricular/Enfermedad | Detalle de Adecuación / Enfermedad -->
+        <div class="row-line4">
+          <div class="form-group"><label>Adec. Curricular / Enfermedad</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>Detalle de Adecuación / Enfermedad</label><input type="text" id="detalle_enf"></div>
         </div>
 
-        <!-- LÍNEA 5: Lateralidad | Etnia | Dirección | Aldea -->
+        <!-- LÍNEA 5: Lateralidad | Etnia | Dirección | Aldea/Comunidad -->
         <div class="form-row four">
           <div class="form-group"><label>Lateralidad</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
           <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
