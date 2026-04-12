@@ -188,7 +188,7 @@
 </head>
 <body>
 
-<div class="copyright">© 2025 Desarrollado por Lic. José Antonio Ortiz Corzo</div>
+<div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
 
 <!-- LOGIN -->
 <div id="loginContainer" class="login-container">
@@ -1099,19 +1099,86 @@
       const res = await callApi('exportar', {}, 28000);
       if (!res.success || !res.data) throw new Error(res.msg || "Error al obtener datos");
 
-      const headers = res.data[0];
-      const allRows = res.data.slice(1);
+      // Ignoramos la fila de encabezados originales del Excel general
+      const rawRows = res.data.slice(1);
+
+      // Encabezados solicitados expresamente
+      const customHeaders = [
+        "NOMBRES Y APELLIDOS",
+        "CÓDIGO PERSONAL",
+        "EDAD ACTUAL",
+        "FECHA DE NACIMIENTO",
+        "PADECE ALGUNA ENFERMEDAD CRÓNICA",
+        "INDIQUE CUAL",
+        "GRADO A CURSAR",
+        "DIRECCIÓN",
+        "ALDEA O CASERÍO",
+        "NOMBRE DEL ENCARGADO",
+        "NÚMERO DEL DPI",
+        "TEL ENCARGADO",
+        "DIRECCIÓN",
+        "ALDEA O CASERIO",
+        "RELACIÓN",
+        "TELEFONO ADICIONAL",
+        "CLAVE"
+      ];
 
       if (typeof XLSX === 'undefined') throw new Error("SheetJS no cargó. Verifica conexión a internet.");
 
       const wb = XLSX.utils.book_new();
       selected.forEach(grado => {
-        const gradeRows = allRows.filter(r => String(r[11] || '').trim().toUpperCase() === grado.toUpperCase());
-        const ws = XLSX.utils.aoa_to_sheet([headers, ...gradeRows]);
-        // Ajustar ancho de columnas automáticamente
-        ws['!cols'] = headers.map((h, i) => ({
-          wch: Math.max(String(h || '').length, ...gradeRows.map(r => String(r[i] || '').length), 8)
+        // Filtrar filas por grado y mapear a nuestra estructura
+        let gradeRows = rawRows
+          .filter(r => String(r[11] || '').trim().toUpperCase() === grado.toUpperCase())
+          .map(r => {
+            // Intentamos formatear la fecha
+            let parsedDate = r[4] || '';
+            if (parsedDate) {
+              try {
+                const fd = new Date(parsedDate);
+                if (!isNaN(fd.getTime())) {
+                  // DD/MM/YYYY
+                  parsedDate = fd.toLocaleDateString('es-GT');
+                }
+              } catch(e) {}
+            }
+
+            return [
+              r[1] || "", // NOMBRES Y APELLIDOS
+              r[2] || "", // CÓDIGO PERSONAL
+              r[3] || "", // EDAD ACTUAL
+              parsedDate, // FECHA DE NACIMIENTO
+              r[8] || "", // PADECE ALGUNA ENFERMEDAD CRÓNICA
+              r[9] || "", // INDIQUE CUAL
+              r[11] || "", // GRADO A CURSAR
+              r[13] || "", // DIRECCIÓN (estudiante)
+              r[14] || "", // ALDEA O CASERÍO (estudiante)
+              r[23] || "", // NOMBRE DEL ENCARGADO
+              r[24] || "", // NÚMERO DEL DPI
+              r[25] || "", // TEL ENCARGADO
+              r[26] || "", // DIRECCIÓN (encargado)
+              r[27] || "", // ALDEA O CASERIO (encargado)
+              r[28] || "", // RELACIÓN
+              r[29] || "", // TELEFONO ADICIONAL
+              r[33] || ""  // CLAVE
+            ];
+          });
+
+        // Ordenar por clave (numéricamente) y luego por nombre
+        gradeRows.sort((a, b) => {
+          const claveA = parseInt(a[16]) || 9999;
+          const claveB = parseInt(b[16]) || 9999;
+          if (claveA !== claveB) return claveA - claveB;
+          return String(a[0]).localeCompare(String(b[0]));
+        });
+
+        const ws = XLSX.utils.aoa_to_sheet([customHeaders, ...gradeRows]);
+        
+        // Ajustar ancho de columnas automáticamente dejando un margen
+        ws['!cols'] = customHeaders.map((h, i) => ({
+          wch: Math.max(String(h).length, ...gradeRows.map(r => String(r[i] || '').length), 8) + 2
         }));
+        
         XLSX.utils.book_append_sheet(wb, ws, grado.substring(0, 31));
       });
 
