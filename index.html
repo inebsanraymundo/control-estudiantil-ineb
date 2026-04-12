@@ -27,17 +27,26 @@
     .app-container{display:none;max-width:1600px;margin:0 auto;padding:20px}
 
     /* HEADER */
-    .glass-header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-radius:2rem;padding:1rem 2rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;box-shadow:0 8px 20px rgba(0,0,0,.05);border:1px solid rgba(255,255,255,.5)}
-    .logo-area{display:flex;align-items:center;gap:14px}
-    .header-texts{display:flex;flex-direction:column;gap:2px}
-    .header-inst{font-size:1.12rem;font-weight:700;color:#1e293b;line-height:1.3}
-    .header-subtitle{font-size:1.1rem;font-weight:800;background:linear-gradient(120deg,#1e3a8a,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.02em}
-    .btn-logout{background:#ef4444;border:none;padding:10px 20px;border-radius:40px;color:white;font-weight:600;cursor:pointer;transition:all .2s;display:flex;gap:8px;align-items:center}
+    .glass-header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-radius:2rem;padding:1rem 2rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;gap:1rem;box-shadow:0 8px 20px rgba(0,0,0,.05);border:1px solid rgba(255,255,255,.5)}
+    .logo-area{display:flex;align-items:center;gap:14px;flex-shrink:1;min-width:0}
+    .header-texts{display:flex;flex-direction:column;gap:2px;min-width:0}
+    .header-inst{font-size:1.12rem;font-weight:700;color:#1e293b;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .header-subtitle{font-size:1.1rem;font-weight:800;background:linear-gradient(120deg,#1e3a8a,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .btn-logout{background:#ef4444;border:none;padding:10px 20px;border-radius:40px;color:white;font-weight:600;cursor:pointer;transition:all .2s;display:flex;gap:8px;align-items:center;flex-shrink:0}
     .btn-logout:hover{background:#dc2626}
+    @media(max-width:768px){
+      .glass-header{padding:1rem;gap:0.5rem;}
+      .logo-area img{height:40px !important;border-radius:10px !important;}
+      .header-inst{font-size:0.9rem;}
+      .header-subtitle{font-size:0.85rem;}
+      .btn-logout{font-size:0;padding:10px;border-radius:50%;width:40px;height:40px;justify-content:center;}
+      .btn-logout::before{content:"🚪";font-size:1.1rem;}
+    }
 
     /* DASHBOARD */
     .dashboard{display:grid;grid-template-columns:1fr 1.2fr;gap:1.8rem;align-items:start}
     @media(max-width:900px){.dashboard{grid-template-columns:1fr}}
+    .dashboard.docente-view{grid-template-columns:1fr}
 
     /* FORM CARD */
     .form-card{background:white;border-radius:1.8rem;padding:1.5rem;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff}
@@ -71,6 +80,7 @@
     .form-group label{font-size:.7rem;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
     .form-group input,.form-group select{padding:8px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fefefe;font-size:.9rem;transition:all .2s;width:100%}
     .form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+    .form-group input:disabled,.form-group select:disabled{background:#f1f5f9;border-color:#e2e8f0;color:#64748b;cursor:not-allowed}
     /* Campos compactos */
     .fg-xs input,.fg-xs select{max-width:64px}
     .fg-sm input,.fg-sm select{max-width:108px}
@@ -203,10 +213,10 @@
     <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
   </div>
 
-  <div class="dashboard">
+  <div class="dashboard" id="dashboardContainer">
 
     <!-- ===== FORMULARIO ===== -->
-    <div class="form-card">
+    <div class="form-card" id="formCard">
       <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
       <form id="studentForm" autocomplete="off">
 
@@ -294,8 +304,9 @@
 
         <div class="form-actions">
           <button type="button" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
-          <button type="button" class="btn-secondary" onclick="cancelarEdicion()">✖ Cancelar</button>
-          <button type="button" class="btn-danger-soft" onclick="resetFormulario()">🗑️ Limpiar</button>
+          <button type="button" class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">✖ Cancelar</button>
+          <button type="button" class="btn-danger-soft" id="btnLimpiar" onclick="resetFormulario()">🗑️ Limpiar</button>
+          <button type="button" class="btn-secondary" id="btnCerrarVista" onclick="cerrarVistaPrevia()" style="display:none;background:#e2e8f0;font-weight:bold;">🔙 Cerrar vista</button>
           <button type="button" class="btn-secondary" id="btnImprimir" onclick="imprimirFichaActual()" style="display:none">🖨️ Imprimir ficha</button>
         </div>
 
@@ -306,8 +317,9 @@
     <div class="table-card">
       <div class="toolbar">
         <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..." oninput="filtrarEstudiantes()">
-        <button class="btn-export" onclick="abrirModalExportar()">📊 Exportar Excel</button>
-        <button class="btn-borrado" onclick="abrirModalBorrado()" title="Archivar todos los estudiantes de un grado al cerrar el ciclo escolar">🗑️ Borrado de ciclo</button>
+        <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()">📊 Exportar Excel</button>
+        <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()" title="Archivar todos los estudiantes de un grado" style="border-color:#f97316;color:#c2410c;background:#fff7ed">🗑️ Borrado de Grado</button>
+        <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()" title="Archivar todos los estudiantes activos al cerrar el ciclo escolar">🗑️ Borrado de ciclo</button>
       </div>
       <div id="resultsInfo" class="results-info"></div>
       <div class="table-wrapper">
@@ -354,7 +366,7 @@
 <div id="borradoModal" class="modal-overlay">
   <div class="modal-card" style="max-width:500px">
     <h3 style="border-bottom-color:#ef4444">🗑️ Borrado de Ciclo Escolar</h3>
-    <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Archiva <strong>todos los estudiantes</strong> de los grados seleccionados. Úsalo al cerrar el ciclo escolar para empezar el siguiente con lista limpia.<br><strong>Se recomienda exportar a Excel antes de borrar.</strong></p>
+    <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Archiva <strong>todos los estudiantes activos</strong> de los grados seleccionados. Úsalo al cerrar el ciclo escolar para empezar el siguiente con lista limpia.<br><strong>Se recomienda exportar a Excel antes de borrar.</strong></p>
     <label class="export-select-all">
       <input type="checkbox" id="chkTodosBorrado" onchange="toggleTodosBorrado(this)">
       Seleccionar / deseleccionar todos
@@ -367,28 +379,50 @@
   </div>
 </div>
 
-<!-- MODAL: VISTA PREVIA -->
-<div id="previewModal" class="modal-overlay" onclick="cerrarPreview(event)">
-  <div class="modal-card preview-card" onclick="event.stopPropagation()">
-    <img id="pvImg" class="preview-photo" src="" alt="Foto">
-    <div class="preview-name" id="pvNombre"></div>
-    <div class="preview-badge" id="pvGrado"></div>
-    <div class="preview-grid">
-      <div class="preview-item"><div class="preview-item-label">Código</div><div class="preview-item-val" id="pvCodigo"></div></div>
-      <div class="preview-item"><div class="preview-item-label">Clave</div><div class="preview-item-val" id="pvClave"></div></div>
-      <div class="preview-item"><div class="preview-item-label">Teléfono</div><div class="preview-item-val" id="pvTel"></div></div>
-      <div class="preview-item"><div class="preview-item-label">Edad</div><div class="preview-item-val" id="pvEdad"></div></div>
-      <div class="preview-item"><div class="preview-item-label">Género</div><div class="preview-item-val" id="pvGenero"></div></div>
-      <div class="preview-item"><div class="preview-item-label">Etnia</div><div class="preview-item-val" id="pvEtnia"></div></div>
+<!-- MODAL: BORRADO DE GRADO -->
+<div id="borradoGradoModal" class="modal-overlay">
+  <div class="modal-card" style="max-width:500px">
+    <h3 style="border-bottom-color:#f97316">🗑️ Borrado de Grado Específico</h3>
+    <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Esta acción archiva a todos los estudiantes de una sola sección independientemente de si los datos están completos o no. Útil para reestructurar secciones o eliminar grupos de prueba.</p>
+    <div style="margin-bottom: 1rem;">
+      <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:5px;">Selecciona el Grado/Sección a eliminar:</label>
+      <select id="gradoBorradoSelect" style="width:100%;padding:10px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:1rem;"></select>
     </div>
-    <div style="margin-top:1.2rem">
-      <button class="btn-secondary" onclick="cerrarPreview()">Cerrar</button>
+    <div class="modal-actions">
+      <button class="btn-danger-confirm" style="background:linear-gradient(95deg,#c2410c,#ea580c);" onclick="confirmarBorradoGradoUnico()">🗑️ Archivar Grado</button>
+      <button class="btn-secondary" onclick="cerrarModalBorradoGrado()">Cancelar</button>
     </div>
   </div>
 </div>
 
+<!-- El antiguo Modal de VISTA PREVIA se ha eliminado. Se usará el formulario de lectura. -->
+
 <script>
   const API_URL = "https://script.google.com/macros/s/AKfycbws6hl8zRv_UnwHoBvYuI0JP8_0HntRgkZLlzmoVQAzmhVQRdPByVetIRCCK8pdJqRH/exec";
+
+  // MATRIZ DE PERMISOS
+  const CONFIG_ROLES = {
+    "admin": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+    "director": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+    "subdirector": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+    "secretaria": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+    "docente": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false },
+    "usuario": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false }
+  };
+
+  function getRolConfig() {
+    const r = (localStorage.getItem('userRole') || 'usuario').toLowerCase();
+    // Administrativos y directivos tienen permisos completos
+    if (r === 'director' || r === 'subdirector' || r === 'secretarias' || r === 'secretaria' || r === 'admin') {
+      return CONFIG_ROLES['admin'];
+    }
+    // Docentes y usuarios base
+    if (r === 'docente' || r === 'docentes') {
+      return CONFIG_ROLES['docente'];
+    }
+    // Fallback: tratar a desconocidos con pocos permisos
+    return CONFIG_ROLES['usuario'];
+  }
 
   let estudiantesGlobal = [];
   let listaFiltradaActual = [];
@@ -444,8 +478,10 @@
       const res = await callApi('login', { u, p });
       if (res.success) {
         localStorage.setItem('logged', 'true');
+        localStorage.setItem('userRole', res.role || 'usuario');
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
+        aplicarPermisos();
         cargarListaEstudiantes();
       } else showMessage(res.msg || "Credenciales incorrectas", true);
     } catch (err) { showMessage("Error de conexión: " + err.message, true); }
@@ -458,6 +494,16 @@
     document.getElementById('loginContainer').style.display = 'flex';
     estudiantesGlobal = [];
     resetFormulario();
+  }
+
+  // ==================== PERMISOS ====================
+  function aplicarPermisos() {
+    const config = getRolConfig();
+    document.getElementById('formCard').style.display = config.verForm ? 'block' : 'none';
+    document.getElementById('dashboardContainer').classList.toggle('docente-view', !config.verForm);
+    document.getElementById('btnExportarGeneral').style.display = config.exportar ? 'inline-block' : 'none';
+    document.getElementById('btnBorradoCiclo').style.display = config.borrarCiclo ? 'inline-block' : 'none';
+    document.getElementById('btnBorradoGrado').style.display = config.borradoGrado ? 'inline-block' : 'none';
   }
 
   // ==================== CARGAR LISTA ====================
@@ -559,14 +605,23 @@
 
         const tdAcc = row.insertCell(6);
         const codigoSafe = est.codigo.replace(/'/g, "\\'");
+        const config = getRolConfig();
+        
+        let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
+                           <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>`;
+                           
+        if(config.editar) {
+          actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
+        }
+        if(config.archivar) {
+          actionsHtml += `<button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>`;
+        }
+
         tdAcc.innerHTML = `
           <div class="action-dropdown">
             <button class="drop-btn">⋮</button>
             <div class="action-content">
-              <button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
-              <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>
-              <button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>
-              <button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>
+              ${actionsHtml}
             </div>
           </div>`;
       });
@@ -581,27 +636,85 @@
     if (arr) arr.textContent = gradoStates[grado] ? '▼' : '▶';
   }
 
-  // ==================== VISTA PREVIA ====================
-  function vistaPrevia(codigo) {
-    const est = estudiantesGlobal.find(e => e.codigo === codigo);
-    if (!est) return;
-    const thumb = getDriveThumbnail(est.foto);
-    const pvImg = document.getElementById('pvImg');
-    pvImg.src = thumb || 'https://placehold.co/120x120?text=👤';
-    pvImg.onerror = function() { this.onerror = null; this.src = 'https://placehold.co/120x120?text=👤'; };
-    document.getElementById('pvNombre').textContent = est.nombre || '—';
-    document.getElementById('pvGrado').textContent = `Grado: ${est.grado || '—'}`;
-    document.getElementById('pvCodigo').textContent = est.codigo || '—';
-    document.getElementById('pvClave').textContent = est.clave || '—';
-    document.getElementById('pvTel').textContent = est.telefono || '—';
-    document.getElementById('pvEdad').textContent = est.edad || '—';
-    document.getElementById('pvGenero').textContent = est.genero || '—';
-    document.getElementById('pvEtnia').textContent = est.etnia || '—';
-    document.getElementById('previewModal').style.display = 'flex';
+  // ==================== VISTA PREVIA (MODO LECTURA) ====================
+  function habilitarLecturaForm(readonly) {
+    const elementos = document.querySelectorAll('#studentForm input, #studentForm select');
+    elementos.forEach(el => el.disabled = readonly);
+    
+    // Opcionalmente deshabilitar el área visual de la foto
+    const avatarArea = document.querySelector('.avatar-upload-area');
+    if (avatarArea) {
+      avatarArea.style.pointerEvents = readonly ? 'none' : 'auto';
+      const badge = avatarArea.querySelector('.upload-badge');
+      if (badge) badge.style.display = readonly ? 'none' : 'flex';
+    }
   }
-  function cerrarPreview(e) {
-    if (!e || e.target === document.getElementById('previewModal'))
-      document.getElementById('previewModal').style.display = 'none';
+
+  function vistaPrevia(codigo) {
+    // Forzar visualización de formulario, incluso si es docente
+    document.getElementById('formCard').style.display = 'block';
+    document.getElementById('dashboardContainer').classList.remove('docente-view');
+    
+    // Cargar datos a través de la misma rutina de edición
+    showLoader(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    // Usar datos locales si están en cache por rapidez
+    const dLocal = estudiantesGlobal.find(e => e.codigo === codigo);
+    
+    callApi('buscar', { codigo }).then(res => {
+      if (res.success && res.data) {
+        const d = res.data;
+        const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
+        sv('nombre', d[1]); sv('codigo', d[2]); sv('edad', d[3]);
+        try {
+          if (d[4]) {
+            const fd = new Date(d[4]);
+            document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
+          }
+        } catch (_) {}
+        sv('telefono', d[5]); sv('emergencia', d[6]);
+        sv('genero', d[7] || 'Masculino'); sv('enfermedad', d[8] || 'NO'); sv('detalle_enf', d[9]);
+        sv('zurdo', d[10] || 'Diestro'); sv('grado', d[11] || '1A');
+        sv('etnia', d[12]); sv('direccion', d[13]); sv('aldea', d[14]);
+        sv('padre', d[15]); sv('dpi_padre', d[16]); sv('tel_padre', d[17]);
+        sv('madre', d[18]); sv('dpi_madre', d[19]); sv('tel_madre', d[20]);
+        sv('enc_padre', d[21] || 'NO'); sv('enc_madre', d[22] || 'NO');
+        sv('encargado', d[23]); sv('dpi_enc', d[24]); sv('tel_enc', d[25]);
+        sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
+        sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
+        currentFotoUrl = d[32] || "";
+        
+        const preview = document.getElementById('previewImg');
+        const thumb = getDriveThumbnail(currentFotoUrl);
+        preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
+        
+        // Configurar estado de Solo Lectura
+        editCodigo = codigo;
+        document.getElementById('formTitle').textContent = '👁️ Detalles del estudiante';
+        
+        // Bloquear todos los campos
+        habilitarLecturaForm(true);
+        
+        // Ajustar botones
+        document.getElementById('btnGuardar').style.display = 'none';
+        document.getElementById('btnLimpiar').style.display = 'none';
+        document.getElementById('btnCancelar').style.display = 'none';
+        
+        document.getElementById('btnCerrarVista').style.display = 'inline-flex';
+        document.getElementById('btnImprimir').style.display = 'inline-flex';
+        
+      } else showMessage("Estudiante no encontrado", true);
+      showLoader(false);
+    }).catch(err => {
+      showMessage("Error: " + err.message, true);
+      showLoader(false);
+    });
+  }
+  
+  function cerrarVistaPrevia() {
+    resetFormulario();
+    aplicarPermisos(); // Restaura la UI original (ej. ocultará el form si eres docente)
   }
 
   // ==================== IMPRIMIR FICHA ====================
@@ -853,16 +966,27 @@
     document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
     document.getElementById('fotoInput').value = '';
     currentFotoUrl = '';
-    editMode = false; editCodigo = null;
+    editMode = false; 
+    editCodigo = null;
+    
+    habilitarLecturaForm(false);
+    
     document.getElementById('codigo').disabled = false;
     document.getElementById('formTitle').textContent = '➕ Nuevo estudiante';
+    
+    const config = getRolConfig();
     document.getElementById('btnGuardar').textContent = '💾 Guardar estudiante';
+    document.getElementById('btnGuardar').style.display = 'inline-flex';
+    document.getElementById('btnLimpiar').style.display = 'inline-flex';
+    document.getElementById('btnCancelar').style.display = 'inline-flex';
+    
+    document.getElementById('btnCerrarVista').style.display = 'none';
     document.getElementById('btnImprimir').style.display = 'none';
   }
   function cancelarEdicion() {
     if (editMode && !confirm("¿Cancelar la edición? Los cambios no se guardarán.")) return;
     resetFormulario();
-    showMessage("Edición cancelada");
+    showMessage("Acción cancelada");
   }
 
   // ==================== AUTO-FILL ENCARGADO ====================
@@ -983,6 +1107,46 @@
     showLoader(false);
   }
 
+  // ==================== MODAL: BORRADO DE GRADO INDIVIDUAL ====================
+  function abrirModalBorradoGrado() {
+    const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
+    if(grades.length === 0) return showMessage('No hay grados activos para borrar', true);
+    
+    const select = document.getElementById('gradoBorradoSelect');
+    select.innerHTML = grades.map(g => `<option value="${g}">${g}</option>`).join('');
+    
+    document.getElementById('borradoGradoModal').style.display = 'flex';
+  }
+  
+  function cerrarModalBorradoGrado() { document.getElementById('borradoGradoModal').style.display = 'none'; }
+  
+  async function confirmarBorradoGradoUnico() {
+    const gradoSelect = document.getElementById('gradoBorradoSelect').value;
+    if (!gradoSelect) return showMessage('Selecciona un grado', true);
+    
+    const lista = estudiantesGlobal.filter(e => e.grado === gradoSelect);
+    const totalEst = lista.length;
+    
+    if (!confirm(`⚠️ ALERTA DE BORRADO\n\n¿Estás seguro que deseas archivar a TODOS los ${totalEst} estudiantes de la sección "${gradoSelect}"?\n\nLa información se marcará como ARCHIVADA en la base de datos.`)) return;
+    
+    cerrarModalBorradoGrado();
+    showLoader(true);
+    
+    let ok = 0, err = 0;
+    // Se procesa cada estudiante del grado sin importar si sus datos están completos o no.
+    for (const est of lista) {
+      if(!est.codigo) { err++; continue; } // Protección contra filas completamente en blanco
+      try {
+        const res = await callApi('borrar', { codigo: est.codigo });
+        if (res.success) ok++; else err++;
+      } catch (_) { err++; }
+    }
+    
+    showLoader(false);
+    showMessage(err === 0 ? `✅ Sección ${gradoSelect} archivada (${ok} alumnos)` : `⚠️ ${ok} archivados, ${err} con error`, err > 0);
+    cargarListaEstudiantes();
+  }
+
   // ==================== MODAL: BORRADO DE CICLO ====================
   function abrirModalBorrado() {
     const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
@@ -1011,6 +1175,7 @@
     const lista = estudiantesGlobal.filter(e => selected.includes(e.grado));
     let ok = 0, err = 0;
     for (const est of lista) {
+      if(!est.codigo) continue;
       try {
         const res = await callApi('borrar', { codigo: est.codigo });
         if (res.success) ok++; else err++;
@@ -1037,6 +1202,7 @@
     if (localStorage.getItem('logged') === 'true') {
       document.getElementById('loginContainer').style.display = 'none';
       document.getElementById('appContainer').style.display = 'block';
+      aplicarPermisos();
       cargarListaEstudiantes();
     }
   };
