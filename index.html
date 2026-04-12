@@ -95,16 +95,10 @@
     .btn-borrado:hover{background:#fecdd3}
     .btn-danger-confirm{background:linear-gradient(95deg,#be123c,#ef4444);color:white;border:none;padding:11px 18px;border-radius:40px;font-weight:bold;cursor:pointer;transition:all .2s;font-size:.9rem}
 
-    /* TABLE CARD */
-    .table-card{background:white;border-radius:1.8rem;padding:1.5rem;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff}
-    .toolbar{display:flex;gap:10px;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
-    .toolbar input[type=text]{flex:1;min-width:160px;padding:10px 16px;border-radius:60px;border:1px solid #e2e8f0;background:#f8fafc;font-size:.9rem}
-    .btn-export{background:#10b981;color:white;border:none;padding:10px 18px;border-radius:60px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
-    .btn-export:hover{background:#059669}
-    .results-info{font-size:.8rem;color:#64748b;margin-bottom:.8rem;padding-left:4px}
-
     /* TABLA */
-    .table-wrapper{overflow-x:auto;border-radius:1.2rem}
+    /* overflow-x en table-card (no en table-wrapper) para que el menú contextual no quede recortado */
+    .table-card{background:white;border-radius:1.8rem;padding:1.5rem 1.5rem 180px;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff;overflow-x:auto;min-height:450px}
+    .table-wrapper{border-radius:1.2rem;overflow:visible}
     table{width:100%;border-collapse:collapse}
     th{text-align:left;padding:12px 8px;background:#f8fafc;color:#1f2937;font-weight:600;font-size:.82rem;white-space:nowrap}
     td{padding:10px 8px;border-bottom:1px solid #eef2ff;vertical-align:middle;font-size:.88rem}
@@ -170,7 +164,7 @@
 </head>
 <body>
 
-<div class="copyright">© 2025 Desarrollado por Lic. José Antonio Ortiz Corzo</div>
+<div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
 
 <!-- LOGIN -->
 <div id="loginContainer" class="login-container">
@@ -227,7 +221,7 @@
             </div>
             <!-- Fila 2: Grado/Sección | Clave | Teléfono | ¿Cambió Sección? -->
             <div class="name-row2">
-              <div class="form-group required fg-grado"><label>Grado / Sección</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
+              <div class="form-group fg-grado"><label>Grado / Sección</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
               <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
               <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
               <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion"><option>NO</option><option>SI</option></select></div>
@@ -313,9 +307,9 @@
               <th>Clave</th>
               <th>Nombre</th>
               <th>Código</th>
-              <th>Tel.</th>
-              <th>C.S.</th>
-              <th>Acc.</th>
+              <th>Teléfono</th>
+              <th>C. Sección</th>
+              <th>Acciones</th>
             </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
