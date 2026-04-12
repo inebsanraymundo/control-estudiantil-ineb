@@ -9,7 +9,7 @@
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
     }
 
     body {
@@ -17,28 +17,37 @@
       min-height: 100vh;
     }
 
+    /* COPYRIGHT */
+    .copyright {
+      position: fixed;
+      bottom: 8px;
+      right: 15px;
+      color: rgba(100, 116, 139, 0.40);
+      font-size: 0.78rem;
+      z-index: 999;
+      pointer-events: none;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
     /* LOGIN */
     .login-container {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
       background: radial-gradient(circle at 10% 30%, #1e2b4f, #0f172a);
       z-index: 1000;
-      transition: none;
     }
     .login-card {
       background: rgba(255,255,255,0.98);
-      backdrop-filter: blur(2px);
       border-radius: 2rem;
       padding: 2rem 2rem 2.5rem;
       width: 90%;
       max-width: 400px;
-      box-shadow: 0 25px 45px rgba(0,0,0,0.2), 0 0 0 1px rgba(255,255,255,0.2);
+      box-shadow: 0 25px 45px rgba(0,0,0,0.2);
       text-align: center;
     }
     .logo-institucional {
@@ -53,12 +62,13 @@
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.3rem;
     }
+    .login-card p { color: #4b5563; margin-bottom: 0.5rem; }
     .login-card input {
       width: 100%;
       padding: 14px 18px;
-      margin: 12px 0;
+      margin: 10px 0;
       border: 1px solid #cbd5e1;
       border-radius: 60px;
       font-size: 1rem;
@@ -88,7 +98,7 @@
       box-shadow: 0 10px 20px rgba(0,0,0,0.2);
     }
 
-    /* MAIN APP */
+    /* APP */
     .app-container {
       display: none;
       max-width: 1600px;
@@ -116,15 +126,13 @@
       align-items: center;
       gap: 12px;
     }
-    .logo-icon {
-      font-size: 2.4rem;
-    }
     .logo-area h1 {
-      font-size: 1.5rem;
+      font-size: 1.25rem;
       background: linear-gradient(120deg, #0f2b4d, #2563eb);
       -webkit-background-clip: text;
       background-clip: text;
       color: transparent;
+      line-height: 1.3;
     }
     .btn-logout {
       background: #ef4444;
@@ -139,24 +147,17 @@
       gap: 8px;
       align-items: center;
     }
-    .btn-logout:hover {
-      background: #dc2626;
-      transform: scale(0.98);
-    }
+    .btn-logout:hover { background: #dc2626; transform: scale(0.98); }
 
-    /* LAYOUT PRINCIPAL */
+    /* DASHBOARD */
     .dashboard {
       display: grid;
       grid-template-columns: 1fr 1.2fr;
       gap: 1.8rem;
     }
-    @media (max-width: 900px) {
-      .dashboard {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 900px) { .dashboard { grid-template-columns: 1fr; } }
 
-    /* FORMULARIO */
+    /* FORM CARD */
     .form-card {
       background: white;
       border-radius: 1.8rem;
@@ -183,27 +184,72 @@
       margin: 1rem 0 0.8rem 0;
       color: #1e293b;
     }
+
+    /* FOTO A LA PAR DEL NOMBRE */
+    .user-info-area {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      margin-bottom: 15px;
+    }
+    .avatar-upload-area {
+      position: relative;
+      text-align: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    #previewImg {
+      width: 110px;
+      height: 110px;
+      border-radius: 20px;
+      object-fit: cover;
+      border: 3px dashed #cbd5e1;
+      background: #f8fafc;
+      transition: 0.2s;
+      display: block;
+    }
+    .avatar-upload-area:hover #previewImg { border-color: #3b82f6; opacity: 0.85; }
+    .upload-badge {
+      position: absolute;
+      bottom: -6px;
+      right: -6px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+      font-size: 1rem;
+    }
+    .flex-fill { flex: 1; }
+
+    @media (max-width: 600px) {
+      .user-info-area { flex-direction: column; align-items: center; }
+      .flex-fill { width: 100%; }
+    }
+
     .grid-2cols {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
     }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-    }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
     .form-group label {
-      font-size: 0.75rem;
+      font-size: 0.73rem;
       font-weight: 600;
       color: #334155;
       text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
     .form-group input, .form-group select {
       padding: 10px 12px;
       border: 1px solid #e2e8f0;
       border-radius: 16px;
       background: #fefefe;
+      font-size: 0.95rem;
       transition: all 0.2s;
     }
     .form-group input:focus, .form-group select:focus {
@@ -211,18 +257,7 @@
       border-color: #3b82f6;
       box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
     }
-    .photo-preview-area {
-      margin-top: 15px;
-      text-align: center;
-    }
-    .photo-preview {
-      width: 100px;
-      height: 100px;
-      object-fit: cover;
-      border-radius: 20px;
-      border: 2px solid #ffd600;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    }
+
     .btn-primary {
       background: linear-gradient(95deg, #1e3a8a, #2563eb);
       color: white;
@@ -234,6 +269,7 @@
       transition: all 0.2s;
       margin-top: 10px;
     }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-secondary {
       background: #f1f5f9;
       color: #1e293b;
@@ -241,80 +277,172 @@
       padding: 10px 18px;
       border-radius: 40px;
       cursor: pointer;
+      margin-top: 10px;
+      font-size: 0.95rem;
     }
 
-    /* TABLA */
+    /* TABLE CARD */
     .table-card {
       background: white;
       border-radius: 1.8rem;
       padding: 1.5rem;
       box-shadow: 0 20px 35px -12px rgba(0,0,0,0.1);
+      border: 1px solid #eef2ff;
     }
-    .search-bar {
+
+    /* TOOLBAR: BUSCADOR + FILTRO EXPORTAR */
+    .toolbar {
       display: flex;
       gap: 12px;
       margin-bottom: 1.5rem;
       flex-wrap: wrap;
+      align-items: center;
     }
-    .search-bar input {
+    .toolbar input[type=text] {
       flex: 1;
+      min-width: 180px;
       padding: 12px 18px;
       border-radius: 60px;
       border: 1px solid #e2e8f0;
       background: #f8fafc;
+      font-size: 0.95rem;
+    }
+
+    /* SELECTOR GRADO EXPORTAR */
+    .export-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .export-group select {
+      padding: 10px 14px;
+      border-radius: 40px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      font-size: 0.9rem;
+      color: #1e293b;
+      cursor: pointer;
     }
     .btn-export {
       background: #10b981;
       color: white;
       border: none;
-      padding: 0 20px;
+      padding: 11px 20px;
       border-radius: 60px;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s;
     }
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 1.2rem;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
+    .btn-export:hover { background: #059669; }
+
+    /* TABLA */
+    .table-wrapper { overflow-x: auto; border-radius: 1.2rem; }
+    table { width: 100%; border-collapse: collapse; }
     th {
       text-align: left;
       padding: 14px 10px;
       background: #f8fafc;
       color: #1f2937;
       font-weight: 600;
+      font-size: 0.85rem;
+      white-space: nowrap;
     }
     td {
-      padding: 12px 10px;
+      padding: 11px 10px;
       border-bottom: 1px solid #eef2ff;
       vertical-align: middle;
+      font-size: 0.92rem;
     }
     .student-img {
-      width: 45px;
-      height: 45px;
-      border-radius: 50%;
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
       object-fit: cover;
       background: #f1f5f9;
       border: 2px solid #ffd600;
     }
-    .action-btn {
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      margin: 0 6px;
-      transition: transform 0.1s;
+
+    /* SEPARADOR DE GRADO EN TABLA */
+    .grado-separator td {
+      background: linear-gradient(90deg, #eef2ff, #f8fafc);
+      color: #1e3a8a;
+      font-weight: 700;
+      font-size: 0.85rem;
+      padding: 8px 14px;
+      border-bottom: 2px solid #c7d2fe;
+      letter-spacing: 0.03em;
     }
-    .edit-btn { color: #3b82f6; }
-    .archive-btn { color: #f97316; }
-    .action-btn:hover { transform: scale(1.1); }
+
+    /* BADGE CAMBIO SECCIÓN */
+    .badge-cambio {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge-si { background: #fef08a; color: #854d0e; }
+    .badge-no { background: #f1f5f9; color: #64748b; }
+
+    /* MENÚ CONTEXTUAL (⋮) */
+    .action-dropdown { position: relative; display: inline-block; }
+    .drop-btn {
+      background: #f1f5f9;
+      border: none;
+      font-size: 1.3rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 34px;
+      height: 34px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+      color: #334155;
+      line-height: 1;
+    }
+    .drop-btn:hover { background: #e2e8f0; }
+    .action-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 38px;
+      background: white;
+      min-width: 150px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+      border-radius: 14px;
+      z-index: 200;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+    .action-dropdown:hover .action-content,
+    .action-dropdown:focus-within .action-content { display: block; }
+    .action-content button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 16px;
+      border: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: #1e293b;
+      transition: background 0.15s;
+    }
+    .action-content button:hover { background: #f8fafc; }
+    .action-content .text-red { color: #ef4444; font-weight: 600; }
+
+    /* PAGINACIÓN */
     .pagination {
       display: flex;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       margin-top: 1.5rem;
       flex-wrap: wrap;
     }
@@ -325,20 +453,20 @@
       border-radius: 30px;
       cursor: pointer;
       transition: 0.1s;
+      font-size: 0.9rem;
     }
     .pagination button.active {
       background: #1e3a8a;
       color: white;
       border-color: #1e3a8a;
     }
+    .pagination button:hover:not(.active) { background: #f1f5f9; }
 
     /* LOADER */
     .loader-overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
       backdrop-filter: blur(4px);
       display: none;
@@ -347,14 +475,15 @@
       z-index: 2000;
     }
     .spinner {
-      width: 55px;
-      height: 55px;
+      width: 55px; height: 55px;
       border: 5px solid white;
       border-top: 5px solid #ffd600;
       border-radius: 50%;
       animation: spin 0.8s linear infinite;
     }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* TOAST */
     .toast {
       position: fixed;
       bottom: 25px;
@@ -365,178 +494,255 @@
       border-radius: 60px;
       font-weight: 500;
       z-index: 2100;
-      animation: fadeOut 3s forwards;
+      animation: fadeOut 3.2s forwards;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      font-size: 0.95rem;
     }
     @keyframes fadeOut {
-      0% { opacity: 1; transform: translateY(0); }
-      70% { opacity: 1; }
+      0%   { opacity: 1; transform: translateY(0); }
+      75%  { opacity: 1; }
       100% { opacity: 0; transform: translateY(20px); visibility: hidden; }
     }
-    .required:after {
-      content: " *";
-      color: #ef4444;
+
+    .required:after { content: " *"; color: #ef4444; }
+
+    /* CONTADOR RESULTADOS */
+    .results-info {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin-bottom: 0.8rem;
+      padding-left: 4px;
     }
   </style>
 </head>
 <body>
 
+<!-- MARCA DESARROLLADOR -->
+<div class="copyright">© 2024 Desarrollado por José Antonio Ortiz Corzo</div>
+
+<!-- LOGIN -->
 <div id="loginContainer" class="login-container">
   <div class="login-card">
-    <img class="logo-institucional" id="logoLogin" src="logo.png" alt="Logo">
+    <img class="logo-institucional" src="logo.png" alt="Logo INEB">
     <h2>Control Estudiantil</h2>
-    <p style="color:#4b5563">INEB San Raymundo</p>
+    <p>Instituto Nacional Mixto de Educación Básica<br>San Raymundo</p>
     <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off">
     <input type="password" id="loginPass" placeholder="Contraseña">
     <button onclick="iniciarSesion()">Ingresar al sistema</button>
   </div>
 </div>
 
+<!-- APP PRINCIPAL -->
 <div id="appContainer" class="app-container">
+
+  <!-- HEADER -->
   <div class="glass-header">
     <div class="logo-area">
-      <img id="logoHeader" src="logo.png" alt="Logo" style="height:50px; border-radius: 12px;">
-      <h1>Control Estudiantil INEB</h1>
+      <img src="logo.png" alt="Logo" style="height:50px; border-radius:12px;">
+      <h1>Instituto Nacional Mixto de Educación Básica de San Raymundo</h1>
     </div>
     <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
   </div>
 
   <div class="dashboard">
-    <!-- Formulario -->
+
+    <!-- ===== FORMULARIO ===== -->
     <div class="form-card">
       <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
-      <form id="studentForm">
+      <form id="studentForm" autocomplete="off">
+
         <div class="section-title">📋 Datos personales</div>
+
+        <!-- FOTO A LA PAR DEL NOMBRE -->
+        <div class="user-info-area">
+          <div class="avatar-upload-area">
+            <label for="fotoInput" title="Clic para seleccionar foto">
+              <img id="previewImg" src="https://via.placeholder.com/110?text=FOTO" alt="Foto estudiante">
+              <div class="upload-badge">📷</div>
+            </label>
+            <input type="file" id="fotoInput" accept="image/*" style="display:none;">
+          </div>
+
+          <div class="grid-2cols flex-fill">
+            <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
+            <div class="form-group required"><label>Código único</label><input type="text" id="codigo"></div>
+            <div class="form-group"><label>Clave estudiantil</label><input type="text" id="clave"></div>
+            <div class="form-group required">
+              <label>Grado / Sección</label>
+              <select id="grado">
+                <option>1A</option><option>1B</option><option>1C</option>
+                <option>2A</option><option>2B</option><option>2C</option>
+                <option>3A</option><option>3B</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Teléfono</label><input type="text" id="telefono"></div>
+            <div class="form-group">
+              <label>¿Cambió sección?</label>
+              <select id="cambio_seccion"><option>NO</option><option>SI</option></select>
+            </div>
+          </div>
+        </div>
+
         <div class="grid-2cols">
-          <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
-          <div class="form-group required"><label>Código único</label><input type="text" id="codigo"></div>
-          <div class="form-group"><label>Edad</label><input type="number" id="edad"></div>
+          <div class="form-group"><label>Edad</label><input type="number" id="edad" min="10" max="25"></div>
           <div class="form-group"><label>Fecha nacimiento</label><input type="date" id="fecha"></div>
-          <div class="form-group"><label>Teléfono</label><input type="text" id="telefono"></div>
-          <div class="form-group"><label>Tel emergencia</label><input type="text" id="emergencia"></div>
+          <div class="form-group"><label>Tel. emergencia</label><input type="text" id="emergencia"></div>
           <div class="form-group"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
           <div class="form-group"><label>Enfermedad crónica</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
           <div class="form-group"><label>Detalle enfermedad</label><input type="text" id="detalle_enf"></div>
-          <div class="form-group"><label>Zurdo/Diestro</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
-          <div class="form-group required"><label>Grado</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
+          <div class="form-group"><label>Lateralidad</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
           <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
           <div class="form-group"><label>Dirección</label><input type="text" id="direccion"></div>
-          <div class="form-group"><label>Aldea</label><input type="text" id="aldea"></div>
+          <div class="form-group"><label>Aldea / Comunidad</label><input type="text" id="aldea"></div>
         </div>
 
-        <div class="section-title">👨👩👧 Padres / Tutores</div>
+        <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
         <div class="grid-2cols">
           <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
           <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
-          <div class="form-group"><label>Tel padre</label><input type="text" id="tel_padre"></div>
+          <div class="form-group"><label>Tel. padre</label><input type="text" id="tel_padre"></div>
           <div class="form-group"><label>Nombre madre</label><input type="text" id="madre"></div>
           <div class="form-group"><label>DPI madre</label><input type="text" id="dpi_madre"></div>
-          <div class="form-group"><label>Tel madre</label><input type="text" id="tel_madre"></div>
+          <div class="form-group"><label>Tel. madre</label><input type="text" id="tel_madre"></div>
         </div>
 
         <div class="section-title">👤 Encargado</div>
         <div class="grid-2cols">
-          <div class="form-group"><label>¿Encargado es padre?</label><select id="enc_padre"><option>NO</option><option>SI</option></select></div>
-          <div class="form-group"><label>¿Encargado es madre?</label><select id="enc_madre"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>¿Es el padre?</label><select id="enc_padre"><option>NO</option><option>SI</option></select></div>
+          <div class="form-group"><label>¿Es la madre?</label><select id="enc_madre"><option>NO</option><option>SI</option></select></div>
           <div class="form-group"><label>Nombre encargado</label><input type="text" id="encargado"></div>
           <div class="form-group"><label>DPI encargado</label><input type="text" id="dpi_enc"></div>
-          <div class="form-group"><label>Tel encargado</label><input type="text" id="tel_enc"></div>
+          <div class="form-group"><label>Tel. encargado</label><input type="text" id="tel_enc"></div>
           <div class="form-group"><label>Dirección encargado</label><input type="text" id="dir_enc"></div>
           <div class="form-group"><label>Aldea encargado</label><input type="text" id="aldea_enc"></div>
-          <div class="form-group"><label>Relación</label><input type="text" id="relacion"></div>
-          <div class="form-group"><label>Tel extra</label><input type="text" id="tel_extra"></div>
+          <div class="form-group"><label>Relación con estudiante</label><input type="text" id="relacion"></div>
+          <div class="form-group"><label>Tel. extra</label><input type="text" id="tel_extra"></div>
         </div>
 
-        <div class="section-title">📸 Fotografía</div>
-        <input type="file" id="fotoInput" accept="image/*">
-        <div class="photo-preview-area">
-          <img id="previewImg" class="photo-preview" style="display: none;">
-        </div>
-
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
+        <div style="display:flex; gap:12px; margin-top:22px; flex-wrap:wrap;">
           <button type="button" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
-          <button type="button" class="btn-secondary" onclick="resetFormulario()">🗑️ Limpiar</button>
+          <button type="button" class="btn-secondary" onclick="resetFormulario()">🗑️ Limpiar formulario</button>
         </div>
-      </form>
-    </div>
 
-    <!-- Tabla y búsqueda -->
+      </form>
+    </div><!-- /form-card -->
+
+    <!-- ===== TABLA ===== -->
     <div class="table-card">
-      <div class="search-bar">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre... (escribe en vivo)" onkeyup="filtrarEstudiantes()">
-        <button class="btn-export" onclick="exportarExcel()">📎 Exportar Excel</button>
+
+      <!-- TOOLBAR: BÚSQUEDA + FILTRO EXPORTAR -->
+      <div class="toolbar">
+        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..." oninput="filtrarEstudiantes()">
+
+        <div class="export-group">
+          <select id="gradoExportar" title="Seleccionar grado a exportar">
+            <option value="TODOS">Todos los grados</option>
+            <option>1A</option><option>1B</option><option>1C</option>
+            <option>2A</option><option>2B</option><option>2C</option>
+            <option>3A</option><option>3B</option>
+          </select>
+          <button class="btn-export" onclick="exportarExcel()">📎 Exportar</button>
+        </div>
       </div>
+
+      <div id="resultsInfo" class="results-info"></div>
+
       <div class="table-wrapper">
         <table>
           <thead>
-            <tr><th>Foto</th><th>Nombre</th><th>Código</th><th>Grado</th><th>Teléfono</th><th>Acciones</th></tr>
+            <tr>
+              <th>Foto</th>
+              <th>Clave</th>
+              <th>Nombre</th>
+              <th>Código</th>
+              <th>Teléfono</th>
+              <th>Cam. Sec.</th>
+              <th>Acciones</th>
+            </tr>
           </thead>
           <tbody id="tablaBody"></tbody>
         </table>
       </div>
+
       <div id="pagination" class="pagination"></div>
-    </div>
-  </div>
-</div>
+
+    </div><!-- /table-card -->
+
+  </div><!-- /dashboard -->
+</div><!-- /app-container -->
 
 <div id="loaderOverlay" class="loader-overlay"><div class="spinner"></div></div>
 
 <script>
   // ==================== CONFIGURACIÓN ====================
-  // Asegúrate de reemplazar "TU_NUEVO_ENLACE_AQUI" por tu endpoint real si actualizaste el Google App Script:
   const API_URL = "https://script.google.com/macros/s/AKfycbws6hl8zRv_UnwHoBvYuI0JP8_0HntRgkZLlzmoVQAzmhVQRdPByVetIRCCK8pdJqRH/exec";
+
   let estudiantesGlobal = [];
+  let listaFiltradaActual = [];
   let currentPage = 1;
-  const rowsPerPage = 8;
+  const rowsPerPage = 10;
   let editMode = false;
   let editCodigo = null;
   let currentFotoUrl = "";
 
-  // Helper mensajes
+  // ==================== UTILIDADES ====================
   function showMessage(text, isError = false) {
-    const toast = document.createElement('div');
-    toast.className = 'toast';
-    toast.textContent = text;
-    toast.style.background = isError ? '#dc2626' : '#10b981';
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 3000);
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = text;
+    t.style.background = isError ? '#dc2626' : '#10b981';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3200);
   }
 
-  function showLoader(show) {
-    document.getElementById('loaderOverlay').style.display = show ? 'flex' : 'none';
+  function showLoader(v) {
+    document.getElementById('loaderOverlay').style.display = v ? 'flex' : 'none';
   }
 
-  // Llamada genérica a API
-  async function callApi(action, data = {}, timeoutMs = 20000) {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  /**
+   * Convierte URL de Google Drive a miniatura directa para evitar imagen rota.
+   * Soporta: /file/d/ID, /open?id=ID, /thumbnail?id=ID, y URLs directas.
+   */
+  function getDriveThumbnail(url) {
+    if (!url || url.trim() === '') return '';
+    const m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+    if (m && m[1]) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w120`;
+    const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+    if (m2 && m2[1]) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w120`;
+    return url;
+  }
+
+  // ==================== API ====================
+  async function callApi(action, data = {}, timeoutMs = 22000) {
+    const ctrl = new AbortController();
+    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
     try {
       const res = await fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ action, data }),
-        signal: controller.signal
+        signal: ctrl.signal
       });
-      clearTimeout(timeoutId);
+      clearTimeout(tid);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       return await res.json();
     } catch (err) {
-      clearTimeout(timeoutId);
-      if (err.name === 'AbortError') throw new Error('La petición tardó demasiado tiempo');
+      clearTimeout(tid);
+      if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado. Reintenta.');
       throw err;
     }
   }
 
   // ==================== LOGIN ====================
   window.iniciarSesion = async () => {
-    const u = document.getElementById('loginUser').value;
+    const u = document.getElementById('loginUser').value.trim();
     const p = document.getElementById('loginPass').value;
-    if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
+    if (!u || !p) return showMessage("Usuario y contraseña son requeridos", true);
     showLoader(true);
     try {
       const res = await callApi('login', { u, p });
       if (res.success) {
         localStorage.setItem('logged', 'true');
-        localStorage.setItem('role', res.role);
+        localStorage.setItem('role', res.role || '');
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         cargarListaEstudiantes();
@@ -553,210 +759,255 @@
     localStorage.clear();
     document.getElementById('appContainer').style.display = 'none';
     document.getElementById('loginContainer').style.display = 'flex';
+    estudiantesGlobal = [];
     resetFormulario();
   }
 
-  // ==================== CRUD ====================
+  // ==================== CARGAR LISTA ====================
   async function cargarListaEstudiantes() {
-      showLoader(true);
-      try {
-        const res = await callApi('listarTodos');
-        if (res.success) {
-          
-          // Mapeamos los resultados para asegurar formato (Programación Defensiva)
-          estudiantesGlobal = res.data.map(e => ({
-            ...e,
-            nombre: e.nombre ? String(e.nombre) : "",
-            codigo: e.codigo ? String(e.codigo) : ""
-          }));
-          
-          filtrarEstudiantes();
-        } else {
-          showMessage("Error al cargar datos", true);
-        }
-      } catch (err) {
-        showMessage("Error de red: " + err.message, true);
+    showLoader(true);
+    try {
+      const res = await callApi('listarTodos');
+      if (res.success) {
+        // Programación defensiva: forzar strings en campos clave
+        estudiantesGlobal = res.data.map(e => ({
+          ...e,
+          nombre:          e.nombre          ? String(e.nombre)          : "",
+          codigo:          e.codigo          ? String(e.codigo)          : "",
+          clave:           e.clave           ? String(e.clave)           : "",
+          grado:           e.grado           ? String(e.grado)           : "",
+          telefono:        e.telefono        ? String(e.telefono)        : "",
+          cambio_seccion:  e.cambio_seccion  ? String(e.cambio_seccion)  : "NO",
+          foto:            e.foto            ? String(e.foto)            : ""
+        }));
+        filtrarEstudiantes();
+      } else {
+        showMessage("Error al cargar datos: " + (res.msg || ""), true);
       }
-      showLoader(false);
+    } catch (err) {
+      showMessage("Error de red: " + err.message, true);
     }
-
-  /* CORRECCIÓN 1: Solución robusta para toLowerCase() */
-  function filtrarEstudiantes() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    const filtrados = estudiantesGlobal.filter(e => {
-      // Uso de un operador seguro para garantizar cadena
-      const nombreValido = e.nombre ? String(e.nombre).toLowerCase() : "";
-      return nombreValido.includes(searchTerm);
-    });
-    
-    currentPage = 1;
-    renderizarTabla(filtrados);
+    showLoader(false);
   }
 
-  /* CORRECCIÓN 3: Evitar el bucle infinito en onerror */
+  // ==================== FILTRAR ====================
+  function filtrarEstudiantes() {
+    const s = document.getElementById('searchInput').value.toLowerCase().trim();
+    listaFiltradaActual = estudiantesGlobal.filter(e => {
+      const n = e.nombre ? e.nombre.toLowerCase() : "";
+      const c = e.codigo ? e.codigo.toLowerCase() : "";
+      return n.includes(s) || c.includes(s);
+    });
+    currentPage = 1;
+    renderizarTabla(listaFiltradaActual);
+  }
+
+  // ==================== RENDERIZAR TABLA ====================
   function renderizarTabla(lista) {
     const tbody = document.getElementById('tablaBody');
     tbody.innerHTML = '';
-    const start = (currentPage - 1) * rowsPerPage;
-    const paginated = lista.slice(start, start + rowsPerPage);
-    
-    paginated.forEach(est => {
-      const row = tbody.insertRow();
-      
-      const celFoto = row.insertCell(0);
-      const img = document.createElement('img');
-      img.src = est.foto || 'https://via.placeholder.com/45?text=NO';
-      img.className = 'student-img';
-      // Evitamos el bucle anulando el evento this.onerror
-      img.onerror = function() {
-        this.onerror = null; 
-        this.src = 'https://via.placeholder.com/45?text=📷';
-      };
-      celFoto.appendChild(img);
-      
-      row.insertCell(1).textContent = est.nombre;
-      row.insertCell(2).textContent = est.codigo;
-      row.insertCell(3).textContent = est.grado;
-      row.insertCell(4).textContent = est.telefono || '—';
-      
-      const accCel = row.insertCell(5);
-      const btnEdit = document.createElement('button');
-      btnEdit.innerHTML = '✏️';
-      btnEdit.className = 'action-btn edit-btn';
-      btnEdit.title = 'Editar';
-      btnEdit.onclick = () => editarEstudiante(est.codigo);
-      
-      const btnArchive = document.createElement('button');
-      btnArchive.innerHTML = '📦';
-      btnArchive.className = 'action-btn archive-btn';
-      btnArchive.title = 'Archivar';
-      btnArchive.onclick = () => archivarEstudiante(est.codigo);
-      
-      accCel.appendChild(btnEdit);
-      accCel.appendChild(btnArchive);
+
+    // Actualizar contador
+    document.getElementById('resultsInfo').textContent =
+      `Mostrando ${lista.length} estudiante${lista.length !== 1 ? 's' : ''} activos`;
+
+    // Ordenar: por grado, luego por clave numérica, luego por nombre
+    const sorted = [...lista].sort((a, b) => {
+      const gCmp = (a.grado || "").localeCompare(b.grado || "");
+      if (gCmp !== 0) return gCmp;
+      const ca = parseInt(a.clave) || 9999;
+      const cb = parseInt(b.clave) || 9999;
+      if (ca !== cb) return ca - cb;
+      return (a.nombre || "").localeCompare(b.nombre || "");
     });
-    
-    const totalPages = Math.ceil(lista.length / rowsPerPage);
-    const pagDiv = document.getElementById('pagination');
-    pagDiv.innerHTML = '';
-    for (let i = 1; i <= totalPages; i++) {
-        const btn = document.createElement('button');
-        btn.textContent = i;
-        if (i === currentPage) btn.classList.add('active');
-        btn.onclick = () => { currentPage = i; renderizarTabla(lista); };
-        pagDiv.appendChild(btn);
+
+    const start = (currentPage - 1) * rowsPerPage;
+    const page  = sorted.slice(start, start + rowsPerPage);
+
+    let gradoActual = null;
+
+    page.forEach(est => {
+      // Separador de grado
+      if (est.grado !== gradoActual) {
+        gradoActual = est.grado;
+        const sepRow = tbody.insertRow();
+        sepRow.className = 'grado-separator';
+        const sepCell = sepRow.insertCell(0);
+        sepCell.colSpan = 7;
+        sepCell.textContent = `📚 Grado y Sección: ${est.grado || 'Sin asignar'}`;
+      }
+
+      const row = tbody.insertRow();
+
+      // FOTO
+      const tdFoto = row.insertCell(0);
+      const img = document.createElement('img');
+      const thumbUrl = getDriveThumbnail(est.foto);
+      img.src = thumbUrl || 'https://via.placeholder.com/44?text=👤';
+      img.className = 'student-img';
+      img.alt = est.nombre || '';
+      img.onerror = function () {
+        this.onerror = null;
+        this.src = 'https://via.placeholder.com/44?text=👤';
+      };
+      tdFoto.appendChild(img);
+
+      // CLAVE
+      row.insertCell(1).textContent = est.clave || '—';
+
+      // NOMBRE
+      row.insertCell(2).textContent = est.nombre || '—';
+
+      // CÓDIGO
+      row.insertCell(3).textContent = est.codigo || '—';
+
+      // TELÉFONO
+      row.insertCell(4).textContent = est.telefono || '—';
+
+      // CAMBIO SECCIÓN
+      const tdCambio = row.insertCell(5);
+      const esSI = (est.cambio_seccion || "NO").toUpperCase() === "SI";
+      tdCambio.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀 SI' : 'NO'}</span>`;
+
+      // ACCIONES (menú contextual ⋮)
+      const tdAcc = row.insertCell(6);
+      tdAcc.innerHTML = `
+        <div class="action-dropdown">
+          <button class="drop-btn" title="Acciones">⋮</button>
+          <div class="action-content">
+            <button onclick="editarEstudiante('${est.codigo.replace(/'/g,"\\'")}')">✏️ Editar</button>
+            <button class="text-red" onclick="archivarEstudiante('${est.codigo.replace(/'/g,"\\'")}')">🗑️ Archivar</button>
+          </div>
+        </div>`;
+    });
+
+    // PAGINACIÓN
+    const total = Math.ceil(sorted.length / rowsPerPage);
+    const pgDiv = document.getElementById('pagination');
+    pgDiv.innerHTML = '';
+
+    // Botón «anterior»
+    if (total > 1) {
+      const prev = document.createElement('button');
+      prev.textContent = '‹';
+      prev.disabled = currentPage === 1;
+      prev.onclick = () => { currentPage--; renderizarTabla(lista); };
+      pgDiv.appendChild(prev);
+    }
+
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement('button');
+      btn.textContent = i;
+      if (i === currentPage) btn.classList.add('active');
+      btn.onclick = () => { currentPage = i; renderizarTabla(lista); };
+      pgDiv.appendChild(btn);
+    }
+
+    // Botón «siguiente»
+    if (total > 1) {
+      const next = document.createElement('button');
+      next.textContent = '›';
+      next.disabled = currentPage === total;
+      next.onclick = () => { currentPage++; renderizarTabla(lista); };
+      pgDiv.appendChild(next);
     }
   }
 
+  // ==================== FOTO: COMPRIMIR ====================
   function comprimirFoto(file) {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          let width = img.width;
-          let height = img.height;
-          const maxSize = 600;
-          if (width > maxSize) {
-            height = (height * maxSize) / width;
-            width = maxSize;
-          }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          const base64 = canvas.toDataURL('image/jpeg', 0.6);
-          resolve(base64);
-        };
-        img.onerror = reject;
-        img.src = e.target.result;
-      };
       reader.onerror = reject;
+      reader.onload = e => {
+        const imgEl = new Image();
+        imgEl.onerror = reject;
+        imgEl.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = imgEl.width, h = imgEl.height;
+          const MAX = 600;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.62));
+        };
+        imgEl.src = e.target.result;
+      };
       reader.readAsDataURL(file);
     });
   }
 
   async function subirFotoSiNecesaria() {
-    const fileInput = document.getElementById('fotoInput');
-    if (!fileInput.files.length) return currentFotoUrl;
-    
-    const file = fileInput.files[0];
-    if (file.size > 2 * 1024 * 1024) {
-      throw new Error("La foto no debe superar 2MB. Comprímela antes.");
-    }
-    
-    const nombreEst = document.getElementById('nombre').value.trim();
-    if (!nombreEst) throw new Error("Escribe el nombre antes de subir foto");
-    const grado = document.getElementById('grado').value;
-    if (!grado) throw new Error("Selecciona el grado");
-    
-    const nombreLimpio = nombreEst.replace(/[\\/:*?"<>|]/g, '_');
-    const base64Completo = await comprimirFoto(file);
-    const base64 = base64Completo.split(',')[1];
-    
-    const res = await callApi('subirFoto', { 
-      base64: base64, 
-      nombre: nombreLimpio, 
-      grado: grado 
-    }, 30000);
-    
+    const fi = document.getElementById('fotoInput');
+    if (!fi.files.length) return currentFotoUrl;
+
+    const file = fi.files[0];
+    if (file.size > 3 * 1024 * 1024) throw new Error("La foto no debe superar 3 MB");
+
+    const nombre = document.getElementById('nombre').value.trim();
+    const grado  = document.getElementById('grado').value;
+    if (!nombre) throw new Error("Escribe el nombre antes de subir la foto");
+    if (!grado)  throw new Error("Selecciona el grado");
+
+    const nombreLimpio = nombre.replace(/[\\/:*?"<>|]/g, '_');
+    const b64Full = await comprimirFoto(file);
+    const b64 = b64Full.split(',')[1];
+    if (!b64) throw new Error("Error al procesar la imagen");
+
+    const res = await callApi('subirFoto', { base64: b64, nombre: nombreLimpio, grado }, 35000);
     if (!res.success) throw new Error(res.msg || "Error al subir foto");
     return res.url;
   }
 
+  // ==================== GUARDAR ====================
   async function guardarEstudiante() {
     const nombre = document.getElementById('nombre').value.trim();
     const codigo = document.getElementById('codigo').value.trim();
-    const grado = document.getElementById('grado').value;
+    const grado  = document.getElementById('grado').value;
     if (!nombre || !codigo || !grado) {
-      showMessage("Nombre, código y grado son obligatorios", true);
-      return;
+      return showMessage("Nombre, código y grado son obligatorios", true);
     }
+
     showLoader(true);
     try {
-      let fotoUrl = currentFotoUrl;
-      if (document.getElementById('fotoInput').files.length) {
-        fotoUrl = await subirFotoSiNecesaria();
-      }
+      const fotoUrl = await subirFotoSiNecesaria();
       const data = {
-        nombre, codigo, edad: document.getElementById('edad').value,
-        fecha: document.getElementById('fecha').value,
-        telefono: document.getElementById('telefono').value,
-        emergencia: document.getElementById('emergencia').value,
-        genero: document.getElementById('genero').value,
-        enfermedad: document.getElementById('enfermedad').value,
-        detalle_enf: document.getElementById('detalle_enf').value,
-        zurdo: document.getElementById('zurdo').value,
-        grado: grado,
-        etnia: document.getElementById('etnia').value,
-        direccion: document.getElementById('direccion').value,
-        aldea: document.getElementById('aldea').value,
-        padre: document.getElementById('padre').value,
-        dpi_padre: document.getElementById('dpi_padre').value,
-        tel_padre: document.getElementById('tel_padre').value,
-        madre: document.getElementById('madre').value,
-        dpi_madre: document.getElementById('dpi_madre').value,
-        tel_madre: document.getElementById('tel_madre').value,
-        enc_padre: document.getElementById('enc_padre').value,
-        enc_madre: document.getElementById('enc_madre').value,
-        encargado: document.getElementById('encargado').value,
-        dpi_enc: document.getElementById('dpi_enc').value,
-        tel_enc: document.getElementById('tel_enc').value,
-        dir_enc: document.getElementById('dir_enc').value,
-        aldea_enc: document.getElementById('aldea_enc').value,
-        relacion: document.getElementById('relacion').value,
-        tel_extra: document.getElementById('tel_extra').value,
-        foto: fotoUrl
+        nombre, codigo, grado,
+        clave:         document.getElementById('clave').value.trim(),
+        cambio_seccion:document.getElementById('cambio_seccion').value,
+        edad:          document.getElementById('edad').value,
+        fecha:         document.getElementById('fecha').value,
+        telefono:      document.getElementById('telefono').value,
+        emergencia:    document.getElementById('emergencia').value,
+        genero:        document.getElementById('genero').value,
+        enfermedad:    document.getElementById('enfermedad').value,
+        detalle_enf:   document.getElementById('detalle_enf').value,
+        zurdo:         document.getElementById('zurdo').value,
+        etnia:         document.getElementById('etnia').value,
+        direccion:     document.getElementById('direccion').value,
+        aldea:         document.getElementById('aldea').value,
+        padre:         document.getElementById('padre').value,
+        dpi_padre:     document.getElementById('dpi_padre').value,
+        tel_padre:     document.getElementById('tel_padre').value,
+        madre:         document.getElementById('madre').value,
+        dpi_madre:     document.getElementById('dpi_madre').value,
+        tel_madre:     document.getElementById('tel_madre').value,
+        enc_padre:     document.getElementById('enc_padre').value,
+        enc_madre:     document.getElementById('enc_madre').value,
+        encargado:     document.getElementById('encargado').value,
+        dpi_enc:       document.getElementById('dpi_enc').value,
+        tel_enc:       document.getElementById('tel_enc').value,
+        dir_enc:       document.getElementById('dir_enc').value,
+        aldea_enc:     document.getElementById('aldea_enc').value,
+        relacion:      document.getElementById('relacion').value,
+        tel_extra:     document.getElementById('tel_extra').value,
+        foto:          fotoUrl
       };
-      
-      const action = editMode ? 'actualizar' : 'guardar';
+
       if (editMode) data.codigo = editCodigo;
-      const res = await callApi(action, data);
-      
+      const res = await callApi(editMode ? 'actualizar' : 'guardar', data);
+
       if (res.success) {
-        showMessage(editMode ? "Actualizado correctamente" : "Guardado exitoso");
+        showMessage(editMode ? "Actualizado correctamente ✅" : "Estudiante guardado ✅");
         resetFormulario();
         cargarListaEstudiantes();
       } else {
@@ -768,72 +1019,71 @@
     showLoader(false);
   }
 
+  // ==================== EDITAR ====================
   async function editarEstudiante(codigo) {
     showLoader(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     try {
       const res = await callApi('buscar', { codigo });
       if (res.success && res.data) {
         const d = res.data;
-        document.getElementById('nombre').value = d[1] || "";
-        document.getElementById('codigo').value = d[2] || "";
-        document.getElementById('edad').value = d[3] || "";
-        
-        /* CORRECCIÓN 2: Tratamiento Seguro de Fecha */
+
+        const setVal = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.value = val || "";
+        };
+
+        setVal('nombre',    d[1]);
+        setVal('codigo',    d[2]);
+        setVal('edad',      d[3]);
+
+        // Fecha segura
         try {
-          if(d[4]) {
-             const dateObj = new Date(d[4]);
-             if(!isNaN(dateObj.getTime())){
-                document.getElementById('fecha').value = dateObj.toISOString().split('T')[0];
-             } else {
-                document.getElementById('fecha').value = "";
-             }
-          } else {
-             document.getElementById('fecha').value = "";
-          }
-        } catch(e) { document.getElementById('fecha').value = ""; }
-        
-        document.getElementById('telefono').value = d[5] || "";
-        document.getElementById('emergencia').value = d[6] || "";
-        document.getElementById('genero').value = d[7] || "Masculino";
-        document.getElementById('enfermedad').value = d[8] || "NO";
-        document.getElementById('detalle_enf').value = d[9] || "";
-        document.getElementById('zurdo').value = d[10] || "Diestro";
-        document.getElementById('grado').value = d[11] || "1A";
-        document.getElementById('etnia').value = d[12] || "";
-        document.getElementById('direccion').value = d[13] || "";
-        document.getElementById('aldea').value = d[14] || "";
-        document.getElementById('padre').value = d[15] || "";
-        document.getElementById('dpi_padre').value = d[16] || "";
-        document.getElementById('tel_padre').value = d[17] || "";
-        document.getElementById('madre').value = d[18] || "";
-        document.getElementById('dpi_madre').value = d[19] || "";
-        document.getElementById('tel_madre').value = d[20] || "";
-        document.getElementById('enc_padre').value = d[21] || "NO";
-        document.getElementById('enc_madre').value = d[22] || "NO";
-        document.getElementById('encargado').value = d[23] || "";
-        document.getElementById('dpi_enc').value = d[24] || "";
-        document.getElementById('tel_enc').value = d[25] || "";
-        document.getElementById('dir_enc').value = d[26] || "";
-        document.getElementById('aldea_enc').value = d[27] || "";
-        document.getElementById('relacion').value = d[28] || "";
-        document.getElementById('tel_extra').value = d[29] || "";
-        
+          if (d[4]) {
+            const fd = new Date(d[4]);
+            document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
+          } else document.getElementById('fecha').value = "";
+        } catch (_) { document.getElementById('fecha').value = ""; }
+
+        setVal('telefono',      d[5]);
+        setVal('emergencia',    d[6]);
+        setVal('genero',        d[7] || "Masculino");
+        setVal('enfermedad',    d[8] || "NO");
+        setVal('detalle_enf',   d[9]);
+        setVal('zurdo',         d[10] || "Diestro");
+        setVal('grado',         d[11] || "1A");
+        setVal('etnia',         d[12]);
+        setVal('direccion',     d[13]);
+        setVal('aldea',         d[14]);
+        setVal('padre',         d[15]);
+        setVal('dpi_padre',     d[16]);
+        setVal('tel_padre',     d[17]);
+        setVal('madre',         d[18]);
+        setVal('dpi_madre',     d[19]);
+        setVal('tel_madre',     d[20]);
+        setVal('enc_padre',     d[21] || "NO");
+        setVal('enc_madre',     d[22] || "NO");
+        setVal('encargado',     d[23]);
+        setVal('dpi_enc',       d[24]);
+        setVal('tel_enc',       d[25]);
+        setVal('dir_enc',       d[26]);
+        setVal('aldea_enc',     d[27]);
+        setVal('relacion',      d[28]);
+        setVal('tel_extra',     d[29]);
+        setVal('clave',         d[33]);
+        setVal('cambio_seccion', d[34] || "NO");
+
+        // Foto
         currentFotoUrl = d[32] || "";
-        if (currentFotoUrl && currentFotoUrl.trim() !== "") {
-          const preview = document.getElementById('previewImg');
-          preview.src = currentFotoUrl;
-          preview.style.display = 'block';
-        } else {
-          document.getElementById('previewImg').style.display = 'none';
-        }
-        
-        editMode = true;
+        const preview = document.getElementById('previewImg');
+        const thumb = getDriveThumbnail(currentFotoUrl);
+        preview.src = thumb || 'https://via.placeholder.com/110?text=FOTO';
+
+        editMode  = true;
         editCodigo = codigo;
         document.getElementById('codigo').disabled = true;
-        document.getElementById('formTitle').innerHTML = '✏️ Editando estudiante';
-        document.getElementById('btnGuardar').innerHTML = '🔄 Actualizar';
-        // Scroll hacia arriba para verse al editar
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('formTitle').textContent = '✏️ Editando estudiante';
+        document.getElementById('btnGuardar').textContent = '🔄 Actualizar';
       } else {
         showMessage("No se encontró el estudiante", true);
       }
@@ -843,8 +1093,9 @@
     showLoader(false);
   }
 
+  // ==================== ARCHIVAR ====================
   async function archivarEstudiante(codigo) {
-    if (!confirm("¿Archivar este estudiante? (se ocultará de la tabla)")) return;
+    if (!confirm(`¿Archivar al estudiante con código "${codigo}"?\nNo aparecerá en la lista activa.`)) return;
     showLoader(true);
     try {
       const res = await callApi('borrar', { codigo });
@@ -852,76 +1103,115 @@
         showMessage("Estudiante archivado");
         cargarListaEstudiantes();
       } else {
-        showMessage("Error al archivar", true);
+        showMessage(res.msg || "Error al archivar", true);
       }
     } catch (err) {
-      showMessage("Error de red", true);
+      showMessage("Error de red: " + err.message, true);
     }
     showLoader(false);
   }
 
+  // ==================== RESET FORMULARIO ====================
   function resetFormulario() {
     document.getElementById('studentForm').reset();
-    document.getElementById('previewImg').style.display = 'none';
-    document.getElementById('previewImg').src = '';
+    document.getElementById('previewImg').src = 'https://via.placeholder.com/110?text=FOTO';
     currentFotoUrl = '';
     editMode = false;
     editCodigo = null;
     document.getElementById('codigo').disabled = false;
-    document.getElementById('formTitle').innerHTML = '➕ Nuevo estudiante';
-    document.getElementById('btnGuardar').innerHTML = '💾 Guardar estudiante';
+    document.getElementById('formTitle').textContent = '➕ Nuevo estudiante';
+    document.getElementById('btnGuardar').textContent = '💾 Guardar estudiante';
     document.getElementById('fotoInput').value = '';
   }
 
-  /* CORRECCIÓN 4: Prevención de corrupción en comillas internas en CSV */
+  // ==================== EXPORTAR CSV (CON FILTRO DE GRADO) ====================
   async function exportarExcel() {
+    const gradoSel = document.getElementById('gradoExportar').value; // "TODOS" o un grado específico
     showLoader(true);
     try {
-      const res = await callApi('exportar');
-      if (res.success && res.data) {
-        const headers = res.data[0];
-        const rows = res.data.slice(1);
-        let csv = headers.join(',') + '\n';
-        
-        rows.forEach(row => {
-          csv += row.map(cell => {
-             // Comillas escapadas para evitar que textos con coma o comillas corrompan Excel
-             const escaped = String(cell || "").replace(/"/g, '""');
-             return `"${escaped}"`;
-          }).join(',') + '\n';
-        });
-        
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'estudiantes_activos.csv';
-        link.click();
-        showMessage("Exportación completa");
-      } else {
-        showMessage("Error al exportar", true);
+      const res = await callApi('exportar', {}, 25000);
+      if (!res.success || !res.data) {
+        showMessage("Error al obtener datos para exportar", true);
+        showLoader(false);
+        return;
       }
+
+      const headers = res.data[0];   // primera fila = encabezados
+      let rows = res.data.slice(1);  // resto = datos
+
+      // FILTRAR POR GRADO SI EL USUARIO NO ELIGIÓ "TODOS"
+      // El índice 11 (columna L) corresponde al campo Grado en la hoja
+      if (gradoSel !== "TODOS") {
+        rows = rows.filter(r => String(r[11] || "").trim().toUpperCase() === gradoSel.toUpperCase());
+      }
+
+      if (rows.length === 0) {
+        showMessage(`No hay estudiantes activos para: ${gradoSel}`, true);
+        showLoader(false);
+        return;
+      }
+
+      // Construir CSV con comillas escapadas (para no corromper Excel)
+      const escapar = (c) => `"${String(c || "").replace(/"/g, '""')}"`;
+      let csv = headers.map(escapar).join(',') + '\r\n';
+      rows.forEach(row => { csv += row.map(escapar).join(',') + '\r\n'; });
+
+      // BOM para que Excel en Windows abra correctamente el UTF-8
+      const bom = '\uFEFF';
+      const blob = new Blob([bom + csv], { type: 'text/csv;charset=utf-8;' });
+      const fileName = gradoSel === "TODOS"
+        ? `Estudiantes_INEB_Todos_${new Date().toLocaleDateString('es-GT').replace(/\//g,'-')}.csv`
+        : `Estudiantes_INEB_${gradoSel}_${new Date().toLocaleDateString('es-GT').replace(/\//g,'-')}.csv`;
+
+      // ANDROID / iOS → Menú nativo de compartir (WhatsApp, Drive, etc.)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], fileName, { type: 'text/csv' });
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Listado Estudiantil INEB',
+              text: `Se adjunta el listado de estudiantes - ${gradoSel === "TODOS" ? "Todos los grados" : "Grado " + gradoSel}`
+            });
+            showLoader(false);
+            return; // Ya compartido, no descargar
+          } catch (shareErr) {
+            // Usuario canceló el menú de compartir → continuar con descarga normal
+          }
+        }
+      }
+
+      // Descarga directa (PC o navegadores sin Web Share API)
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(link.href);
+      showMessage(`✅ ${rows.length} registros exportados (${gradoSel === "TODOS" ? "Todos" : "Grado " + gradoSel})`);
+
     } catch (err) {
-      showMessage("Error de red", true);
+      showMessage("Error al exportar: " + err.message, true);
     }
     showLoader(false);
   }
 
-  // Preview foto local
+  // ==================== PREVIEW FOTO LOCAL ====================
   document.getElementById('fotoInput').addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        const preview = document.getElementById('previewImg');
-        preview.src = ev.target.result;
-        preview.style.display = 'block';
+      reader.onload = ev => {
+        document.getElementById('previewImg').src = ev.target.result;
       };
       reader.readAsDataURL(e.target.files[0]);
     }
   });
 
+  // ==================== BOTÓN GUARDAR ====================
   document.getElementById('btnGuardar').onclick = guardarEstudiante;
-  
-  // Verificar sesión al cargar
+
+  // ==================== VERIFICAR SESIÓN AL CARGAR ====================
   window.onload = () => {
     if (localStorage.getItem('logged') === 'true') {
       document.getElementById('loginContainer').style.display = 'none';
