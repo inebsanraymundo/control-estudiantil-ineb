@@ -97,15 +97,25 @@
 
     /* TABLA */
     /* overflow-x en table-card (no en table-wrapper) para que el menú contextual no quede recortado */
-    .table-card{background:white;border-radius:1.8rem;padding:1.5rem 1.5rem 180px;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff;overflow-x:auto;min-height:450px}
-    .table-wrapper{border-radius:1.2rem;overflow:visible}
-    table{width:100%;border-collapse:collapse}
-    th{text-align:left;padding:12px 8px;background:#f8fafc;color:#1f2937;font-weight:600;font-size:.82rem;white-space:nowrap}
-    td{padding:10px 8px;border-bottom:1px solid #eef2ff;vertical-align:middle;font-size:.88rem}
+    .table-card{background:white;border-radius:1.8rem;padding:1.5rem 1.5rem 80px;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff;overflow-x:auto;min-height:420px}
+    .toolbar{display:flex;gap:10px;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
+    .toolbar input[type=text]{flex:1;min-width:160px;padding:10px 16px;border-radius:60px;border:1px solid #e2e8f0;background:#f8fafc;font-size:.9rem;transition:border-color .2s}
+    .toolbar input[type=text]:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
+    .btn-export{background:#10b981;color:white;border:none;padding:10px 18px;border-radius:60px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
+    .btn-export:hover{background:#059669}
+    .results-info{font-size:.8rem;color:#64748b;margin-bottom:.8rem;padding-left:4px}
+    /* Tabla redondeada */
+    .table-wrapper{border-radius:1.4rem;overflow:visible;border:1px solid #e8edf5;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+    table{width:100%;border-collapse:separate;border-spacing:0}
+    thead tr th:first-child{border-radius:1.3rem 0 0 0}
+    thead tr th:last-child{border-radius:0 1.3rem 0 0}
+    th{text-align:left;padding:12px 10px;background:#f4f7ff;color:#1e3a8a;font-weight:700;font-size:.8rem;white-space:nowrap;border-bottom:2px solid #dde5f9}
+    td{padding:10px 10px;border-bottom:1px solid #eef2ff;vertical-align:middle;font-size:.88rem}
+    tbody tr:hover td{background:#fafbff;transition:background .15s}
     .student-img{width:40px;height:40px;border-radius:12px;object-fit:cover;background:#f1f5f9;border:2px solid #ffd600}
 
     /* ACCORDION GRADOS */
-    .grado-header-row td{background:linear-gradient(90deg,#eef2ff,#f8fafc);color:#1e3a8a;font-weight:700;font-size:.85rem;padding:10px 14px;border-bottom:2px solid #c7d2fe;cursor:pointer;user-select:none}
+    .grado-header-row td{background:linear-gradient(90deg,#eef2ff,#f4f7ff);color:#1e3a8a;font-weight:700;font-size:.85rem;padding:10px 14px;border-bottom:2px solid #c7d2fe;cursor:pointer;user-select:none;letter-spacing:.02em}
     .grado-header-row td:hover{background:linear-gradient(90deg,#e0e7ff,#eef2ff)}
     .grado-arrow{margin-right:8px;font-size:.8rem;display:inline-block;transition:transform .2s}
     .grado-count{margin-left:8px;background:#c7d2fe;color:#1e3a8a;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600}
@@ -286,6 +296,7 @@
           <button type="button" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
           <button type="button" class="btn-secondary" onclick="cancelarEdicion()">✖ Cancelar</button>
           <button type="button" class="btn-danger-soft" onclick="resetFormulario()">🗑️ Limpiar</button>
+          <button type="button" class="btn-secondary" id="btnImprimir" onclick="imprimirFichaActual()" style="display:none">🖨️ Imprimir ficha</button>
         </div>
 
       </form>
@@ -553,6 +564,7 @@
             <button class="drop-btn">⋮</button>
             <div class="action-content">
               <button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
+              <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>
               <button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>
               <button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>
             </div>
@@ -590,6 +602,107 @@
   function cerrarPreview(e) {
     if (!e || e.target === document.getElementById('previewModal'))
       document.getElementById('previewModal').style.display = 'none';
+  }
+
+  // ==================== IMPRIMIR FICHA ====================
+  async function imprimirFichaEstudiante(codigo) {
+    showLoader(true);
+    let d;
+    try {
+      const res = await callApi('buscar', { codigo });
+      if (!res.success || !res.data) { showMessage('No se encontraron datos', true); showLoader(false); return; }
+      d = res.data;
+    } catch (err) { showMessage('Error: ' + err.message, true); showLoader(false); return; }
+    showLoader(false);
+    const nombre  = d[1] || '—';
+    const fotoUrl = getDriveThumbnail(d[32] || '');
+    const campo = (v) => `<div class="pf-val">${v || '—'}</div>`;
+    const bloque = (label, val) => `<div class="pf-item"><div class="pf-label">${label}</div>${campo(val)}</div>`;
+    const htmlContent = `<!DOCTYPE html><html lang="es"><head>
+      <meta charset="UTF-8"><title>Ficha: ${nombre}</title>
+      <style>
+        *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
+        body{padding:22px 28px;color:#1e293b;background:#fff;font-size:13px}
+        .pf-header{display:flex;align-items:flex-start;gap:20px;margin-bottom:18px;padding-bottom:14px;border-bottom:3px solid #1e3a8a}
+        .pf-photo{width:110px;height:110px;border-radius:14px;object-fit:cover;border:3px solid #ffd600;flex-shrink:0;background:#f1f5f9}
+        .pf-inst{font-size:11px;color:#64748b;margin-bottom:4px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+        .pf-name{font-size:1.5rem;font-weight:800;color:#1e293b;margin-bottom:6px;line-height:1.2}
+        .pf-badge{display:inline-block;background:linear-gradient(90deg,#1e3a8a,#3b82f6);color:#fff;padding:4px 14px;border-radius:30px;font-size:12px;font-weight:700}
+        .pf-section{margin-bottom:14px}
+        .pf-section-title{background:#eef2ff;color:#1e3a8a;padding:5px 12px;border-radius:8px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;display:inline-block}
+        .pf-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+        .pf-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+        .pf-grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+        .pf-item{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 10px}
+        .pf-label{font-size:9px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px}
+        .pf-val{font-size:13px;font-weight:600;color:#1e293b}
+        .pf-footer{margin-top:18px;padding-top:10px;border-top:1px solid #e2e8f0;font-size:10px;color:#94a3b8;text-align:right}
+        @media print{body{padding:12px 16px}.pf-photo{width:90px;height:90px}}
+      </style>
+    </head><body>
+      <div class="pf-header">
+        ${fotoUrl ? `<img class="pf-photo" src="${fotoUrl}" onerror="this.style.display='none'">` : ''}
+        <div>
+          <div class="pf-inst">Instituto Nacional Mixto de Educación Básica de San Raymundo</div>
+          <div class="pf-name">${nombre}</div>
+          <div class="pf-badge">Grado: ${d[11] || '—'} &nbsp;|&nbsp; Clave: ${d[33] || '—'}</div>
+        </div>
+      </div>
+      <div class="pf-section">
+        <div class="pf-section-title">📋 Datos Personales</div>
+        <div class="pf-grid">
+          ${bloque('Código único', d[2])}
+          ${bloque('Edad', d[3])}
+          ${bloque('Fecha nacimiento', d[4])}
+          ${bloque('Género', d[7])}
+          ${bloque('Teléfono', d[5])}
+          ${bloque('Tel. emergencia', d[6])}
+          ${bloque('¿Cambió sección?', d[34])}
+          ${bloque('Adec. Curricular/Enfermedad', d[8])}
+        </div>
+        <div class="pf-grid-2" style="margin-top:8px">
+          ${bloque('Detalle Adec./Enfermedad', d[9])}
+          ${bloque('Lateralidad', d[10])}
+          ${bloque('Etnia', d[12])}
+          ${bloque('Dirección', d[13])}
+          ${bloque('Aldea / Comunidad', d[14])}
+        </div>
+      </div>
+      <div class="pf-section">
+        <div class="pf-section-title">👨‍👩‍👧 Padres / Tutores</div>
+        <div class="pf-grid-3">
+          ${bloque('Nombre padre', d[15])}
+          ${bloque('DPI padre', d[16])}
+          ${bloque('Tel. padre', d[17])}
+          ${bloque('Nombre madre', d[18])}
+          ${bloque('DPI madre', d[19])}
+          ${bloque('Tel. madre', d[20])}
+        </div>
+      </div>
+      <div class="pf-section">
+        <div class="pf-section-title">👤 Encargado</div>
+        <div class="pf-grid">
+          ${bloque('Nombre encargado', d[23])}
+          ${bloque('DPI encargado', d[24])}
+          ${bloque('Tel. encargado', d[25])}
+          ${bloque('Relación', d[28])}
+          ${bloque('Dirección encargado', d[26])}
+          ${bloque('Aldea encargado', d[27])}
+          ${bloque('Tel. extra', d[29])}
+        </div>
+      </div>
+      <div class="pf-footer">Ficha generada el ${new Date().toLocaleDateString('es-GT')} &nbsp;|&nbsp; INEB San Raymundo &nbsp;|&nbsp; Sistema de Control Estudiantil</div>
+      <script>window.onload=function(){window.print()}<\/script>
+    </body></html>`;
+    const win = window.open('', '_blank', 'width=900,height=700');
+    if (win) { win.document.write(htmlContent); win.document.close(); }
+    else showMessage('Permite ventanas emergentes para imprimir', true);
+  }
+
+  // Imprimir estudiante actualmente en edición
+  function imprimirFichaActual() {
+    if (editCodigo) imprimirFichaEstudiante(editCodigo);
+    else showMessage('Primero carga un estudiante para editar', true);
   }
 
   // ==================== FOTO COMPRIMIR ====================
@@ -716,6 +829,7 @@
         document.getElementById('codigo').disabled = true;
         document.getElementById('formTitle').textContent = '✏️ Editando estudiante';
         document.getElementById('btnGuardar').textContent = '🔄 Actualizar';
+        document.getElementById('btnImprimir').style.display = 'inline-flex';
       } else showMessage("Estudiante no encontrado", true);
     } catch (err) { showMessage("Error: " + err.message, true); }
     showLoader(false);
@@ -743,6 +857,7 @@
     document.getElementById('codigo').disabled = false;
     document.getElementById('formTitle').textContent = '➕ Nuevo estudiante';
     document.getElementById('btnGuardar').textContent = '💾 Guardar estudiante';
+    document.getElementById('btnImprimir').style.display = 'none';
   }
   function cancelarEdicion() {
     if (editMode && !confirm("¿Cancelar la edición? Los cambios no se guardarán.")) return;
