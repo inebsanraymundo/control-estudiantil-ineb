@@ -408,7 +408,7 @@
 <!-- El antiguo Modal de VISTA PREVIA se ha eliminado. Se usará el formulario de lectura. -->
 
 <script>
-  const API_URL = "https://script.google.com/macros/s/AKfycbws6hl8zRv_UnwHoBvYuI0JP8_0HntRgkZLlzmoVQAzmhVQRdPByVetIRCCK8pdJqRH/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycby8G8jKyOvttmLUrP0z9vWQ24oKThQFgbWHqbMiu4T6pkYTIWKI5gwu_6fi8f8779C8/exec";
 
   // MATRIZ DE PERMISOS
   const CONFIG_ROLES = {
@@ -531,6 +531,7 @@
     try {
       const res = await callApi('listarTodos');
       if (res.success && res.data) {
+        window.rawDebugData = res.data[0] || "No hay datos";
         // Diagnóstico técnico en consola
         if (res.data.length > 0) console.log("🔍 DIAGNÓSTICO: Formato primer estudiante:", res.data[0]);
 
