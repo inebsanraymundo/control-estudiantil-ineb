@@ -23,7 +23,7 @@
     .login-card button{background:linear-gradient(90deg,#1e3a8a,#2563eb);width:100%;padding:14px;border:none;border-radius:60px;color:white;font-weight:bold;font-size:1rem;cursor:pointer;margin-top:12px;transition:transform .2s,box-shadow .2s}
     .login-card button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.2)}
 
-    /*APP*/
+    /* APP */
     .app-container{display:none;max-width:1600px;margin:0 auto;padding:20px}
 
     /* HEADER */
@@ -188,7 +188,7 @@
 </head>
 <body>
 
-<div class="copyright">© 2025 Desarrollado por Lic. José Antonio Ortiz Corzo</div>
+<div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
 
 <!-- LOGIN -->
 <div id="loginContainer" class="login-container">
@@ -238,6 +238,7 @@
               </label>
               <input type="file" id="fotoInput" accept="image/*" style="display:none">
             </div>
+            <button type="button" id="btnEliminarFoto" class="btn-danger-soft" onclick="eliminarFoto()" style="display:none; font-size:0.75rem; padding:4px 8px; margin-top:8px; width: 100%;">🗑️ Quitar foto</button>
           </div>
           <div class="name-code-col">
             <!-- Fila 1: Nombre completo | Código único -->
@@ -420,7 +421,7 @@
   };
 
   function getRolConfig() {
-    const r = (localStorage.getItem('userRole') || 'usuario').toLowerCase();
+    const r = (sessionStorage.getItem('userRole') || 'usuario').toLowerCase();
     // Administrativos y directivos tienen permisos completos
     if (r === 'director' || r === 'subdirector' || r === 'secretarias' || r === 'secretaria' || r === 'admin') {
       return CONFIG_ROLES['admin'];
@@ -438,8 +439,17 @@
   let editMode = false;
   let editCodigo = null;
   let currentFotoUrl = "";
+  let fotoBorrada = false;
   // Estado acordeón: true=abierto, false=cerrado, default cerrado
   const gradoStates = {};
+
+  function eliminarFoto() {
+    document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
+    document.getElementById('fotoInput').value = '';
+    currentFotoUrl = '';
+    fotoBorrada = true;
+    document.getElementById('btnEliminarFoto').style.display = 'none';
+  }
 
   // ==================== UTILIDADES ====================
   function showMessage(text, isError = false) {
@@ -486,8 +496,8 @@
     try {
       const res = await callApi('login', { u, p });
       if (res.success) {
-        localStorage.setItem('logged', 'true');
-        localStorage.setItem('userRole', res.role || 'usuario');
+        sessionStorage.setItem('logged', 'true');
+        sessionStorage.setItem('userRole', res.role || 'usuario');
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';
         aplicarPermisos();
@@ -498,7 +508,7 @@
   };
 
   function cerrarSesion() {
-    localStorage.clear();
+    sessionStorage.clear();
     document.getElementById('appContainer').style.display = 'none';
     document.getElementById('loginContainer').style.display = 'flex';
     estudiantesGlobal = [];
@@ -563,8 +573,16 @@
       .sort((a, b) => {
         const g = (a.grado || "").localeCompare(b.grado || "");
         if (g !== 0) return g;
-        const ca = parseInt(a.clave) || 9999, cb = parseInt(b.clave) || 9999;
-        if (ca !== cb) return ca - cb;
+        const claveA = (a.clave || "").trim();
+        const claveB = (b.clave || "").trim();
+        if (claveA !== '' && claveB !== '') {
+          const cmp = claveA.localeCompare(claveB, undefined, { numeric: true, sensitivity: 'base' });
+          if (cmp !== 0) return cmp;
+        } else if (claveA !== '' && claveB === '') {
+          return -1;
+        } else if (claveA === '' && claveB !== '') {
+          return 1;
+        }
         return a.nombre.localeCompare(b.nombre);
       })
       .forEach(est => {
@@ -719,6 +737,7 @@
         const preview = document.getElementById('previewImg');
         const thumb = getDriveThumbnail(currentFotoUrl);
         preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
+        document.getElementById('btnEliminarFoto').style.display = 'none';
         
         // Configurar estado de Solo Lectura
         editCodigo = codigo;
@@ -905,7 +924,7 @@
 
   async function subirFotoSiNecesaria() {
     const fi = document.getElementById('fotoInput');
-    if (!fi.files.length) return currentFotoUrl;
+    if (!fi.files.length) return fotoBorrada ? "" : currentFotoUrl;
     const file = fi.files[0];
     if (file.size > 3 * 1024 * 1024) throw new Error("La foto no debe superar 3 MB");
     const nombre = document.getElementById('nombre').value.trim();
@@ -997,9 +1016,11 @@
         sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
         sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
         currentFotoUrl = d[32] || "";
+        fotoBorrada = false;
         const preview = document.getElementById('previewImg');
         const thumb = getDriveThumbnail(currentFotoUrl);
         preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
+        document.getElementById('btnEliminarFoto').style.display = currentFotoUrl ? 'inline-block' : 'none';
         editMode = true; editCodigo = codigo;
         document.getElementById('codigo').disabled = true;
         document.getElementById('formTitle').textContent = '✏️ Editando estudiante';
@@ -1028,6 +1049,8 @@
     document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
     document.getElementById('fotoInput').value = '';
     currentFotoUrl = '';
+    fotoBorrada = false;
+    document.getElementById('btnEliminarFoto').style.display = 'none';
     editMode = false; 
     editCodigo = null;
     
@@ -1319,7 +1342,11 @@
   document.getElementById('fotoInput').addEventListener('change', e => {
     if (e.target.files && e.target.files[0]) {
       const reader = new FileReader();
-      reader.onload = ev => { document.getElementById('previewImg').src = ev.target.result; };
+      reader.onload = ev => { 
+        document.getElementById('previewImg').src = ev.target.result; 
+        document.getElementById('btnEliminarFoto').style.display = 'inline-block';
+        fotoBorrada = false;
+      };
       reader.readAsDataURL(e.target.files[0]);
     }
   });
@@ -1328,7 +1355,7 @@
   // Ya no asignamos onclick aquí para btnGuardar porque usamos el evento submit del formulario
 
   window.onload = () => {
-    if (localStorage.getItem('logged') === 'true') {
+    if (sessionStorage.getItem('logged') === 'true') {
       document.getElementById('loginContainer').style.display = 'none';
       document.getElementById('appContainer').style.display = 'block';
       aplicarPermisos();
