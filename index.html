@@ -531,19 +531,29 @@
     try {
       const res = await callApi('listarTodos');
       if (res.success) {
-        estudiantesGlobal = res.data.map(e => ({
-          ...e,
-          nombre:         String(e.nombre || ""),
-          codigo:         String(e.codigo || ""),
-          clave:          String(e.clave || ""),
-          grado:          String(e.grado || ""),
-          telefono:       String(e.telefono || ""),
-          cambio_seccion: String(e.cambio_seccion || "NO"),
-          foto:           String(e.foto || ""),
-          edad:           String(e.edad || ""),
-          genero:         String(e.genero || ""),
-          etnia:          String(e.etnia || "")
-        }));
+        estudiantesGlobal = res.data.map(e => {
+          // Función de extracción robusta que busca por nombre corto, encabezado real o índice
+          const d = (prop, header, idx) => {
+            if (e[prop] !== undefined && e[prop] !== null && e[prop] !== "") return e[prop];
+            if (e[header] !== undefined && e[header] !== null && e[header] !== "") return e[header];
+            if (Array.isArray(e) && e[idx] !== undefined) return e[idx];
+            return "";
+          };
+
+          return {
+            ...e,
+            nombre:         String(d('nombre', 'NOMBRES Y APELLIDOS', 1) || ""),
+            codigo:         String(d('codigo', 'CÓDIGO PERSONAL', 2) || ""),
+            clave:          String(d('clave', 'CLAVE', 33) || ""),
+            grado:          String(d('grado', 'GRADO A CURSAR', 11) || ""),
+            telefono:       String(d('telefono', 'TELÉFONO', 5) || ""),
+            cambio_seccion: String(d('cambio_seccion', 'CAMBIO DE SECCIÓN', 34) || "NO"),
+            foto:           String(d('foto', 'FOTO', 32) || ""),
+            edad:           String(d('edad', 'EDAD ACTUAL', 3) || ""),
+            genero:         String(d('genero', 'GÉNERO', 7) || ""),
+            etnia:          String(d('etnia', 'COMUNIDAD ÉTNICA', 12) || "")
+          };
+        });
         filtrarEstudiantes();
       } else showMessage("Error al cargar: " + (res.msg || ""), true);
     } catch (err) { showMessage("Error de red: " + err.message, true); }
