@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INEB - Carga Masiva de Fotos</title>
+  <style>
+    :root {
+      --primary: #1e3a8a;
+      --primary-light: #3b82f6;
+      --accent: #ffd600;
+      --bg: #f8fafc;
+      --glass: rgba(255, 255, 255, 0.85);
+      --border: rgba(255, 255, 255, 0.5);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Inter', system-ui, sans-serif; }
+    body { 
+      background: linear-gradient(135deg, #1e2b4f, #0f172a); 
+      min-height: 100vh; 
+      color: #1e293b;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+    .glass-card {
+      background: var(--glass);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 2rem;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+    }
+    header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    header h1 {
+      font-size: 2rem;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    header p { color: #64748b; font-size: 0.95rem; }
+
+    .modes-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 768px) { .modes-grid { grid-template-columns: 1fr; } }
+
+    .mode-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+    .mode-card.active { border-color: var(--primary-light); background: #eff6ff; }
+    .mode-card h3 { margin-bottom: 0.5rem; display: flex; align-items: center; gap: 10px; }
+    .mode-card p { font-size: 0.85rem; color: #64748b; line-height: 1.4; }
+
+    .selection-area {
+      background: rgba(255,255,255,0.5);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem; color: #334155; }
+    .form-group select, .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid #cbd5e1;
+      border-radius: 60px;
+      background: white;
+      font-size: 1rem;
+    }
+
+    .drop-zone {
+      border: 3px dashed #cbd5e1;
+      border-radius: 1.5rem;
+      padding: 2.5rem;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .drop-zone:hover { border-color: var(--primary-light); background: #f1f5f9; }
+    .drop-zone p { font-weight: 600; color: #64748b; }
+    .drop-zone small { color: #94a3b8; display: block; margin-top: 5px; }
+
+    #statusArea { margin-top: 2rem; display: none; }
+    .progress-container {
+      background: #e2e8f0;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .progress-bar { width: 0%; height: 100%; background: linear-gradient(135deg, #3b82f6, #10b981); transition: width 0.3s; }
+    
+    .logs {
+      max-height: 300px;
+      overflow-y: auto;
+      background: #0f172a;
+      color: #94a3b8;
+      padding: 1rem;
+      border-radius: 1rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      line-height: 1.6;
+    }
+    .log-entry { margin-bottom: 4px; border-bottom: 1px solid #1e293b; padding-bottom: 2px; }
+    .log-success { color: #10b981; }
+    .log-error { color: #ef4444; }
+    .log-info { color: #3b82f6; }
+
+    .btn-action {
+      background: linear-gradient(135deg, #1e3a8a, #2563eb);
+      color: white;
+      border: none;
+      padding: 14px 28px;
+      border-radius: 60px;
+      font-weight: 700;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 1.5rem;
+      transition: all 0.2s;
+      font-size: 1rem;
+    }
+    .btn-action:hover { opacity: 0.9; transform: translateY(-2px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+    .btn-action:disabled { background: #94a3b8; cursor: not-allowed; transform: none; }
+
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      display: flex; gap: 8px; align-items: center;
+    }
+
+    .loader-overlay { position: fixed; inset:0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); display: none; justify-content: center; align-items: center; z-index: 2000; }
+    .spinner { width: 50px; height: 50px; border: 5px solid white; border-top-color: var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .summary-item {
+      padding: 10px;
+      border-radius: 15px;
+      text-align: center;
+      background: white;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .summary-val { display: block; font-size: 1.5rem; font-weight: 800; }
+    .summary-label { font-size: 0.7rem; color: #64748b; text-transform: uppercase; font-weight: 700; }
+  </style>
+</head>
+<body>
+
+<button class="btn-back" onclick="window.location.href='index.html'">← Volver al Panel</button>
+
+<div class="container">
+  <div class="glass-card">
+    <header>
+      <img src="logo.png" alt="Logo" style="height:60px; border-radius:15px; margin-bottom:10px" onerror="this.style.display='none'">
+      <h1>Carga Masiva de Fotografías</h1>
+      <p>Herramienta avanzada para la asignación de fotos por Grado y Clave</p>
+    </header>
+
+    <div class="modes-grid">
+      <div class="mode-card active" id="modeAll" onclick="setMode('ALL')">
+        <h3>📂 Modo Masivo Total</h3>
+        <p>Selecciona una carpeta raíz que contenga subcarpetas por grado (ej. 1A, 2B) con las claves adentro.</p>
+      </div>
+      <div class="mode-card" id="modeGrade" onclick="setMode('GRADE')">
+        <h3>🎯 Modo por Grado</h3>
+        <p>Selecciona un grado específico y carga únicamente las fotos pertenecientes a ese grado.</p>
+      </div>
+    </div>
+
+    <div class="selection-area">
+      <div id="gradeSelector" class="form-group" style="display:none">
+        <label>Selecciona el Grado y Sección</label>
+        <select id="gradoSelect"></select>
+      </div>
+
+      <div class="form-group">
+        <label id="inputLabel">Selecciona la carpeta raíz (contenedora)</label>
+        <div class="drop-zone" onclick="document.getElementById('folderInput').click()">
+          <p>📁 Haz clic para abrir el explorador de carpetas</p>
+          <small id="dropInfo">Debes seleccionar una carpeta, no archivos individuales</small>
+          <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+        </div>
+      </div>
+
+      <div id="statsPreview" style="display:none">
+        <div class="summary-grid">
+          <div class="summary-item"><span class="summary-val" id="totalFiles">0</span><span class="summary-label">Archivos</span></div>
+          <div class="summary-item"><span class="summary-val" id="matchedStudents">0</span><span class="summary-label">Emparejados</span></div>
+          <div class="summary-item"><span class="summary-val" id="pendingUploads">0</span><span class="summary-label">Pendientes</span></div>
+        </div>
+        <button class="btn-action" id="btnProcesar" onclick="iniciarProceso()">🚀 Iniciar Carga Masiva</button>
+      </div>
+    </div>
+
+    <div id="statusArea">
+      <h3 style="margin-bottom:10px">Progreso de la Carga</h3>
+      <div class="progress-container">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <div class="logs" id="logPanel"></div>
+    </div>
+  </div>
+</div>
+
+<div id="loaderOverlay" class="loader-overlay"><div class="spinner"></div></div>
+
+<script>
+  const API_URL = "https://script.google.com/macros/s/AKfycby8G8jKyOvttmLUrP0z9vWQ24oKThQFgbWHqbMiu4T6pkYTIWKI5gwu_6fi8f8779C8/exec";
+  
+  let currentMode = 'ALL';
+  let estudiantesGlobal = [];
+  let archivosAProcesar = []; // Map: { file, studentData }
+  let procesando = false;
+
+  // ==================== INICIALIZACIÓN ====================
+  window.onload = async () => {
+    showLoader(true);
+    await cargarEstudiantes();
+    poblarGrados();
+    showLoader(false);
+  };
+
+  function setMode(mode) {
+    if (procesando) return;
+    currentMode = mode;
+    document.getElementById('modeAll').classList.toggle('active', mode === 'ALL');
+    document.getElementById('modeGrade').classList.toggle('active', mode === 'GRADE');
+    document.getElementById('gradeSelector').style.display = mode === 'GRADE' ? 'block' : 'none';
+    document.getElementById('inputLabel').textContent = mode === 'ALL' ? 'Selecciona la carpeta raíz (contenedora)' : 'Selecciona la carpeta del grado';
+    document.getElementById('dropInfo').textContent = mode === 'ALL' ? 'La carpeta debe contener subcarpetas como "1A", "2B", etc.' : 'La carpeta debe contener las fotos nombradas con la clave.';
+    resetPreview();
+  }
+
+  async function cargarEstudiantes() {
+    try {
+      const res = await fetch(API_URL, { 
+        method: 'POST', 
+        body: JSON.stringify({ action: 'listarTodos', data: {} }) 
+      });
+      const data = await res.json();
+      if (data.success) {
+        // Mapeo similar al de index.html para consistencia
+        estudiantesGlobal = data.data.map(e => ({
+          original: e, // Guardamos el objeto completo para el update
+          nombre: e[1],
+          codigo: e[2],
+          grado: e[11],
+          clave: e[33]
+        }));
+      }
+    } catch (e) {
+      addLog("❌ Error cargando lista de estudiantes: " + e.message, "error");
+    }
+  }
+
+  function poblarGrados() {
+    const selector = document.getElementById('gradoSelect');
+    const grados = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g))].sort();
+    selector.innerHTML = grados.map(g => `<option value="${g}">${g}</option>`).join('');
+  }
+
+  // ==================== SELECCIÓN DE ARCHIVOS ====================
+  document.getElementById('folderInput').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+    
+    archivosAProcesar = [];
+    let matched = 0;
+
+    const extensionesValidas = ['jpg', 'jpeg', 'png', 'webp'];
+    const selectedGrado = document.getElementById('gradoSelect').value;
+
+    files.forEach(file => {
+      const pathParts = file.webkitRelativePath.split('/');
+      const fileName = pathParts.pop();
+      const parentDir = pathParts.pop();
+      
+      const ext = fileName.split('.').pop().toLowerCase();
+      if (!extensionesValidas.includes(ext)) return;
+
+      const clave = fileName.split('.')[0].trim();
+      let grado = "";
+
+      if (currentMode === 'ALL') {
+        grado = parentDir;
+      } else {
+        grado = selectedGrado;
+      }
+
+      if (!grado || !clave) return;
+
+      // Buscar estudiante
+      const est = estudiantesGlobal.find(s => 
+        String(s.grado).trim().toUpperCase() === String(grado).trim().toUpperCase() && 
+        String(s.clave).trim() === String(clave)
+      );
+
+      if (est) {
+        archivosAProcesar.push({ file, est });
+        matched++;
+      }
+    });
+
+    document.getElementById('totalFiles').textContent = files.length;
+    document.getElementById('matchedStudents').textContent = matched;
+    document.getElementById('pendingUploads').textContent = matched;
+    document.getElementById('statsPreview').style.display = 'block';
+    
+    if (matched === 0) {
+      alert("No se encontraron coincidencias. Verifica que los archivos estén nombrados con la clave y en la carpeta correcta.");
+    }
+  });
+
+  function resetPreview() {
+    document.getElementById('statsPreview').style.display = 'none';
+    document.getElementById('folderInput').value = '';
+    archivosAProcesar = [];
+    document.getElementById('statusArea').style.display = 'none';
+    document.getElementById('logPanel').innerHTML = '';
+  }
+
+  // ==================== PROCESAMIENTO ====================
+  async function iniciarProceso() {
+    if (archivosAProcesar.length === 0) return;
+    if (!confirm(`Se procesarán ${archivosAProcesar.length} fotografías. ¿Deseas continuar?`)) return;
+
+    procesando = true;
+    document.getElementById('btnProcesar').disabled = true;
+    document.getElementById('statusArea').style.display = 'block';
+    document.getElementById('logPanel').innerHTML = '';
+    
+    addLog(`🚀 Iniciando proceso para ${archivosAProcesar.length} alumnos...`, "info");
+    
+    let completados = 0;
+    const total = archivosAProcesar.length;
+
+    for (let i = 0; i < total; i++) {
+      const item = archivosAProcesar[i];
+      const est = item.est;
+      
+      addLog(`⌛ Procesando: ${est.nombre} (${est.grado} - Clave ${est.clave})`, "info");
+      
+      try {
+        // 1. Comprimir y subir foto
+        const b64Full = await comprimirImagen(item.file);
+        const b64 = b64Full.split(',')[1];
+        
+        const resFoto = await callApi('subirFoto', { 
+          base64: b64, 
+          nombre: est.nombre.replace(/[\\/:*?"<>|]/g, '_'), 
+          grado: est.grado 
+        });
+
+        if (!resFoto.success) throw new Error("Fallo subida a Drive: " + resFoto.msg);
+        
+        const nuevaUrl = resFoto.url;
+
+        // 2. Actualizar registro en Sheets
+        // Replicamos la estructura que el backend espera enviando el objeto original modificado
+        const updatedData = [...est.original];
+        updatedData[32] = nuevaUrl; // Asumimos que el índice 32 es la foto (según index.html)
+
+        // IMPORTANTE: En el código de index.html, la acción 'actualizar' toma un objeto con nombres de propiedades, 
+        // pero callApi lo envía como 'data'. Vamos a emular el objeto que el backend espera.
+        // El backend Apps Script parece recibir un JSON que se descompone según la acción.
+        
+        const payload = {
+          nombre: est.nombre,
+          codigo: est.codigo,
+          foto: nuevaUrl,
+          // Incluimos los campos necesarios para identificar y actualizar
+          grado: est.grado,
+          clave: est.clave
+        };
+
+        const resUpdate = await callApi('actualizar', payload);
+        
+        if (resUpdate.success) {
+          addLog(`✅ Éxito: ${est.nombre}`, "success");
+        } else {
+          throw new Error("Fallo actualización de Sheet: " + resUpdate.msg);
+        }
+
+      } catch (e) {
+        addLog(`❌ Error en ${est.nombre}: ${e.message}`, "error");
+      }
+
+      completados++;
+      actualizarProgreso(completados, total);
+      document.getElementById('pendingUploads').textContent = total - completados;
+    }
+
+    addLog(`✨ Proceso finalizado. ${completados} procesados.`, "info");
+    procesando = false;
+    document.getElementById('btnProcesar').disabled = false;
+  }
+
+  // ==================== UTILIDADES API & IMAGEN ====================
+  async function callApi(action, data) {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      body: JSON.stringify({ action, data })
+    });
+    return await res.json();
+  }
+
+  function comprimirImagen(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let w = img.width, h = img.height;
+          const MAX = 600;
+          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.7));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function actualizarProgreso(completados, total) {
+    const perc = (completados / total) * 100;
+    document.getElementById('progressBar').style.width = perc + '%';
+  }
+
+  function addLog(msg, type) {
+    const panel = document.getElementById('logPanel');
+    const entry = document.createElement('div');
+    entry.className = `log-entry log-${type}`;
+    const time = new Date().toLocaleTimeString();
+    entry.textContent = `[${time}] ${msg}`;
+    panel.prepend(entry);
+  }
+
+  function showLoader(v) { document.getElementById('loaderOverlay').style.display = v ? 'flex' : 'none'; }
+  
+</script>
+</body>
+</html>
