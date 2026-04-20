@@ -261,32 +261,48 @@
     resetPreview();
   }
 
+  // Utilidad robada de index.html para extraer valores de forma segura
+  const extraerValor = (e, propBuscada, indiceFijo) => {
+    if (!e) return "";
+    if (Array.isArray(e)) return (e[indiceFijo] !== undefined && e[indiceFijo] !== null) ? e[indiceFijo] : "";
+    if (e[propBuscada] !== undefined && e[propBuscada] !== null && e[propBuscada] !== "") return e[propBuscada];
+    const target = propBuscada.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+    const keys = Object.keys(e);
+    for (const k of keys) {
+      const normalizedK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+      if (normalizedK === target || normalizedK.includes(target)) return e[k];
+    }
+    return "";
+  };
+
   async function cargarEstudiantes() {
     try {
-      const res = await fetch(API_URL, { 
-        method: 'POST', 
-        body: JSON.stringify({ action: 'listarTodos', data: {} }) 
-      });
-      const data = await res.json();
-      if (data.success) {
-        // Mapeo similar al de index.html para consistencia
-        estudiantesGlobal = data.data.map(e => ({
-          original: e, // Guardamos el objeto completo para el update
-          nombre: e[1],
-          codigo: e[2],
-          grado: e[11],
-          clave: e[33]
+      const res = await callApi('listarTodos', {});
+      if (res.success && res.data) {
+        estudiantesGlobal = res.data.map(e => ({
+          original: e,
+          nombre: String(extraerValor(e, 'nombre', 1) || extraerValor(e, 'NOMBRES Y APELLIDOS', 1) || ""),
+          codigo: String(extraerValor(e, 'codigo', 2) || extraerValor(e, 'CODIGO PERSONAL', 2) || ""),
+          clave:  String(extraerValor(e, 'clave', 33) || extraerValor(e, 'CLAVE', 33) || ""),
+          grado:  String(extraerValor(e, 'grado', 11) || extraerValor(e, 'GRADO A CURSAR', 11) || ""),
+          foto:   String(extraerValor(e, 'foto', 32) || extraerValor(e, 'FOTO', 32) || "")
         }));
+        addLog(`✅ ${estudiantesGlobal.length} estudiantes cargados desde la nube.`, "info");
       }
     } catch (e) {
+      console.error(e);
       addLog("❌ Error cargando lista de estudiantes: " + e.message, "error");
     }
   }
 
   function poblarGrados() {
     const selector = document.getElementById('gradoSelect');
-    const grados = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g))].sort();
-    selector.innerHTML = grados.map(g => `<option value="${g}">${g}</option>`).join('');
+    const grados = [...new Set(estudiantesGlobal.map(e => String(e.grado).trim()).filter(g => g && g !== "GRADO A CURSAR"))].sort();
+    if (grados.length === 0) {
+      selector.innerHTML = '<option value="">No hay grados cargados</option>';
+    } else {
+      selector.innerHTML = grados.map(g => `<option value="${g}">${g}</option>`).join('');
+    }
   }
 
   // ==================== SELECCIÓN DE ARCHIVOS ====================
@@ -296,6 +312,9 @@
     
     archivosAProcesar = [];
     let matched = 0;
+    
+    document.getElementById('statusArea').style.display = 'block';
+    addLog(`🔍 Escaneando ${files.length} archivos locales...`, "info");
 
     const extensionesValidas = ['jpg', 'jpeg', 'png', 'webp'];
     const selectedGrado = document.getElementById('gradoSelect').value;
@@ -303,27 +322,22 @@
     files.forEach(file => {
       const pathParts = file.webkitRelativePath.split('/');
       const fileName = pathParts.pop();
-      const parentDir = pathParts.pop();
+      const parentDir = pathParts.length > 0 ? pathParts.pop() : "";
       
       const ext = fileName.split('.').pop().toLowerCase();
       if (!extensionesValidas.includes(ext)) return;
 
       const clave = fileName.split('.')[0].trim();
-      let grado = "";
+      let gradoBuscado = (currentMode === 'ALL') ? parentDir.trim().toUpperCase() : selectedGrado.trim().toUpperCase();
 
-      if (currentMode === 'ALL') {
-        grado = parentDir;
-      } else {
-        grado = selectedGrado;
-      }
-
-      if (!grado || !clave) return;
+      if (!gradoBuscado || !clave) return;
 
       // Buscar estudiante
-      const est = estudiantesGlobal.find(s => 
-        String(s.grado).trim().toUpperCase() === String(grado).trim().toUpperCase() && 
-        String(s.clave).trim() === String(clave)
-      );
+      const est = estudiantesGlobal.find(s => {
+        const sGrado = String(s.grado).trim().toUpperCase();
+        const sClave = String(s.clave).trim();
+        return sGrado === gradoBuscado && sClave === clave;
+      });
 
       if (est) {
         archivosAProcesar.push({ file, est });
@@ -336,8 +350,11 @@
     document.getElementById('pendingUploads').textContent = matched;
     document.getElementById('statsPreview').style.display = 'block';
     
-    if (matched === 0) {
-      alert("No se encontraron coincidencias. Verifica que los archivos estén nombrados con la clave y en la carpeta correcta.");
+    if (matched > 0) {
+      addLog(`✅ Éxito: Se encontraron ${matched} coincidencias de alumnos.`, "success");
+    } else {
+      addLog(`⚠️ Cuidado: No se encontraron coincidencias. Verifica los nombres.`, "error");
+      alert("No se encontraron coincidencias.\n\nCONSEJO: El nombre del archivo debe ser el número de CLAVE.\nSi usas Modo Masivo Total, las carpetas deben llamarse igual que los grados registrado.");
     }
   });
 
@@ -345,21 +362,19 @@
     document.getElementById('statsPreview').style.display = 'none';
     document.getElementById('folderInput').value = '';
     archivosAProcesar = [];
-    document.getElementById('statusArea').style.display = 'none';
     document.getElementById('logPanel').innerHTML = '';
   }
 
   // ==================== PROCESAMIENTO ====================
   async function iniciarProceso() {
-    if (archivosAProcesar.length === 0) return;
-    if (!confirm(`Se procesarán ${archivosAProcesar.length} fotografías. ¿Deseas continuar?`)) return;
+    if (archivosAProcesar.length === 0 || procesando) return;
+    if (!confirm(`Se actualizarán ${archivosAProcesar.length} estudiantes. ¿Proceder?`)) return;
 
     procesando = true;
     document.getElementById('btnProcesar').disabled = true;
     document.getElementById('statusArea').style.display = 'block';
-    document.getElementById('logPanel').innerHTML = '';
     
-    addLog(`🚀 Iniciando proceso para ${archivosAProcesar.length} alumnos...`, "info");
+    addLog(`🚀 Iniciando proceso escalonado...`, "info");
     
     let completados = 0;
     const total = archivosAProcesar.length;
@@ -368,10 +383,9 @@
       const item = archivosAProcesar[i];
       const est = item.est;
       
-      addLog(`⌛ Procesando: ${est.nombre} (${est.grado} - Clave ${est.clave})`, "info");
+      addLog(`⌛ Procesando (${i+1}/${total}): ${est.nombre}`, "info");
       
       try {
-        // 1. Comprimir y subir foto
         const b64Full = await comprimirImagen(item.file);
         const b64 = b64Full.split(',')[1];
         
@@ -381,24 +395,14 @@
           grado: est.grado 
         });
 
-        if (!resFoto.success) throw new Error("Fallo subida a Drive: " + resFoto.msg);
+        if (!resFoto.success) throw new Error("Error Drive: " + resFoto.msg);
         
         const nuevaUrl = resFoto.url;
 
-        // 2. Actualizar registro en Sheets
-        // Replicamos la estructura que el backend espera enviando el objeto original modificado
-        const updatedData = [...est.original];
-        updatedData[32] = nuevaUrl; // Asumimos que el índice 32 es la foto (según index.html)
-
-        // IMPORTANTE: En el código de index.html, la acción 'actualizar' toma un objeto con nombres de propiedades, 
-        // pero callApi lo envía como 'data'. Vamos a emular el objeto que el backend espera.
-        // El backend Apps Script parece recibir un JSON que se descompone según la acción.
-        
         const payload = {
           nombre: est.nombre,
           codigo: est.codigo,
           foto: nuevaUrl,
-          // Incluimos los campos necesarios para identificar y actualizar
           grado: est.grado,
           clave: est.clave
         };
@@ -406,9 +410,9 @@
         const resUpdate = await callApi('actualizar', payload);
         
         if (resUpdate.success) {
-          addLog(`✅ Éxito: ${est.nombre}`, "success");
+          addLog(`✅ Listo: ${est.nombre}`, "success");
         } else {
-          throw new Error("Fallo actualización de Sheet: " + resUpdate.msg);
+          throw new Error("Error Sheets: " + resUpdate.msg);
         }
 
       } catch (e) {
@@ -420,12 +424,12 @@
       document.getElementById('pendingUploads').textContent = total - completados;
     }
 
-    addLog(`✨ Proceso finalizado. ${completados} procesados.`, "info");
+    addLog(`✨ Carga masiva finalizada.`, "info");
     procesando = false;
     document.getElementById('btnProcesar').disabled = false;
   }
 
-  // ==================== UTILIDADES API & IMAGEN ====================
+  // ==================== UTILIDADES ====================
   async function callApi(action, data) {
     const res = await fetch(API_URL, {
       method: 'POST',
