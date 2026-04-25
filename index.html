@@ -1066,138 +1066,7 @@
 
 <body>
 
-<<<<<<< HEAD
-<div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
-
-<!-- LOGIN -->
-<div id="loginContainer" class="login-container">
-  <div class="login-card">
-    <img class="logo-institucional" src="logo.png" alt="Logo INEB" onerror="this.style.display='none'">
-    <h2>Control Estudiantil</h2>
-    <p>Instituto Nacional Mixto de Educación Básica<br>San Raymundo</p>
-    <form onsubmit="event.preventDefault(); iniciarSesion();">
-      <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off" autofocus>
-      <input type="password" id="loginPass" placeholder="Contraseña">
-      <button type="submit">Ingresar al sistema</button>
-    </form>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="appContainer" class="app-container">
-
-  <!-- HEADER -->
-  <div class="glass-header">
-    <div class="logo-area">
-      <img src="logo.png" alt="Logo" style="height:52px;border-radius:14px;" onerror="this.style.display='none'">
-      </div>
-    </div>
-    <div style="display:flex; gap:10px; align-items:center;">
-      <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=380,height=550')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
-      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
-    </div>
-  </div>
-
-  <div class="dashboard" id="dashboardContainer">
-
-    <!-- ===== FORMULARIO ===== -->
-    <div class="form-card" id="formCard">
-      <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
-      <form id="studentForm" autocomplete="off" onsubmit="event.preventDefault(); guardarEstudiante();">
-
-        <div class="section-title">📋 Datos personales</div>
-
-        <!-- FOTO + Fila1(Nombre|Código) + Fila2(Grado|Clave|Tel|Cambio) -->
-        <div class="photo-name-row">
-          <div class="avatar-col">
-            <div class="avatar-upload-area">
-              <label for="fotoInput" title="Clic para cambiar foto">
-                <img id="previewImg" src="https://placehold.co/100x100?text=FOTO" alt="Foto">
-                <div class="upload-badge">📷</div>
-              </label>
-              <input type="file" id="fotoInput" accept="image/*" style="display:none">
-            </div>
-            <button type="button" id="btnEliminarFoto" class="btn-danger-soft" onclick="eliminarFoto()" style="display:none; font-size:0.75rem; padding:4px 8px; margin-top:8px; width: 100%;">🗑️ Quitar foto</button>
-          </div>
-          <div class="name-code-col">
-            <!-- Fila 1: Nombre completo | Código único -->
-            <div class="name-row1">
-              <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
-              <div class="form-group required"><label>Código único</label><input type="text" id="codigo" maxlength="10"></div>
-            </div>
-            <!-- Fila 2: Grado/Sección | Clave | Teléfono | ¿Cambió Sección? -->
-            <div class="name-row2">
-              <div class="form-group fg-grado"><label>Grado / Sección</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
-              <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
-              <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
-              <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion"><option>NO</option><option>SI</option></select></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- LÍNEA 3: Edad | Fecha nacimiento | Tel. emergencia | Género -->
-        <div class="row-line3">
-          <div class="form-group fg-xs"><label>Edad</label><input type="number" id="edad" min="10" max="25"></div>
-          <div class="form-group fg-fecha"><label>Fecha Nacimiento</label><input type="date" id="fecha"></div>
-          <div class="form-group"><label>Tel. Emergencia</label><input type="tel" id="emergencia" maxlength="10"></div>
-          <div class="form-group fg-sm"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
-        </div>
-
-        <!-- LÍNEA 4: Adec. Curricular/Enfermedad | Detalle de Adecuación / Enfermedad -->
-        <div class="row-line4">
-          <div class="form-group"><label>Adec. Curricular / Enfermedad</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
-          <div class="form-group"><label>Detalle de Adecuación / Enfermedad</label><input type="text" id="detalle_enf"></div>
-        </div>
-
-        <!-- LÍNEA 5: Lateralidad | Etnia | Dirección | Aldea/Comunidad -->
-        <div class="form-row four">
-          <div class="form-group"><label>Lateralidad</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
-          <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
-          <div class="form-group"><label>Dirección</label><input type="text" id="direccion"></div>
-          <div class="form-group"><label>Aldea / Comunidad</label><input type="text" id="aldea"></div>
-        </div>
-
-        <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
-        <div class="grid-2cols" style="margin-bottom:10px">
-          <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
-          <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
-          <div class="form-group"><label>Tel. padre</label><input type="text" id="tel_padre"></div>
-          <div class="form-group"><label>Nombre madre</label><input type="text" id="madre"></div>
-          <div class="form-group"><label>DPI madre</label><input type="text" id="dpi_madre"></div>
-          <div class="form-group"><label>Tel. madre</label><input type="text" id="tel_madre"></div>
-        </div>
-
-        <div class="section-title">👤 Encargado</div>
-        <div class="form-row" style="margin-bottom:10px;gap:12px">
-          <div class="form-group">
-            <label>¿Es el padre?</label>
-            <select id="enc_padre" style="max-width:80px"><option>NO</option><option>SI</option></select>
-          </div>
-          <div class="form-group">
-            <label>¿Es la madre?</label>
-            <select id="enc_madre" style="max-width:80px"><option>NO</option><option>SI</option></select>
-          </div>
-        </div>
-        <div class="grid-2cols" style="margin-bottom:10px">
-          <div class="form-group"><label>Nombre encargado</label><input type="text" id="encargado"></div>
-          <div class="form-group"><label>DPI encargado</label><input type="text" id="dpi_enc"></div>
-          <div class="form-group"><label>Tel. encargado</label><input type="text" id="tel_enc"></div>
-          <div class="form-group"><label>Dirección encargado</label><input type="text" id="dir_enc"></div>
-          <div class="form-group"><label>Aldea encargado</label><input type="text" id="aldea_enc"></div>
-          <div class="form-group"><label>Relación</label><input type="text" id="relacion"></div>
-          <div class="form-group"><label>Tel. extra</label><input type="text" id="tel_extra"></div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
-          <button type="button" class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">✖ Cancelar</button>
-          <button type="button" class="btn-danger-soft" id="btnLimpiar" onclick="resetFormulario()">🗑️ Limpiar</button>
-          <button type="button" class="btn-secondary" id="btnCerrarVista" onclick="cerrarVistaPrevia()" style="display:none;background:#e2e8f0;font-weight:bold;">🔙 Cerrar vista</button>
-          <button type="button" class="btn-secondary" id="btnImprimir" onclick="imprimirFichaActual()" style="display:none">🖨️ Imprimir ficha</button>
-        </div>
-=======
   <div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
->>>>>>> 808f42a5c2140951d89e8d94202be1e925ff1f8b
 
   <!-- LOGIN -->
   <div id="loginContainer" class="login-container">
@@ -1225,7 +1094,10 @@
           <div class="header-subtitle">Control Estudiantil</div>
         </div>
       </div>
-      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=380,height=550')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
+        <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+      </div>
     </div>
 
     <div class="dashboard" id="dashboardContainer">
@@ -1523,28 +1395,6 @@
     }
     function showLoader(v) { document.getElementById('loaderOverlay').style.display = v ? 'flex' : 'none'; }
 
-<<<<<<< HEAD
-  // ==================== LOGIN ====================
-  window.iniciarSesion = async () => {
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
-    if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
-    showLoader(true);
-    try {
-      const res = await callApi('login', { u, p });
-      if (res.success) {
-        sessionStorage.setItem('logged', 'true');
-        sessionStorage.setItem('userName', u);
-        sessionStorage.setItem('userRole', res.role || 'usuario');
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        aplicarPermisos();
-        cargarListaEstudiantes();
-      } else showMessage(res.msg || "Credenciales incorrectas", true);
-    } catch (err) { showMessage("Error de conexión: " + err.message, true); }
-    showLoader(false);
-  };
-=======
     function getDriveThumbnail(url) {
       if (!url || !url.trim()) return '';
       const m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
@@ -1553,7 +1403,6 @@
       if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w120`;
       return url;
     }
->>>>>>> 808f42a5c2140951d89e8d94202be1e925ff1f8b
 
     // ==================== API ====================
     async function callApi(action, data = {}, timeoutMs = 22000) {
@@ -1581,6 +1430,7 @@
         const res = await callApi('login', { u, p });
         if (res.success) {
           sessionStorage.setItem('logged', 'true');
+          sessionStorage.setItem('userName', u);
           sessionStorage.setItem('userRole', res.role || 'usuario');
           document.getElementById('loginContainer').style.display = 'none';
           document.getElementById('appContainer').style.display = 'block';
