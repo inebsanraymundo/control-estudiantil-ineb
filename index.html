@@ -384,11 +384,15 @@
     .sch-teacher { font-weight: 400; color: #64748b; font-size: 0.65rem; }
     
     @media (max-width: 900px) {
-      .schedule-modal { width: 98vw; }
-      .schedule-grid { grid-template-columns: 60px repeat(5, 1fr); gap: 1px; }
-      .schedule-header { font-size: 0.6rem; padding: 6px; }
-      .schedule-time { font-size: 0.6rem; padding: 6px; }
-      .schedule-cell { font-size: 0.55rem; padding: 4px; min-height: 60px; }
+      .schedule-modal { width: 98vw; padding: 0.5rem !important; }
+      .schedule-grid { 
+        grid-template-columns: 70px repeat(5, 120px); 
+        min-width: 670px; 
+        gap: 1px; 
+      }
+      .schedule-header { font-size: 0.7rem; padding: 8px; }
+      .schedule-time { font-size: 0.7rem; padding: 8px; }
+      .schedule-cell { font-size: 0.65rem; padding: 6px; min-height: 80px; }
     }
     
     .btn-horario { background: #0891b2; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
