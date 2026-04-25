@@ -52,7 +52,7 @@
     .chat-history { flex: 1; border: 1px solid var(--msn-border); background: white; overflow-y: auto; padding: 8px; font-size: 12px; margin-bottom: 8px; }
     .writing-area { height: 60px; border: 1px solid var(--msn-border); }
     .writing-area textarea { width: 100%; height: 100%; border: none; resize: none; padding: 5px; font-family: inherit; outline: none; box-sizing: border-box; }
-    .contacts-side { width: 140px; border-left: 1px solid var(--msn-border); background: #fbfcfe; padding: 5px; overflow-y: auto; }
+    .contacts-side { width: 150px; border-left: 1px solid var(--msn-border); background: #fbfcfe; padding: 5px; overflow-y: auto; }
     .contacts-title { font-weight: bold; font-size: 11px; color: #555; margin-bottom: 8px; border-bottom: 1px solid #eee; }
     .contact-item { font-size: 11px; display: flex; align-items: center; gap: 5px; margin-bottom: 6px; }
     .contact-status { width: 8px; height: 8px; border-radius: 50%; background: #10b981; flex-shrink: 0; }
@@ -76,9 +76,16 @@
     .avatar-option { width: 40px; height: 40px; cursor: pointer; border: 1px solid #ddd; padding: 2px; object-fit: contain; }
     .avatar-option:hover { border-color: var(--msn-blue); background: #eee; }
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 999; }
+    
+    /* Estilos Especiales MSN */
     .status-select { font-size: 9px; border: 1px solid #a2b1c1; background: white; cursor: pointer; outline: none; }
-    .personal-msg-input { border: 1px solid transparent; background: transparent; font-size: 10px; color: #555; width: 100%; font-style: italic; outline: none; padding: 1px; }
+    .personal-msg-area { display: flex; align-items: center; gap: 5px; width: 100%; }
+    .personal-msg-input { border: 1px solid transparent; background: transparent; font-size: 10px; color: #555; flex: 1; font-style: italic; outline: none; padding: 1px; }
     .personal-msg-input:hover, .personal-msg-input:focus { border-color: #ccc; background: white; }
+    .music-btn { padding: 0; background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(1); transition: 0.3s; }
+    .music-btn.active { filter: grayscale(0); transform: scale(1.1); }
+    .music-input { display: none; font-size: 9px; border: 1px solid #2563eb; color: #2563eb; outline: none; width: 120px; padding: 1px 4px; }
+    .music-text-global { font-size: 9px; color: #2563eb; padding-left: 13px; display: flex; align-items: center; gap: 3px; }
   </style>
 </head>
 <body>
@@ -108,7 +115,11 @@
             <option value="away">Ausente</option>
           </select>
         </div>
-        <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Escribe un mensaje personal aquí..." onblur="updateStatusMsg()" onkeypress="if(e.key==='Enter') this.blur()">
+        <div class="personal-msg-area">
+          <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..." onblur="updatePresence()">
+          <button id="btnMusic" class="music-btn" onclick="toggleMusic()" title="Lo que estoy escuchando">🎵</button>
+          <input type="text" id="musicInput" class="music-input" placeholder="Canción - Artista" onblur="saveMusic()">
+        </div>
       </div>
     </div>
     <div class="msn-main-layout">
@@ -149,23 +160,45 @@
     const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
     function playNudgeSound() { sndNudge.currentTime = 0; sndNudge.play().catch(e => { }); }
     function playMsgSound() { sndMsg.currentTime = 0; sndMsg.play().catch(e => { }); }
-    let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), deferredInstallPrompt = null, myStatus = "online", myStatusMsg = "";
+    let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), deferredInstallPrompt = null, myStatus = "online", myStatusMsg = "", myMusic = "";
+
     function parseUser(raw) {
-      if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '' };
+      if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '', music: '' };
       const parts = raw.split('|');
-      return { name: parts[0], avatar: parts[1] || 'msn_icon.png', status: parts[2] || 'online', msg: parts[3] || '' };
+      return { 
+        name: parts[0], 
+        avatar: parts[1] || 'msn_icon.png', 
+        status: parts[2] || 'online',
+        msg: parts[3] || '',
+        music: parts[4] || ''
+      };
     }
     function getMyIdent() {
       const savedAv = localStorage.getItem('msn_avatar_' + myUsername) || 'msn_icon.png';
-      return `${myUsername}|${savedAv}|${myStatus}|${myStatusMsg}`;
+      return `${myUsername}|${savedAv}|${myStatus}|${myStatusMsg}|${myMusic}`;
+    }
+    function toggleMusic() {
+      const inp = document.getElementById('musicInput');
+      const btn = document.getElementById('btnMusic');
+      if(inp.style.display === 'block') {
+        inp.style.display = 'none'; btn.classList.remove('active');
+        myMusic = ""; updatePresence();
+      } else {
+        inp.style.display = 'block'; inp.focus(); btn.classList.add('active');
+      }
+    }
+    function saveMusic() { 
+      myMusic = document.getElementById('musicInput').value; 
+      if(!myMusic) { document.getElementById('musicInput').style.display='none'; document.getElementById('btnMusic').classList.remove('active'); }
+      updatePresence(); 
     }
     function changeStatus() {
       myStatus = document.getElementById('statusSelect').value;
       const dot = document.getElementById('statusDot');
       dot.style.background = myStatus==='online'?'#10b981':(myStatus==='busy'?'#ef4444':'#f97316');
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '', tipo: 'status_update', receptor: 'SISTEMA' });
+      updatePresence();
     }
-    function updateStatusMsg() {
+    function updatePresence() {
       myStatusMsg = document.getElementById('personalMsg').value;
       callApi('enviarMensaje', { usuario: getMyIdent(), texto: '', tipo: 'status_update', receptor: 'SISTEMA' });
     }
@@ -190,10 +223,8 @@
     function selectAvatar(url) {
       localStorage.setItem('msn_avatar_' + myUsername, url);
       document.getElementById('myAvatarImg').src = url;
-      closeGallery();
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '', tipo: 'status_update', receptor: 'SISTEMA' });
+      closeGallery(); updatePresence();
     }
-    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => { }); }
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
@@ -206,9 +237,7 @@
       loadMessages(); setInterval(loadMessages, 2500);
       document.getElementById('msgInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
     };
-    async function callApi(action, data = {}) {
-      try { const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }) }); return await response.json(); } catch (e) { return { success: false }; }
-    }
+    async function callApi(action, data = {}) { try { const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }) }); return await response.json(); } catch (e) { return { success: false }; } }
     async function loadMessages() {
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
@@ -218,15 +247,12 @@
           nuevos.forEach(m => {
             if (m[3] === 'status_update') return;
             const ui = parseUser(m[1]);
-            if (ui.name !== myUsername && ui.name !== currentChat && (m[4] === myUsername)) unreadUsers.add(ui.name);
+            if (ui.name !== myUsername && ui.name !== currentChat && m[4] === myUsername) unreadUsers.add(ui.name);
             if (ui.name !== myUsername && m[3] !== 'zumbido' && (m[4] === 'TODOS' || m[4] === myUsername)) hayMsgNuevo = true;
           });
           if (hayMsgNuevo) playMsgSound();
           const lastMsg = res.data[res.data.length - 1];
-          if (lastMsg && lastMsg[3] === 'zumbido') {
-            const emisor = parseUser(lastMsg[1]).name;
-            if (emisor !== myUsername && (lastMsg[4] === 'TODOS' || lastMsg[4] === myUsername)) triggerVisualNudge();
-          }
+          if (lastMsg && lastMsg[3] === 'zumbido') { if (parseUser(lastMsg[1]).name !== myUsername && (lastMsg[4] === 'TODOS' || lastMsg[4] === myUsername)) triggerVisualNudge(); }
         }
         renderMessages(res.data); updateOnlineList(res.data); lastMsgCount = res.data.length;
       }
@@ -235,8 +261,7 @@
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList'), ahora = Date.now(), TRES_MINUTOS = 180000;
       const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS);
-      const uniqueUsers = {};
-      activos.forEach(m => { const ui = parseUser(m[1]); if(ui.name !== myUsername) uniqueUsers[ui.name] = ui; });
+      const uniqueUsers = {}; activos.forEach(m => { const ui = parseUser(m[1]); if(ui.name !== myUsername) uniqueUsers[ui.name] = ui; });
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:10px;">🌐 Chat General</div>`;
       Object.values(uniqueUsers).forEach(u => {
         const isUnread = unreadUsers.has(u.name);
@@ -247,18 +272,15 @@
               <div class="contact-status" style="background:${color}"></div>
               <span style="font-weight:bold; overflow:hidden; text-overflow:ellipsis;">${u.name}</span>
             </div>
-            <div style="font-size:9px; color:#666; padding-left:13px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%">${u.msg || ''}</div>
+            ${u.music ? `<div class="music-text-global">🎵 <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.music}</span></div>` :
+            `<div style="font-size:9px; color:#666; padding-left:13px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%">${u.msg || ''}</div>`}
           </div>`;
       });
       list.innerHTML = html;
     }
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory'); h.innerHTML = '';
-      const filtrados = msgs.filter(m => {
-        if (m[3] === 'status_update') return false;
-        const e = parseUser(m[1]).name, r = m[4] || 'TODOS';
-        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername);
-      });
+      const filtrados = msgs.filter(m => { if (m[3] === 'status_update') return false; const e = parseUser(m[1]).name, r = m[4] || 'TODOS'; return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername); });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]), d = document.createElement('div');
         if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
@@ -283,7 +305,7 @@
     async function sendNudge() { if (isNudging) return; isNudging = true; await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat }); triggerVisualNudge(); setTimeout(() => isNudging = false, 5000); }
     async function vaciarChat() { if (!confirm("¿Limpiar?")) return; await callApi('vaciarChat', { yo: myUsername, destinatario: currentChat }); lastMsgCount = 0; loadMessages(); }
     function triggerVisualNudge() { const w = document.getElementById('msnWindow'); playNudgeSound(); w.classList.add('nudge-vibration', 'nudge-flash'); setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000); }
-    async function installApp() { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); deferredInstallPrompt = null; }
+    async function installApp() { if (deferredInstallPrompt) { deferredInstallPrompt.prompt(); deferredInstallPrompt = null; } }
   </script>
 </body>
 </html>
