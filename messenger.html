@@ -308,6 +308,21 @@
       const win = document.getElementById('msnWindow');
       win.classList.add('nudge-vibration', 'nudge-flash');
       
+      // Sonido sintético del zumbido (Web Audio API)
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Tono inicial
+        oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.3); // Caída
+        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
+      } catch (e) { console.log("Audio bloqueado"); }
+
       // Si el navegador lo permite, vibrar el dispositivo (Android)
       if (window.navigator && window.navigator.vibrate) {
         window.navigator.vibrate([200, 100, 200]);
