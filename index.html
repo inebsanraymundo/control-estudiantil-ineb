@@ -192,6 +192,52 @@
       background: #dc2626
     }
 
+    }
+
+    /* ESTILOS GLOBALES DE CABECERA Y PERFIL */
+    .user-profile-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.4);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.6);
+    }
+    .user-avatar-header {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px; /* Estilo MSN Retro */
+      object-fit: cover;
+      border: 1px solid #94a3b8;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .user-info-stack {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .btn-logout-small {
+      background: none;
+      border: none;
+      color: #ef4444;
+      font-size: 0.7rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-align: left;
+      width: fit-content;
+      text-decoration: underline;
+    }
+    .btn-logout-small:hover { color: #dc2626; }
+    .msn-icon-btn {
+      width: 18px !important; 
+      height: 18px !important; 
+      object-fit: contain; 
+      border-radius: 4px;
+      margin-right: 2px;
+    }
+
     @media(max-width:768px) {
       .glass-header {
         padding: 0.8rem;
@@ -241,48 +287,6 @@
         flex-direction: row;
         align-items: center;
         gap: 12px !important;
-      }
-      .user-profile-header {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        background: rgba(255,255,255,0.4);
-        padding: 4px 10px;
-        border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.6);
-      }
-      .user-avatar-header {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px; /* Estilo MSN Retro */
-        object-fit: cover;
-        border: 1px solid #94a3b8;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-      }
-      .user-info-stack {
-        display: flex;
-        flex-direction: column;
-        line-height: 1.1;
-      }
-      .btn-logout-small {
-        background: none;
-        border: none;
-        color: #ef4444;
-        font-size: 0.7rem;
-        font-weight: 600;
-        cursor: pointer;
-        padding: 0;
-        text-align: left;
-        width: fit-content;
-        text-decoration: underline;
-      }
-      .btn-logout-small:hover { color: #dc2626; }
-      .msn-icon-btn {
-        width: 18px !important; 
-        height: 18px !important; 
-        object-fit: contain; 
-        border-radius: 4px;
-        margin-right: 2px;
       }
 
       /* Messenger button below name */
