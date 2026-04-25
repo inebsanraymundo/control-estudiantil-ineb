@@ -391,6 +391,27 @@
         }
       } catch(e) { console.error('Audio error:', e); }
     }
+
+    // Sonido suave de mensaje nuevo ("ding" clasico MSN)
+    function playMsgSound() {
+      try {
+        const ctx = getAudioCtx();
+        const t = ctx.currentTime;
+        // Ding: tono suave descendente, como campana pequeña
+        const notas = [{ f: 1318, dur: 0.12 }, { f: 1046, dur: 0.18 }];
+        notas.forEach(({ f, dur }, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = f;
+          const inicio = t + i * 0.1;
+          gain.gain.setValueAtTime(0.18, inicio);
+          gain.gain.exponentialRampToValueAtTime(0.001, inicio + dur);
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.start(inicio); osc.stop(inicio + dur);
+        });
+      } catch(e) {}
+    }
     async function testSound() {
       playNudgeSound();
       const btn = document.getElementById('btnSoundAuth');
@@ -426,13 +447,20 @@
       if (res.success && res.data) {
         if (res.data.length > lastMsgCount) {
           const nuevos = res.data.slice(lastMsgCount);
+          let hayMsgNuevo = false;
           nuevos.forEach(m => {
             const emisor = m[1];
             const receptor = m[4] || 'TODOS';
             if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) {
               unreadUsers.add(emisor);
             }
+            // Sonido de mensaje nuevo si es de otro usuario y no es zumbido
+            if (emisor !== myUsername && m[3] !== 'zumbido') {
+              const paraNosotr = receptor === 'TODOS' || receptor === myUsername;
+              if (paraNosotr) hayMsgNuevo = true;
+            }
           });
+          if (hayMsgNuevo) playMsgSound();
 
           const lastMsg = res.data[res.data.length - 1];
           if (lastMsg && lastMsg[3] === 'zumbido') {
