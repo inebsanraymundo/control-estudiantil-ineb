@@ -710,6 +710,16 @@
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
 
+      // CARGA INSTANTÁNEA: Rescatar estado de caché para no ver pantalla vacía
+      try {
+        const cached = JSON.parse(sessionStorage.getItem('msn_cache'));
+        if (cached && cached.length > 0) {
+          renderMessages(cached);
+          updateOnlineList(cached);
+          lastMsgCount = cached.length;
+        }
+      } catch(e) {}
+
       // Anunciar presencia inmediata al conectarse
       updatePresence();
 
@@ -760,6 +770,7 @@
     async function loadMessages() {
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
+        sessionStorage.setItem('msn_cache', JSON.stringify(res.data)); // Guardar en caché
         if (res.data.length > lastMsgCount) {
           const nuevos = res.data.slice(lastMsgCount);
           let hayMsgNuevo = false;
@@ -913,8 +924,36 @@
         btn.innerHTML = "📎"; btn.disabled = false; input.value = ""; loadMessages();
       }; reader.readAsDataURL(file);
     }
-    async function sendMsg() { const i = document.getElementById('msgInput'), t = i.value.trim(); if (!t) return; i.value = ''; await callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat }); loadMessages(); }
-    async function sendNudge() { if (isNudging) return; isNudging = true; await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat }); triggerVisualNudge(); setTimeout(() => isNudging = false, 5000); }
+    function sendMsg() { 
+      const i = document.getElementById('msgInput'), t = i.value.trim(); 
+      if (!t) return; 
+      i.value = ''; 
+      
+      // Mostrar mensaje inmediatamente (Optimistic UI)
+      const ui = parseUser(getMyIdent());
+      const h = document.getElementById('chatHistory');
+      const d = document.createElement('div');
+      d.className = 'msg-entry msg-me';
+      d.style.opacity = '0.6'; // Opacidad reducida mientras se envía al servidor
+      d.innerHTML = `
+        <div class="msg-avatar"><img src="${ui.avatar}" onerror="this.src='msn_icon.png'"></div>
+        <div>
+          <div class="msg-sender" style="font-size:10px; font-weight:bold; color:#1d4ed8; margin-bottom:2px;">${ui.name}</div>
+          <div class="msg-text">${processEmoticons(t)}</div>
+        </div>`;
+      h.appendChild(d);
+      h.scrollTop = h.scrollHeight;
+
+      callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat }).then(() => loadMessages()); 
+    }
+    
+    function sendNudge() { 
+      if (isNudging) return; 
+      isNudging = true; 
+      triggerVisualNudge(); // Zumbido inmediato
+      callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat }).then(() => loadMessages()); 
+      setTimeout(() => isNudging = false, 5000); 
+    }
     async function vaciarChat() { 
       if (!confirm("¿Deseas vaciar el historial de este chat? Esta acción no se puede deshacer.")) return; 
       const res = await callApi('vaciarChat', { yo: myUsername, destinatario: currentChat }); 
