@@ -1858,10 +1858,8 @@
       try {
         const res = await callApi('buscar', { codigo });
         if (!res.success || !res.data) { showMessage('No se encontraron datos', true); showLoader(false); return; }
-        const html = generarHTMLFicha(res.data);
-        const win = window.open('', '_blank', 'width=900,height=700');
-        if (win) { win.document.write(html); win.document.close(); }
-        else showMessage('Permite ventanas emergentes para imprimir', true);
+        // Usar abrirImpresionMultiple para que incluya todos los estilos CSS
+        abrirImpresionMultiple(generarHTMLFicha(res.data), 'Ficha Estudiantil');
       } catch (err) { showMessage('Error: ' + err.message, true); }
       showLoader(false);
     }
@@ -2675,9 +2673,9 @@
       }, 5000);
     }
 
-    // Comprobar conexiones silenciosamente cada 45 segundos
-    setInterval(checkMsnPresence, 45000);
-    setTimeout(checkMsnPresence, 5000); // Primer ping temprano
+    // Comprobar conexiones silenciosamente cada 15 segundos
+    setInterval(checkMsnPresence, 15000);
+    setTimeout(checkMsnPresence, 3000); // Primer ping temprano (3s tras login)
 
   </script>
 </body>
