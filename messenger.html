@@ -2,125 +2,57 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INEB Messenger - Online</title>
+  <title>Messenger Retro - Control Estudiantil</title>
   <style>
     :root {
-      --msn-blue: #0055e0;
-      --msn-light-blue: #eef3fa;
-      --msn-header-grad: linear-gradient(to bottom, #0055e0, #3b82f6);
-      --msn-border: #808080;
+      --msn-blue: #004b91;
+      --msn-light: #e1eefc;
+      --msn-border: #82a9d8;
     }
-
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Tahoma', 'Segoe UI', sans-serif; }
-
-    body {
-      background: #c7d2fe;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* Contenedor Principal */
-    .msn-container {
-      width: 520px;
-      height: 520px;
-      background: var(--msn-light-blue);
-      border: 3px solid var(--msn-blue);
-      border-radius: 8px;
-      display: flex;
-      flex-direction: column;
-      box-shadow: 10px 10px 30px rgba(0,0,0,0.3);
-    }
-
-    .msn-header {
-      background: var(--msn-header-grad);
-      color: white;
-      padding: 6px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .user-info {
-      padding: 10px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: linear-gradient(to bottom, #ffffff, #eef3fa);
-      border-bottom: 1px solid #ccc;
-    }
-
-    .avatar-frame { width: 45px; height: 45px; border: 2px solid #3b82f6; background: white; padding: 2px; }
+    body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f0f0f0; margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+    
+    .msn-container { width: 100%; height: 100%; max-width: 500px; max-height: 600px; background: white; border: 1px solid var(--msn-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+    
+    .msn-header { background: linear-gradient(to bottom, #7fb2e5 0%, #004b91 100%); color: white; padding: 5px 10px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .user-info { padding: 10px; background: var(--msn-light); display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--msn-border); }
+    .avatar-frame { width: 40px; height: 40px; border: 2px solid white; background: #ccc; overflow: hidden; }
     .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
-    .user-name { font-weight: bold; color: #1e3a8a; font-size: 13px; }
+    .user-name { font-weight: bold; color: var(--msn-blue); font-size: 14px; }
+    
+    .msn-main-layout { flex: 1; display: flex; overflow: hidden; }
+    
+    /* Área de chat */
+    .chat-side { flex: 1; display: flex; flex-direction: column; border-right: 1px solid #ccc; }
+    .chat-history { flex: 1; padding: 10px; overflow-y: auto; background: white; font-size: 12px; }
+    .msg-entry { margin-bottom: 5px; line-height: 1.4; color: #333; }
+    .msg-nudge { background: #fff3f3; color: #d00; font-weight: bold; padding: 5px; border: 1px dashed #f00; margin: 5px 0; font-size: 11px; }
 
-    /* Layout MSN: Chat + Sidebar */
-    .msn-main-layout {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      background: white;
-      margin: 5px;
-      border: 1px solid var(--msn-border);
-    }
+    .writing-area { height: 60px; padding: 5px; background: #fff; border-top: 1px solid #ccc; }
+    .writing-area textarea { width: 100%; height: 100%; border: none; outline: none; resize: none; font-size: 12px; }
 
-    .chat-side {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      border-right: 1px solid #eee;
-    }
-
-    .contacts-side {
-      width: 140px;
-      background: #fdfdfd;
-      font-size: 11px;
-      padding: 8px;
-      overflow-y: auto;
-    }
-
-    .contacts-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; }
-
-    /* Estilos Chat */
-    .chat-history {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      font-size: 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .msg-entry strong { color: #0055e0; }
-    .msg-nudge { color: #dc2626; font-weight: bold; text-align: center; padding: 8px; background: #fee2e2; border-radius: 5px; }
-
-    .writing-area { padding: 10px; border-top: 1px solid #ccc; background: var(--msn-light-blue); }
-    textarea { width: 100%; height: 50px; border: 1px solid var(--msn-border); padding: 5px; font-size: 12px; resize: none; outline: none; }
-
-    .footer-actions { display: flex; justify-content: space-between; padding: 8px 10px 12px; }
-    .btn-send { background: linear-gradient(to bottom, #f97316, #ea580c); color: white; border: 1px solid #c2410c; padding: 5px 15px; font-weight: bold; cursor: pointer; border-radius: 4px; }
-    .btn-nudge { background: white; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; cursor: pointer; }
-
-    /* Contactos */
-    .contact-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-radius: 4px; transition: 0.2s; padding-left: 5px; }
+    /* Barra lateral */
+    .contacts-side { width: 120px; background: #fdfdfd; display: flex; flex-direction: column; padding: 5px; }
+    .contacts-title { font-size: 11px; font-weight: bold; color: #666; margin-bottom: 5px; border-bottom: 1px solid #eee; }
+    
+    .contact-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-radius: 4px; transition: 0.2s; padding-left: 5px; font-size: 11px; }
     .contact-item:hover { background: #eee; }
     .contact-status { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
     .has-new-msg { background: #ffd6a5 !important; font-weight: bold; animation: pulse 1s infinite; }
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
+    .footer-actions { padding: 5px 10px; background: #eee; display: flex; justify-content: flex-end; gap: 5px; }
+    .btn-send { background: linear-gradient(to bottom, #fff 0%, #ccc 100%); border: 1px solid #999; padding: 4px 15px; font-size: 11px; cursor: pointer; border-radius: 3px; }
+    .btn-nudge { background: white; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; cursor: pointer; border-radius: 3px; }
+
     /* Animaciones */
-    .nudge-vibration { animation: nudge 0.1s linear infinite; }
-    @keyframes nudge {
+    .nudge-vibration { animation: nudge-anim 0.1s linear infinite; }
+    @keyframes nudge-anim {
       0% { transform: translate(3px, 3px); }
       50% { transform: translate(-3px, -3px); }
       100% { transform: translate(3px, 3px); }
     }
     .nudge-flash { background-color: #ff000022 !important; }
-
   </style>
 </head>
 <body>
@@ -129,8 +61,8 @@
     <div class="msn-header">
       <span style="font-size: 11px; font-weight: bold;">Messenger - Control Docente</span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button id="btnSoundAuth" onclick="this.style.display='none'" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Activar Sonido</button>
-        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Borrar todo el historial">🗑️ Limpiar</button>
+        <button id="btnSoundAuth" onclick="testSound()" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Probar Sonido</button>
+        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
         <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
     </div>
@@ -167,30 +99,56 @@
     </div>
   </div>
 
-  <audio id="nudgeAudio" preload="auto">
-    <source src="https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3" type="audio/mpeg">
-  </audio>
-
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw9htZRC8wxgmX-WJQqFbYMz3NU5XPi7GIaAT6nrJT9r3GF3CvGtCbg5kWobMzxYzwJ/exec";
+    const SOUND_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3";
+    
     let lastMsgCount = 0;
     let myUsername = "Usuario";
     let currentChat = "TODOS";
     let isNudging = false;
     let unreadUsers = new Set();
+    
+    // Web Audio API Context
+    let audioCtx = null;
+    let nudgeBuffer = null;
+
+    async function initAudio() {
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const res = await fetch(SOUND_URL);
+        const arrayBuffer = await res.arrayBuffer();
+        nudgeBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+      } catch(e) { console.error("Audio init error", e); }
+    }
+
+    function playNudgeSound() {
+      if (!audioCtx || !nudgeBuffer) return;
+      if (audioCtx.state === 'suspended') audioCtx.resume();
+      const source = audioCtx.createBufferSource();
+      source.buffer = nudgeBuffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
+    }
+
+    async function testSound() {
+      await initAudio();
+      playNudgeSound();
+      const btn = document.getElementById('btnSoundAuth');
+      btn.style.background = "#10b981";
+      btn.innerText = "🔊 Audio Ok";
+      setTimeout(() => btn.style.display = "none", 2000);
+    }
 
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
       
-      document.body.addEventListener('click', () => {
-        const a = document.getElementById('nudgeAudio');
-        a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(()=>{});
-        if(document.getElementById('btnSoundAuth')) document.getElementById('btnSoundAuth').style.display='none';
-      }, { once: true });
+      document.body.addEventListener('click', initAudio, { once: true });
 
       loadMessages();
-      setInterval(loadMessages, 2500); // Polling más rápido (2.5 seg)
+      setInterval(loadMessages, 2500);
 
       document.getElementById('msgInput').addEventListener('keypress', (e) => {
         if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
@@ -207,8 +165,6 @@
     async function loadMessages() {
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
-        
-        // Detección de mensajes nuevos para notificaciones
         if (res.data.length > lastMsgCount) {
           const nuevos = res.data.slice(lastMsgCount);
           nuevos.forEach(m => {
@@ -218,19 +174,18 @@
               unreadUsers.add(emisor);
             }
           });
+          
+          const lastMsg = res.data[res.data.length - 1];
+          if(lastMsg && lastMsg[3] === 'zumbido') {
+             const emisor = lastMsg[1];
+             const receptor = lastMsg[4] || 'TODOS';
+             if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
+               triggerVisualNudge();
+             }
+          }
         }
-
         renderMessages(res.data);
         updateOnlineList(res.data);
-        
-        const lastMsg = res.data[res.data.length - 1];
-        if(lastMsg && lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) {
-           const emisor = lastMsg[1];
-           const receptor = lastMsg[4] || 'TODOS';
-           if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
-             triggerVisualNudge();
-           }
-        }
         lastMsgCount = res.data.length;
       }
     }
@@ -244,22 +199,15 @@
 
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
-      const ahora = new Date().getTime();
-      const TRES_MINUTOS = 3 * 60 * 1000;
-      
-      const usuariosActivos = msgs
-        .filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS)
-        .map(m => m[1]);
-
+      const ahora = Date.now();
+      const TRES_MINUTOS = 180000;
+      const usuariosActivos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS).map(m => m[1]);
       const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
       
-      let html = `<div class="contact-item ${currentChat==='TODOS'?'':'msg-unread'}" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
-      
+      let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
       users.forEach(u => {
         const isUnread = unreadUsers.has(u);
-        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')">
-                  <div class="contact-status"></div> ${u}
-                 </div>`;
+        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
       });
       list.innerHTML = html;
     }
@@ -267,14 +215,11 @@
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory');
       h.innerHTML = '';
-      
       const filtrados = msgs.filter(m => {
-        const emisor = m[1];
-        const receptor = m[4] || 'TODOS';
+        const emisor = m[1], receptor = m[4] || 'TODOS';
         if (currentChat === 'TODOS') return receptor === 'TODOS';
         return (emisor === myUsername && receptor === currentChat) || (emisor === currentChat && receptor === myUsername);
       });
-
       filtrados.forEach(m => {
         const d = document.createElement('div');
         d.className = m[3] === 'zumbido' ? 'msg-nudge' : 'msg-entry';
@@ -299,27 +244,15 @@
     }
 
     async function vaciarChat() {
-      const msg = currentChat === 'TODOS' 
-        ? "¿Seguro que quieres borrar todo el historial del CHAT GENERAL?" 
-        : `¿Seguro que quieres borrar tu conversación privada con ${currentChat}?`;
-      
+      const msg = currentChat === 'TODOS' ? "¿Limpiar Chat General?" : `¿Limpiar chat con ${currentChat}?`;
       if (!confirm(msg)) return;
-      
-      const res = await callApi('vaciarChat', { 
-        yo: myUsername, 
-        destinatario: currentChat 
-      });
-      
-      if (res.success) {
-        lastMsgCount = 0;
-        loadMessages();
-      }
+      const res = await callApi('vaciarChat', { yo: myUsername, destinatario: currentChat });
+      if (res.success) { lastMsgCount = 0; loadMessages(); }
     }
 
     function triggerVisualNudge() {
       const w = document.getElementById('msnWindow');
-      const a = document.getElementById('nudgeAudio');
-      a.currentTime = 0; a.play().catch(()=>{});
+      playNudgeSound();
       w.classList.add('nudge-vibration', 'nudge-flash');
       if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
       setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000);
