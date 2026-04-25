@@ -200,9 +200,11 @@
       align-items: center;
       gap: 10px;
       background: rgba(255,255,255,0.4);
-      padding: 4px 10px;
+      padding: 0 12px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.6);
+      height: 38px; /* Altura idéntica al botón Messenger */
+      justify-content: center;
     }
     .user-avatar-header {
       width: 32px;
@@ -2229,28 +2231,23 @@
       
       let finalHtml = "";
       seleccion.forEach(est => {
-        // Convertir el objeto spread de estudiantesGlobal de nuevo a formato array de API si es posible
-        // O mejor: usar los datos ya mapeados. 
-        // Como generarHTMLFicha espera el formato d[index], convertir est a array:
-        const d = [];
-        // Map back indices... This might be fragile. 
-        // Let's improve generarHTMLFicha to take a mapped object instead of array.
         finalHtml += generarHTMLFichaMapeada(est);
       });
       
       abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
     }
 
+    // ==================== IMPRESIÓN ====================
     function imprimirFichasPorGrado(grado) {
-      const lista = estudiantesGlobal.filter(e => e.grado === grado);
-      if (lista.length === 0) return showMessage('No hay estudiantes en este grado', true);
+      if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
+      const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
+      if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
       
       let finalHtml = "";
-      lista.forEach(est => {
+      seleccion.forEach(est => {
         finalHtml += generarHTMLFichaMapeada(est);
       });
-      
-      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + lista.length + " estudiantes");
+      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
     }
 
     function generarHTMLFichaMapeada(e) {
