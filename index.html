@@ -278,10 +278,11 @@
       }
       .btn-logout-small:hover { color: #dc2626; }
       .msn-icon-btn {
-        width: 18px; 
-        height: 18px; 
+        width: 18px !important; 
+        height: 18px !important; 
         object-fit: contain; 
-        border-radius: 4px; /* Pedido del usuario */
+        border-radius: 4px;
+        margin-right: 2px;
       }
 
       /* Messenger button below name */
@@ -1301,14 +1302,17 @@
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
           <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:6px; background:linear-gradient(90deg, #0ea5e9, #0284c7); border-radius:40px; padding:8px 15px; font-size: 0.85rem;"><img src="msn_icon.png" class="msn-icon-btn" alt="MSN">Messenger</button>
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:6px 14px; font-size: 0.8rem; border:none; cursor:pointer; color:white; white-space:nowrap;">
+            <img src="msn_icon.png" class="msn-icon-btn" alt="MSN">
+            <span>Messenger</span>
+          </button>
           
           <!-- AREA PERFIL USUARIO (OPCION A) -->
-          <div id="userProfileArea" class="user-profile-header" style="display:none;">
+          <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
             <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
-            <div class="user-info-stack">
-              <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.8rem;"></span>
-              <button class="btn-logout-small" onclick="cerrarSesion()">Cerrar sesión</button>
+            <div class="user-info-stack" style="margin-left:2px;">
+              <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.75rem; white-space:nowrap;"></span>
+              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:-2px;">Cerrar sesión</button>
             </div>
           </div>
         </div>
