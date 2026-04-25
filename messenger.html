@@ -299,12 +299,20 @@
     }
 
     async function vaciarChat() {
-      if (!confirm("¿Seguro que quieres borrar TODO el historial de mensajes para todos los usuarios?")) return;
-      const res = await callApi('vaciarChat');
+      const msg = currentChat === 'TODOS' 
+        ? "¿Seguro que quieres borrar todo el historial del CHAT GENERAL?" 
+        : `¿Seguro que quieres borrar tu conversación privada con ${currentChat}?`;
+      
+      if (!confirm(msg)) return;
+      
+      const res = await callApi('vaciarChat', { 
+        yo: myUsername, 
+        destinatario: currentChat 
+      });
+      
       if (res.success) {
         lastMsgCount = 0;
         loadMessages();
-        alert("Chat vaciado correctamente.");
       }
     }
 
