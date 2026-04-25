@@ -158,6 +158,15 @@
     const EMOTICONS = { '(L)': '❤️', '(Y)': '👍', '(N)': '👎', '(A)': '😇', '(H)': '😎', '(K)': '💋', '(G)': '🎁', '(F)': '🌹', '(S)': '🌙', '(W)': '🌻' };
     const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
     const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
+
+    function playNudgeSound() { 
+      sndNudge.currentTime = 0; 
+      sndNudge.play().catch(() => { }); 
+    }
+    function playMsgSound() { 
+      sndMsg.currentTime = 0; 
+      sndMsg.play().catch(() => { }); 
+    }
     function playNudgeSound() { sndNudge.currentTime = 0; sndNudge.play().catch(e => { }); }
     function playMsgSound() { sndMsg.currentTime = 0; sndMsg.play().catch(e => { }); }
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), deferredInstallPrompt = null, myStatus = "online", myStatusMsg = "", myMusic = "";
@@ -292,7 +301,24 @@
       });
       h.scrollTop = h.scrollHeight;
     }
-    function descargarArchivo(url) { if (!url) return; const win = window.open(url, '_blank', 'noopener,noreferrer'); if (win) win.focus(); }
+    function descargarArchivo(url) {
+      if (!url) return;
+      let finalUrl = url;
+      if (url.includes('drive.google.com')) {
+        // Convierte link de vista a link de descarga directa
+        finalUrl = url.replace('/view', '/download').replace('?usp=sharing', '');
+        if (!finalUrl.includes('export=download')) {
+          finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'export=download';
+        }
+      }
+      const link = document.createElement('a');
+      link.href = finalUrl;
+      link.setAttribute('download', '');
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
     async function manejarArchivo(input) {
       const file = input.files[0]; if (!file || file.size > 10*1024*1024) return;
       const btn = document.querySelector('button[onclick*="fileInput"]'); btn.innerHTML = "⏳..."; btn.disabled = true;
