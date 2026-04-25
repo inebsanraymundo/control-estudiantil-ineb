@@ -325,6 +325,12 @@
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
       
+      // Anunciar de inmediato que el usuario se ha conectado
+      updatePresence();
+      
+      // Latido cada 2 minutos para no desaparecer de la lista ('TRES_MINUTOS' límite actual)
+      setInterval(updatePresence, 120000);
+      
       // DESBLOQUEAR AUDIO AL PRIMER CLIC (Requerido por navegadores)
       document.body.addEventListener('click', () => {
         // Reproducir y pausar inmediatamente para "despertar" el contexto de audio
