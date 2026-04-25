@@ -78,7 +78,8 @@
     .avatar-frame img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      border-radius: 6px;
     }
 
     .user-name-area {
@@ -229,7 +230,8 @@
     .msg-avatar img {
       width: 100%;
       height: 100%;
-      object-fit: contain;
+      object-fit: cover;
+      border-radius: 4px;
     }
 
     .msg-text {
@@ -835,7 +837,7 @@
           <div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer; flex-direction:column; align-items:flex-start; margin-bottom:12px; padding:4px; border-radius:6px; ${isUnread ? '' : 'background:transparent'};" onclick="selectChat('${u.name}')">
             <div style="display:flex; align-items:center; gap:5px; width:100%;">
               <div style="position:relative; flex-shrink:0;">
-                <img src="${avatarSrc}" onerror="this.src='msn_icon.png'" style="width:32px; height:32px; border-radius:6px; border:1px solid white; outline:1px solid #ccc; object-fit:contain; background:#f0f0f0;">
+                <img src="${avatarSrc}" onerror="this.src='msn_icon.png'" style="width:32px; height:32px; border-radius:6px; border:1px solid white; outline:1px solid #ccc; object-fit:cover; background:#f0f0f0;">
                 <span style="position:absolute; bottom:-2px; right:-2px; width:9px; height:9px; background:${color}; border-radius:50%; border:1.5px solid white;"></span>
               </div>
               <div style="flex:1; overflow:hidden;">
