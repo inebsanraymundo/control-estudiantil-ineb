@@ -674,6 +674,10 @@
       // Usar texto explícito [PRESENCE_SYNC] para que TODOS los clientes lo descarguen y actualicen tu estado de conexión
       callApi('enviarMensaje', { usuario: getMyIdent(), texto: '[PRESENCE_SYNC]', tipo: 'status_update', receptor: 'TODOS' });
     }
+    function cleanStr(s) {
+      if (!s) return "";
+      return String(s).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    }
     function processEmoticons(text) {
       let t = text;
       Object.keys(EMOTICONS).forEach(code => {
@@ -865,13 +869,12 @@
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
       const ahora = Date.now();
-      const CINCO_MIN = 300000; // 5 minutos: ventana permisiva para heartbeats cada 2 min
+      const CINCO_MIN = 300000;
       const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < CINCO_MIN);
       const uniqueUsers = {};
       activos.forEach(m => {
         const ui = parseUser(m[1]);
-        // Ignorar entradas con nombre desconocido o vacío
-        if (ui.name && ui.name !== '?' && ui.name !== myUsername) uniqueUsers[ui.name] = ui;
+        if (ui.name && ui.name !== '?' && cleanStr(ui.name) !== cleanStr(myUsername)) uniqueUsers[ui.name] = ui;
       });
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:10px;">🌐 Chat General</div>`;
       Object.values(uniqueUsers).forEach(u => {
@@ -898,19 +901,20 @@
     }
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory'); h.innerHTML = '';
-      const myName = String(myUsername || '').trim().toUpperCase();
-      const chatPartner = String(currentChat || '').trim().toUpperCase();
+      const myNameClean = cleanStr(myUsername);
+      const chatPartnerClean = cleanStr(currentChat);
 
       const filtrados = msgs.filter(m => {
         if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return false;
-        const e = String(parseUser(m[1]).name || '').trim().toUpperCase();
-        const r = String(m[4] || 'TODOS').trim().toUpperCase();
+        const e = cleanStr(parseUser(m[1]).name);
+        const r = cleanStr(m[4] || 'todos');
         
-        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myName && r === chatPartner) || (e === chatPartner && r === myName);
+        if (chatPartnerClean === 'todos') return r === 'todos';
+        return (e === myNameClean && r === chatPartnerClean) || (e === chatPartnerClean && r === myNameClean);
       });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]);
-        const esPropio = String(ui.name || '').trim().toUpperCase() === String(myUsername || '').trim().toUpperCase();
+        const esPropio = cleanStr(ui.name) === myNameClean;
         const d = document.createElement('div');
 
         if (m[3] === 'zumbido') {
