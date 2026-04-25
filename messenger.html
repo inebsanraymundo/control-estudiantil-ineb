@@ -203,10 +203,13 @@
     }
 
     function descargarArchivo(url, nombre) {
-      if (!url) return;
-      console.log("Downloading:", url);
+      if (!url || url === "" || url === "undefined") {
+        alert("El archivo aún se está procesando o el enlace es inválido.");
+        return;
+      }
       
       let downloadUrl = url;
+      // Forzar descarga para Google Drive si es posible
       if (url.includes('drive.google.com')) {
         const match = url.match(/[-\w]{25,}/);
         if (match) {
@@ -214,13 +217,18 @@
         }
       }
 
-      const link = document.createElement('a');
-      link.href = downloadUrl;
-      link.setAttribute('download', nombre || 'archivo');
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      setTimeout(() => document.body.removeChild(link), 200);
+      // Intentar abrir en pestaña nueva como método más compatible
+      const win = window.open(downloadUrl, '_blank');
+      if (!win) {
+        // Fallback si el popup es bloqueado
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.target = '_blank';
+        link.download = nombre || 'archivo';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
 
     function toggleMusic() {
@@ -352,19 +360,38 @@
         const ui = parseUser(m[1]), d = document.createElement('div');
         if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
         else if (m[3] === 'file') {
-          let fd = { nombre: 'Archivo', url: m[2] }; try { if (m[2].startsWith('{')) fd = JSON.parse(m[2]); } catch (e) { }
+          let fd = { nombre: 'Archivo', url: '' };
+          const rawTexto = m[2] || '';
+          
+          try { 
+            if (rawTexto.startsWith('{')) {
+              fd = JSON.parse(rawTexto); 
+            } else {
+              fd.url = rawTexto;
+            }
+          } catch (e) { 
+            fd.url = rawTexto;
+          }
+
+          // Si el servidor envía la URL separada o en otra columna, pero aquí asumimos que viene en el texto
+          const displayUrl = fd.url || '#';
+          const fileName = fd.nombre || 'Archivo adjunto';
+
           d.className = 'msg-entry'; 
           d.innerHTML = `
             <div class="msg-avatar"><img src="${ui.avatar}"></div>
             <div class="msg-text">
               <strong>${ui.name}:</strong> te envió un archivo:
-              <div style="margin-top:5px; background:#fff; border:1px solid #ddd; padding:5px; border-radius:4px; display:flex; align-items:center; gap:10px;">
-                <span style="font-size:16px;">📄</span>
-                <span style="font-size:10px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${fd.nombre}</span>
-                <button onclick="descargarArchivo('${fd.url}', '${fd.nombre}')" style="background:#004b91; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:4px; cursor:pointer;">💾 Descargar</button>
+              <div style="margin-top:5px; background:#fff; border:1px solid #ddd; padding:8px; border-radius:6px; display:flex; align-items:center; gap:10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <span style="font-size:20px;">📄</span>
+                <div style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
+                  <span style="font-size:10px; font-weight:bold; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${fileName}</span>
+                  <a href="javascript:void(0)" onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="font-size:9px; color:#004b91; text-decoration:underline;">Ver / Descargar</a>
+                </div>
+                <button onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="background:#004b91; color:white; border:none; padding:4px 10px; font-size:9px; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Bajar</button>
               </div>
             </div>`;
-        } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2])}</div>`; }
+        } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2] || '')}</div>`; }
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
