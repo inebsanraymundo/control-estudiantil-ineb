@@ -344,19 +344,23 @@
 
     .name-row2 {
       display: flex;
-      gap: 7px;
+      gap: 15px;
       align-items: flex-end;
       flex-wrap: nowrap
     }
 
     .name-row2 .fg-grado select {
-      min-width: 82px;
-      max-width: 95px
+      flex: 1.5;
+      min-width: 110px;
+    }
+
+    .name-row2 .fg-clave input {
+      flex: 0.8;
+      max-width: 80px;
     }
 
     .name-row2 .fg-tel {
-      flex: 1;
-      min-width: 80px
+      flex: 1.5;
     }
 
     @media(max-width:600px) {
@@ -1133,7 +1137,7 @@
                 <div class="form-group required"><label>Código único</label><input type="text" id="codigo"
                     maxlength="10"></div>
               </div>
-              <!-- Fila 2: Grado/Sección | Clave | Teléfono | ¿Cambió Sección? -->
+              <!-- Fila 2: Grado/Sección | Clave | Teléfono -->
               <div class="name-row2">
                 <div class="form-group fg-grado"><label>Grado / Sección</label><select id="grado">
                     <option>1A</option>
@@ -1145,8 +1149,8 @@
                     <option>3A</option>
                     <option>3B</option>
                   </select></div>
-                <div class="form-group"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
-                <div class="form-group"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
+                <div class="form-group fg-clave"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
+                <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
                 <!-- CAMPO CAMBIÓ COMENTADO - NO SE USA ACTUALMENTE
                 <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion">
                     <option>NO</option>
@@ -1263,18 +1267,7 @@
         </div>
         <div class="table-wrapper">
           <table>
-            <thead>
-              <tr>
-                <th style="width:40px; text-align:center;"><input type="checkbox" id="chkMasterTotal" onclick="toggleTodosLosGradosVisibles(this)"></th>
-                <th>Foto</th>
-                <th>Clave</th>
-                <th>Nombre</th>
-                <th>Código</th>
-                <th style="width:100px">Teléfono</th>
-                <th>Cambio<br>Sección</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
+            <!-- Los encabezados de tabla ahora se insertan dinámicamente debajo de cada Nivel -->
             <tbody id="tablaBody"></tbody>
           </table>
         </div>
@@ -1633,6 +1626,24 @@
           </div>
         `;
 
+        // Fila de Columnas debajo del Nivel
+        const rowCols = tbody.insertRow();
+        rowCols.className = 'table-columns-header-row';
+        const cellCols = rowCols.insertCell(0);
+        cellCols.colSpan = 8;
+        cellCols.innerHTML = `
+          <div style="display:grid; grid-template-columns: 40px 50px 50px 1fr 100px 100px 150px; background:#f1f5f9; padding:8px 5px; font-weight:bold; color:#475569; font-size:0.8rem; border-bottom:2px solid #cbd5e1; align-items:center; text-align:left;">
+            <div style="text-align:center;"><input type="checkbox" id="chkMasterTotal_${nId}" onclick="toggleTodosLosGradosVisibles(this)"></div>
+            <div>Foto</div>
+            <div>Clave</div>
+            <div>Nombre</div>
+            <div>Código</div>
+            <div>Teléfono</div>
+            <!--<div>Cambio</div>-->
+            <div>Acciones</div>
+          </div>
+        `;
+
         // Filas interiores del Nivel
         Object.entries(gruposNivel[nId]).forEach(([grado, students]) => {
           const isOpen = gradoStates[grado] === true; // default CERRADO
@@ -1702,17 +1713,17 @@
           tdNombre.ontouchmove = () => clearTimeout(touchTimer);
           // ----------------------------------------------
 
-          const tdCodigo = row.insertCell(3).textContent = est.codigo || '—';
+          row.insertCell(3).textContent = est.codigo || '—';
           const tdTel = row.insertCell(4);
           tdTel.textContent = est.telefono || '—';
           tdTel.className = 'col-tel';
 
-          const tdCS = row.insertCell(5);
-          const esSI = est.cambio_seccion.toUpperCase() === 'SI';
-          tdCS.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀' : '—'}</span>`;
+          // El campo Cambio Sección fue comentado a petición del usuario
+          // const tdCS = row.insertCell(5);
+          // const esSI = est.cambio_seccion.toUpperCase() === 'SI';
+          // tdCS.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀' : '—'}</span>`;
 
-          const tdAcc = row.insertCell(6);
-          const codigoSafe = est.codigo.replace(/'/g, "\\'");
+          const tdAcc = row.insertCell(5);
           const config = getRolConfig();
 
           let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>

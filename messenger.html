@@ -39,10 +39,17 @@
       background: linear-gradient(to bottom, #fcfdfe, #e1e9f3);
     }
     .avatar-frame {
-      width: 48px; height: 48px;
-      border: 2px solid white;
-      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
-      overflow: hidden; background: white;
+      width: 60px;
+      height: 60px;
+      border-radius: 8px; /* Redondeado ajustado */
+      border: 2px solid white; /* Borde interior blanco */
+      outline: 1px solid #ccc; /* Contorno exterior gris simulando 3D */
+      overflow: hidden; /* Mantener imagen adentro */
+      flex-shrink: 0;
+      background: #f1f5f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .avatar-frame img { width: 100%; height: 100%; object-fit: contain; }
     .user-name-area { flex: 1; display: flex; flex-direction: column; }
@@ -61,7 +68,7 @@
     .btn-nudge { background: linear-gradient(to bottom, #fff, #e0e0e0); border: 1px solid #a0a0a0; }
     .btn-send { background: linear-gradient(to bottom, #86d26d, #4e9e36); color: white; border: 1px solid #3d7d2a; margin-left: auto; }
     .msg-entry { margin-bottom: 8px; display: flex; gap: 8px; align-items: flex-start; animation: fadeIn 0.3s forwards; }
-    .msg-avatar { width: 24px; height: 24px; border-radius: 4px; display: flex; justify-content: center; align-items: center; background: none; flex-shrink: 0; overflow: hidden; }
+    .msg-avatar { width: 24px; height: 24px; border-radius: 6px; border: 1px solid white; outline: 1px solid #ccc; background: none; flex-shrink: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; }
     .msg-avatar img { width: 100%; height: 100%; object-fit: contain; }
     .msg-text { background: #f1f5f9; padding: 5px 8px; border-radius: 8px; border: 1px solid #e2e8f0; word-break: break-word; }
     .has-new-msg { background: #fff3cd; animation: blink 1s infinite; padding: 2px; border-radius: 4px; }
@@ -94,7 +101,7 @@
         <span style="font-size: 11px; font-weight: bold;">Messenger - Control Estudiantil</span>
       </span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
+        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Vaciar Chat</button>
         <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
     </div>
@@ -114,7 +121,7 @@
         </div>
         <div class="personal-msg-area">
           <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..." onblur="updatePresence()">
-          <button id="btnMusic" class="music-btn" onclick="toggleMusic()" title="Lo que estoy escuchando">🎵</button>
+          <button id="btnMusic" class="music-btn" style="display:none !important;" onclick="toggleMusic()" title="Lo que estoy escuchando">🎵</button>
           <input type="text" id="musicInput" class="music-input" placeholder="Canción - Artista" onblur="saveMusic()">
           <button onclick="testAudio()" style="display:none; background:#10b981; color:white; border:none; padding:2px 6px; font-size:8px; border-radius:4px; cursor:pointer; margin-left:5px;">🔊 Activar Sonidos</button>
         </div>
@@ -294,8 +301,8 @@
     }
     function updatePresence() {
       myStatusMsg = document.getElementById('personalMsg').value;
-      // Usar texto explícito [PRESENCE_SYNC] para evitar que el backend (GAS) rechace/ignore textos vacíos
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '[PRESENCE_SYNC]', tipo: 'status_update', receptor: 'SISTEMA' });
+      // Usar texto explícito [PRESENCE_SYNC] para que TODOS los clientes lo descarguen y actualicen tu estado de conexión
+      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '[PRESENCE_SYNC]', tipo: 'status_update', receptor: 'TODOS' });
     }
     function processEmoticons(text) {
       let t = text;
