@@ -135,7 +135,7 @@
     }
 
     .contacts-side {
-      width: 150px;
+      width: 170px;
       border-left: 1px solid var(--msn-border);
       background: #fbfcfe;
       padding: 5px;
@@ -224,11 +224,30 @@
     }
 
     .msg-text {
-      background: #f1f5f9;
       padding: 5px 8px;
       border-radius: 8px;
       border: 1px solid #e2e8f0;
       word-break: break-word;
+      max-width: 75%;
+    }
+
+    /* Bubble: mensaje propio (derecha) */
+    .msg-me {
+      flex-direction: row-reverse;
+    }
+    .msg-me .msg-text {
+      background: #dbeafe;
+      border-color: #93c5fd;
+      border-radius: 14px 4px 14px 14px;
+      text-align: right;
+    }
+    .msg-me .msg-sender { text-align: right; }
+
+    /* Bubble: mensaje ajeno (izquierda) */
+    .msg-them .msg-text {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      border-radius: 4px 14px 14px 14px;
     }
 
     .has-new-msg {
@@ -681,15 +700,44 @@
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
 
-      // Anunciar de inmediato que el usuario se ha conectado
+      // Anunciar presencia inmediata al conectarse
       updatePresence();
 
-      // Latido cada 2 minutos para no desaparecer de la lista ('TRES_MINUTOS' límite actual)
+      // Latido cada 2 minutos para mantener presencia (ventana servidor: 5 min)
       setInterval(updatePresence, 120000);
+
+      // === DETECCIÓN DE INACTIVIDAD (Disponible/Ausente) ===
+      let lastActivity = Date.now();
+      const INACTIVO_MS = 5 * 60 * 1000; // 5 minutos sin actividad → Ausente
+      function registrarActividad() {
+        const wasAway = myStatus === 'away_auto';
+        lastActivity = Date.now();
+        if (wasAway) {
+          // Restaurar estado activo solo si fue puesto en ausente automáticamente
+          myStatus = 'online';
+          document.getElementById('statusSelect').value = 'online';
+          const dot = document.getElementById('statusDot');
+          dot.style.background = '#10b981';
+          updatePresence();
+        }
+      }
+      document.addEventListener('mousemove', registrarActividad);
+      document.addEventListener('keydown', registrarActividad);
+      document.addEventListener('click', registrarActividad);
+
+      setInterval(() => {
+        if (Date.now() - lastActivity > INACTIVO_MS && myStatus === 'online') {
+          myStatus = 'away_auto'; // Marcador interno para saber que fue automático
+          document.getElementById('statusSelect').value = 'away';
+          const dot = document.getElementById('statusDot');
+          dot.style.background = '#f97316';
+          updatePresence();
+        }
+      }, 30000); // Verificar cada 30 segundos
+      // ======================================================
 
       // DESBLOQUEAR AUDIO AL PRIMER CLIC (Requerido por navegadores)
       document.body.addEventListener('click', () => {
-        // Reproducir y pausar inmediatamente para "despertar" el contexto de audio
         sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(() => { });
         sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(() => { });
         console.log("Audio unlocked");
@@ -734,71 +782,92 @@
         }
       }
     }
-    function selectChat(user) { currentChat = user; unreadUsers.delete(user); document.getElementById('selfName').innerText = myUsername + (user === 'TODOS' ? '' : ' > ' + user); loadMessages(); }
+    function selectChat(user) {
+      currentChat = user;
+      unreadUsers.delete(user);
+      const lbl = user === 'TODOS' ? '' : ` — Conversando con: ${user}`;
+      document.getElementById('selfName').innerText = myUsername + lbl;
+      loadMessages();
+    }
     function updateOnlineList(msgs) {
-      const list = document.getElementById('onlineList'), ahora = Date.now(), TRES_MINUTOS = 180000;
-      const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS);
-      const uniqueUsers = {}; activos.forEach(m => { const ui = parseUser(m[1]); if (ui.name !== myUsername) uniqueUsers[ui.name] = ui; });
+      const list = document.getElementById('onlineList');
+      const ahora = Date.now();
+      const CINCO_MIN = 300000; // 5 minutos: ventana permisiva para heartbeats cada 2 min
+      const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < CINCO_MIN);
+      const uniqueUsers = {};
+      activos.forEach(m => {
+        const ui = parseUser(m[1]);
+        if (ui.name !== myUsername) uniqueUsers[ui.name] = ui;
+      });
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:10px;">🌐 Chat General</div>`;
       Object.values(uniqueUsers).forEach(u => {
         const isUnread = unreadUsers.has(u.name);
         const color = u.status === 'busy' ? '#ef4444' : (u.status === 'away' ? '#f97316' : '#10b981');
+        const statusLabel = u.status === 'busy' ? 'Ocupado' : (u.status === 'away' ? 'Ausente' : 'Disponible');
+        const avatarSrc = u.avatar && u.avatar !== 'msn_icon.png' ? u.avatar : u.avatar || 'msn_icon.png';
         html += `
-          <div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer; flex-direction:column; align-items:flex-start; margin-bottom:10px;" onclick="selectChat('${u.name}')">
+          <div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer; flex-direction:column; align-items:flex-start; margin-bottom:12px; padding:4px; border-radius:6px; ${isUnread ? '' : 'background:transparent'};" onclick="selectChat('${u.name}')">
             <div style="display:flex; align-items:center; gap:5px; width:100%;">
-              <div class="contact-status" style="background:${color}"></div>
-              <span style="font-weight:bold; overflow:hidden; text-overflow:ellipsis;">${u.name}</span>
+              <div style="position:relative; flex-shrink:0;">
+                <img src="${avatarSrc}" onerror="this.src='msn_icon.png'" style="width:32px; height:32px; border-radius:6px; border:1px solid white; outline:1px solid #ccc; object-fit:contain; background:#f0f0f0;">
+                <span style="position:absolute; bottom:-2px; right:-2px; width:9px; height:9px; background:${color}; border-radius:50%; border:1.5px solid white;"></span>
+              </div>
+              <div style="flex:1; overflow:hidden;">
+                <div style="font-weight:bold; font-size:11px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:#1e293b;">${u.name}</div>
+                <div style="font-size:9px; color:#888; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${statusLabel}</div>
+              </div>
             </div>
-            ${u.music ? `<div class="music-text-global">🎵 <span style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${u.music}</span></div>` :
-            `<div style="font-size:9px; color:#666; padding-left:13px; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%">${u.msg || ''}</div>`}
+            <div style="font-size:9px; color:#666; font-style:italic; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; padding-left:37px; margin-top:1px;">${u.music ? '🎵 ' + u.music : (u.msg || '')}</div>
           </div>`;
       });
       list.innerHTML = html;
     }
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory'); h.innerHTML = '';
-      const filtrados = msgs.filter(m => { 
-        if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return false; 
-        const e = parseUser(m[1]).name, r = m[4] || 'TODOS'; 
-        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername); 
+      const filtrados = msgs.filter(m => {
+        if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return false;
+        const e = parseUser(m[1]).name, r = m[4] || 'TODOS';
+        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername);
       });
       filtrados.forEach(m => {
-        const ui = parseUser(m[1]), d = document.createElement('div');
-        if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
-        else if (m[3] === 'file') {
+        const ui = parseUser(m[1]);
+        const esPropio = ui.name === myUsername;
+        const d = document.createElement('div');
+
+        if (m[3] === 'zumbido') {
+          d.className = 'msg-nudge';
+          d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`;
+        } else if (m[3] === 'file') {
           let fd = { nombre: 'Archivo', url: '' };
           const rawTexto = m[2] || '';
-
-          try {
-            if (rawTexto.startsWith('{')) {
-              fd = JSON.parse(rawTexto);
-            } else {
-              fd.url = rawTexto;
-            }
-          } catch (e) {
-            fd.url = rawTexto;
-          }
-
-          // Obtenemos la url original que subió el script
-          let displayUrl = fd.url || '#';
+          try { fd = rawTexto.startsWith('{') ? JSON.parse(rawTexto) : { nombre: 'Archivo', url: rawTexto }; } catch (e) { fd.url = rawTexto; }
+          const displayUrl = fd.url || '#';
           const fileName = fd.nombre || 'Archivo adjunto';
-
-          d.className = 'msg-entry';
+          d.className = `msg-entry ${esPropio ? 'msg-me' : 'msg-them'}`;
           d.innerHTML = `
-            <div class="msg-avatar"><img src="${ui.avatar}"></div>
-            <div class="msg-text">
-              <strong>${ui.name}:</strong> te envió un archivo:
-              <div style="margin-top:5px; background:#fff; border:1px solid #ddd; padding:8px; border-radius:6px; display:flex; align-items:center; gap:10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                <span style="font-size:20px;">📄</span>
-                <div style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
-                  <span style="font-size:10px; font-weight:bold; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${fileName}</span>
-                  <a href="${displayUrl !== '#' ? displayUrl : 'javascript:void(0)'}" target="_blank" style="font-size:9px; color:#004b91; text-decoration:underline;" title="Abre el archivo original en otra pestaña">Ver en línea</a>
+            <div class="msg-avatar"><img src="${ui.avatar}" onerror="this.src='msn_icon.png'"></div>
+            <div>
+              <div class="msg-sender" style="font-size:10px; font-weight:bold; color:${esPropio ? '#1d4ed8' : '#1e293b'}; margin-bottom:2px;">${ui.name}${ui.msg ? '<br><span style="font-weight:normal; font-style:italic; color:#888;">' + ui.msg + '</span>' : ''}</div>
+              <div class="msg-text">
+                <div style="margin-top:4px; background:#fff; border:1px solid #ddd; padding:6px; border-radius:6px; display:flex; align-items:center; gap:8px;">
+                  <span style="font-size:18px;">📄</span>
+                  <div style="flex:1; overflow:hidden;">
+                    <span style="font-size:10px; font-weight:bold;">${fileName}</span><br>
+                    <a href="${displayUrl !== '#' ? displayUrl : 'javascript:void(0)'}" target="_blank" style="font-size:9px; color:#004b91;">Ver en línea</a>
+                  </div>
+                  <button onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="background:#004b91; color:white; border:none; padding:3px 8px; font-size:9px; border-radius:4px; cursor:pointer;">💾</button>
                 </div>
-                <!-- El botón '💾 Descargar' usa la lógica Javascript para FORZAR la descarga como Word, Excel, etc. -->
-                <button onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="background:#004b91; color:white; border:none; padding:4px 10px; font-size:9px; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Descargar</button>
               </div>
             </div>`;
-        } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2] || '')}</div>`; }
+        } else {
+          d.className = `msg-entry ${esPropio ? 'msg-me' : 'msg-them'}`;
+          d.innerHTML = `
+            <div class="msg-avatar"><img src="${ui.avatar}" onerror="this.src='msn_icon.png'"></div>
+            <div>
+              <div class="msg-sender" style="font-size:10px; font-weight:bold; color:${esPropio ? '#1d4ed8' : '#374151'}; margin-bottom:2px;">${ui.name}${ui.msg ? '<br><span style="font-weight:normal; font-style:italic; color:#888; font-size:9px;">' + ui.msg + '</span>' : ''}</div>
+              <div class="msg-text">${processEmoticons(m[2] || '')}</div>
+            </div>`;
+        }
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
