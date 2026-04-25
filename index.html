@@ -200,18 +200,19 @@
       align-items: center;
       gap: 10px;
       background: rgba(255,255,255,0.4);
-      padding: 0 12px;
+      padding: 0 12px 0 0; /* Sin padding izquierdo para que la foto pegue al borde */
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.6);
-      height: 40px; /* Sincronizado con Messenger */
+      height: 44px; /* Aumentado */
+      overflow: hidden;
     }
     .user-avatar-header {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px; /* Estilo MSN Retro */
+      width: 44px;
+      height: 44px;
+      border-radius: 8px 0 0 8px; /* Redondeado solo a la izquierda si pega al borde */
       object-fit: cover;
-      border: 1px solid #94a3b8;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: none;
+      border-right: 1px solid rgba(255,255,255,0.6);
     }
     .user-info-stack {
       display: flex;
@@ -1307,17 +1308,17 @@
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
           <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 18px; font-size: 0.85rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:40px;">
-            <img src="msn_icon.png" style="width:20px !important; height:20px !important; object-fit:contain; border-radius:4px;" alt="MSN">
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
+            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
             <span>Messenger</span>
           </button>
           
           <!-- AREA PERFIL USUARIO (OPCION A) -->
           <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
             <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
-            <div class="user-info-stack" style="margin-left:4px;">
-              <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.75rem; white-space:nowrap;"></span>
-              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:-1px;">Cerrar sesión</button>
+            <div class="user-info-stack" style="margin-left:8px;">
+              <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.8rem; white-space:nowrap;"></span>
+              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:0px; font-size:0.75rem;">Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -2229,6 +2230,25 @@
       else showMessage('Permite ventanas emergentes para imprimir', true);
     }
 
+    // ==================== IMPRESIÓN ====================
+    function imprimirFichasPorGrado(grado) {
+      if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
+      const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
+      if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
+      
+      let finalHtml = "";
+      seleccion.forEach(est => {
+        // Obtenemos los datos originales (el array de la fila) para asegurar compatibilidad total
+        const datosOriginales = est.rawData;
+        if (datosOriginales) {
+          finalHtml += generarHTMLFicha(datosOriginales);
+        }
+      });
+      
+      if (!finalHtml) return showMessage('Error al generar las fichas. Verifica los datos.', true);
+      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
+    }
+
     function imprimirSeleccionados() {
       const chks = document.querySelectorAll('.chk-estudiante:checked');
       if (chks.length === 0) return showMessage('Selecciona al menos un estudiante', true);
@@ -2238,24 +2258,13 @@
       
       let finalHtml = "";
       seleccion.forEach(est => {
-        finalHtml += generarHTMLFichaMapeada(est);
+        if (est.rawData) {
+          finalHtml += generarHTMLFicha(est.rawData);
+        }
       });
       
+      if (!finalHtml) return showMessage('Error al generar las fichas.', true);
       abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
-    }
-
-    // ==================== IMPRESIÓN ====================
-    function imprimirFichasPorGrado(grado) {
-      if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
-      const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
-      if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
-      
-      let finalHtml = "";
-      seleccion.forEach(est => {
-        // Usar rawData para que la función generarHTMLFicha (que espera el array d[]) funcione
-        finalHtml += generarHTMLFicha(est.rawData || est);
-      });
-      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
     }
 
     function generarHTMLFichaMapeada(e) {
