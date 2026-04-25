@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>INEB Messenger</title>
+  <title>INEB Messenger - Online</title>
   <style>
     :root {
       --msn-blue: #0055e0;
@@ -23,20 +23,18 @@
       overflow: hidden;
     }
 
-    /* Contenedor Principal (Ventana de MSN) */
+    /* Contenedor Principal */
     .msn-container {
-      width: 350px;
-      height: 500px;
+      width: 520px;
+      height: 520px;
       background: var(--msn-light-blue);
       border: 3px solid var(--msn-blue);
-      border-radius: 8px 8px 0 0;
+      border-radius: 8px;
       display: flex;
       flex-direction: column;
       box-shadow: 10px 10px 30px rgba(0,0,0,0.3);
-      position: relative;
     }
 
-    /* Barra de título clásica */
     .msn-header {
       background: var(--msn-header-grad);
       color: white;
@@ -44,16 +42,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      user-select: none;
-    }
-    .msn-header span { font-size: 11px; font-weight: bold; letter-spacing: 0.5px; }
-    .header-btns { display: flex; gap: 4px; }
-    .header-btns button { 
-      background: #ffffff55; border: 1px solid #ffffffaa; 
-      color: white; width: 18px; height: 18px; font-size: 10px; cursor: pointer; 
     }
 
-    /* Área de Usuario / Estado */
     .user-info {
       padding: 10px;
       display: flex;
@@ -62,275 +52,213 @@
       background: linear-gradient(to bottom, #ffffff, #eef3fa);
       border-bottom: 1px solid #ccc;
     }
-    .avatar-frame {
-      width: 45px; height: 45px;
-      border: 2px solid #3b82f6;
-      background: white; padding: 2px;
-    }
+
+    .avatar-frame { width: 45px; height: 45px; border: 2px solid #3b82f6; background: white; padding: 2px; }
     .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
-    .user-details { display: flex; flex-direction: column; }
     .user-name { font-weight: bold; color: #1e3a8a; font-size: 13px; }
-    .user-status { font-size: 10px; color: #666; }
-    .status-dot { 
-      display: inline-block; width: 8px; height: 8px; 
-      border-radius: 50%; background: #10b981; margin-right: 4px; 
+
+    /* Layout MSN: Chat + Sidebar */
+    .msn-main-layout {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      background: white;
+      margin: 5px;
+      border: 1px solid var(--msn-border);
     }
 
-    /* Área de Chat (Historial) */
-    .chat-history {
+    .chat-side {
       flex: 1;
-      background: white;
-      margin: 10px;
-      border: 1px solid var(--msn-border);
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid #eee;
+    }
+
+    .contacts-side {
+      width: 140px;
+      background: #fdfdfd;
+      font-size: 11px;
       padding: 8px;
       overflow-y: auto;
+    }
+
+    .contacts-title { font-weight: bold; color: #1e3a8a; margin-bottom: 10px; }
+
+    /* Estilos Chat */
+    .chat-history {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
       font-size: 12px;
-      line-height: 1.4;
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
+
     .msg-entry strong { color: #0055e0; }
-    .msg-system { font-style: italic; color: #666; text-align: center; font-size: 11px; margin: 5px 0; }
-    .msg-nudge { color: #dc2626; font-weight: bold; text-align: center; padding: 10px; background: #fee2e2; border-radius: 5px; }
+    .msg-nudge { color: #dc2626; font-weight: bold; text-align: center; padding: 8px; background: #fee2e2; border-radius: 5px; }
 
-    /* Área de Escritura */
-    .writing-area {
-      padding: 10px;
-      background: var(--msn-light-blue);
-      border-top: 1px solid #ccc;
-    }
-    textarea {
-      width: 100%;
-      height: 60px;
-      border: 1px solid var(--msn-border);
-      padding: 5px;
-      font-size: 12px;
-      resize: none;
-      outline: none;
-    }
+    .writing-area { padding: 10px; border-top: 1px solid #ccc; background: var(--msn-light-blue); }
+    textarea { width: 100%; height: 50px; border: 1px solid var(--msn-border); padding: 5px; font-size: 12px; resize: none; outline: none; }
 
-    /* Botones Inferiores */
-    .footer-actions {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 8px 10px 12px;
-    }
-    .btn-send {
-      background: linear-gradient(to bottom, #f97316, #ea580c);
-      color: white; border: 1px solid #c2410c;
-      padding: 6px 20px; font-weight: bold; border-radius: 4px;
-      cursor: pointer; font-size: 12px;
-    }
-    .btn-nudge {
-      background: white; border: 1px solid #ccc;
-      padding: 4px 8px; font-size: 11px; cursor: pointer;
-      display: flex; align-items: center; gap: 4px;
-    }
+    .footer-actions { display: flex; justify-content: space-between; padding: 8px 10px 12px; }
+    .btn-send { background: linear-gradient(to bottom, #f97316, #ea580c); color: white; border: 1px solid #c2410c; padding: 5px 15px; font-weight: bold; cursor: pointer; border-radius: 4px; }
+    .btn-nudge { background: white; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; cursor: pointer; }
 
-    /* Animación del Zumbido */
-    .nudge-vibration {
-      animation: nudge 0.1s linear infinite;
-    }
+    /* Contactos */
+    .contact-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+    .contact-status { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+
+    /* Animaciones */
+    .nudge-vibration { animation: nudge 0.1s linear infinite; }
     @keyframes nudge {
-      0% { transform: translate(5px, 5px); }
-      25% { transform: translate(-5px, -5px); }
-      50% { transform: translate(-5px, 5px); }
-      75% { transform: translate(5px, -5px); }
-      100% { transform: translate(5px, 5px); }
+      0% { transform: translate(3px, 3px); }
+      50% { transform: translate(-3px, -3px); }
+      100% { transform: translate(3px, 3px); }
     }
+    .nudge-flash { background-color: #ff000022 !important; }
 
-    .nudge-flash {
-      background-color: #ff000033 !important;
-    }
-
-    /* Scrollbar clásica */
-    ::-webkit-scrollbar { width: 14px; }
-    ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
-    ::-webkit-scrollbar-thumb { background: #ccc; border: 1px solid #999; }
   </style>
 </head>
 <body>
 
   <div id="msnWindow" class="msn-container">
     <div class="msn-header">
-      <span>Messenger - Establecimiento San Raymundo</span>
-      <div class="header-btns">
-        <button>_</button>
-        <button>×</button>
-      </div>
+      <span style="font-size: 11px; font-weight: bold;">Messenger - Control Docente</span>
+      <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer;">×</button>
     </div>
 
     <div class="user-info">
-      <div class="avatar-frame">
-        <img src="logo.png" alt="User">
-      </div>
-      <div class="user-details">
+      <div class="avatar-frame"><img src="logo.png" alt="U"></div>
+      <div>
         <div id="selfName" class="user-name">Cargando...</div>
-        <div class="user-status"><span class="status-dot"></span>Disponible</div>
+        <div style="font-size: 10px; color: #10b981;">● Disponible</div>
       </div>
     </div>
 
-    <div id="chatHistory" class="chat-history">
-      <div class="msg-system">Conectando con el servidor de chat...</div>
-    </div>
-
-    <div class="writing-area">
-      <textarea id="msgInput" placeholder="Escribe un mensaje aquí..."></textarea>
+    <div class="msn-main-layout">
+      <div class="chat-side">
+        <div id="chatHistory" class="chat-history"></div>
+        <div class="writing-area">
+          <textarea id="msgInput" placeholder="Escribe aquí..."></textarea>
+        </div>
+      </div>
+      <div class="contacts-side">
+        <div class="contacts-title">Online</div>
+        <div id="onlineList"></div>
+      </div>
     </div>
 
     <div class="footer-actions">
-      <button class="btn-nudge" onclick="sendNudge()">
-        🔔 <u>Z</u>umbido
-      </button>
+      <button class="btn-nudge" onclick="sendNudge()">🔔 Zumbido</button>
       <button class="btn-send" onclick="sendMsg()">Enviar</button>
     </div>
   </div>
 
+  <audio id="nudgeAudio" preload="auto">
+    <source src="https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3" type="audio/mpeg">
+  </audio>
+
   <script>
-    // Configuración Base (Usa tu propia URL de Apps Script si es distinta)
     const API_URL = "https://script.google.com/macros/s/AKfycbyHuYjUl6JX8XKSxIm2EpQbV40lUqEy83eu0lnqY4VsmkI09scJ3KbdKXGwn5_r1PQ3/exec";
-    
     let lastMsgCount = 0;
     let myUsername = "Usuario";
     let isNudging = false;
 
-    // Inicialización
     window.onload = () => {
-      // Intentar obtener el nombre del usuario de la sesión del proyecto principal
-      const savedUser = sessionStorage.getItem('userName') || sessionStorage.getItem('userRole') || "Invitado";
-      myUsername = savedUser;
+      myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
       
-      // Primera carga
+      document.body.addEventListener('click', () => {
+        const a = document.getElementById('nudgeAudio');
+        a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(()=>{});
+      }, { once: true });
+
       loadMessages();
-      
-      // Polling cada 4 segundos (balance entre velocidad y cuotas de Google)
       setInterval(loadMessages, 4000);
 
-      // Evento Enter para enviar (Shift+Enter para nueva línea)
       document.getElementById('msgInput').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter' && !e.shiftKey) {
-          e.preventDefault();
-          sendMsg();
-        }
+        if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
       });
     };
 
     async function callApi(action, data = {}) {
       try {
-        const response = await fetch(API_URL, {
-          method: 'POST',
-          body: JSON.stringify({ action, data })
-        });
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }) });
         return await response.json();
-      } catch (e) {
-        console.error("Error en API:", e);
-        return { success: false };
-      }
+      } catch (e) { return { success: false }; }
     }
 
     async function loadMessages() {
       const res = await callApi('obtenerMensajes');
       if (res.success && res.data) {
-        if (res.data.length !== lastMsgCount) {
+        if (res.data.length !== lastMsgCount || true) { // Siempre actualizamos la lista por el tiempo
           renderMessages(res.data);
+          updateOnlineList(res.data);
           
-          // Verificar si el último mensaje es un zumbido nuevo
           const lastMsg = res.data[res.data.length - 1];
-          if(lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) {
-             triggerVisualNudge();
+          if(lastMsg && lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) { 
+            triggerVisualNudge(); 
           }
-          
           lastMsgCount = res.data.length;
         }
       }
     }
 
-    function renderMessages(msgs) {
-      const history = document.getElementById('chatHistory');
-      history.innerHTML = '';
-      
-      msgs.forEach(m => {
-        const date = new Date(m[0]);
-        const user = m[1];
-        const text = m[2];
-        const type = m[3];
-        const timeStr = date.getHours() + ":" + String(date.getMinutes()).padStart(2, '0');
+    function updateOnlineList(msgs) {
+      const list = document.getElementById('onlineList');
+      const ahora = new Date().getTime();
+      const TRES_MINUTOS = 3 * 60 * 1000;
 
-        const div = document.createElement('div');
-        div.className = 'msg-entry';
-        
-        if (type === 'zumbido') {
-          div.className = 'msg-nudge';
-          div.innerHTML = `⚠️ Has recibido un zumbido de ${user}.`;
-        } else {
-          div.innerHTML = `<span style="color:#999; font-size:10px;">[${timeStr}]</span> <strong>${user} dice:</strong><br>${text}`;
-        }
-        
-        history.appendChild(div);
-      });
+      // Filtramos usuarios que hayan escrito en los últimos 3 minutos
+      const usuariosActivos = msgs
+        .filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS)
+        .map(m => m[1]);
+
+      const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
       
-      history.scrollTop = history.scrollHeight;
+      list.innerHTML = users.length ? '' : '<div style="color:#999; font-size:10px;">Nadie online...</div>';
+      users.forEach(u => {
+        const d = document.createElement('div');
+        d.className = 'contact-item';
+        d.innerHTML = '<div class="contact-status"></div>' + u;
+        list.appendChild(d);
+      });
+    }
+
+    function renderMessages(msgs) {
+      const h = document.getElementById('chatHistory');
+      h.innerHTML = '';
+      msgs.forEach(m => {
+        const d = document.createElement('div');
+        d.className = m[3] === 'zumbido' ? 'msg-nudge' : 'msg-entry';
+        d.innerHTML = m[3] === 'zumbido' ? `⚠️ Has recibido un zumbido.` : `<strong>${m[1]}:</strong> ${m[2]}`;
+        h.appendChild(d);
+      });
+      h.scrollTop = h.scrollHeight;
     }
 
     async function sendMsg() {
-      const input = document.getElementById('msgInput');
-      const text = input.value.trim();
-      if (!text) return;
-
-      input.value = '';
-      const res = await callApi('enviarMensaje', {
-        usuario: myUsername,
-        texto: text,
-        tipo: 'msg'
-      });
-      
+      const i = document.getElementById('msgInput');
+      const t = i.value.trim(); if (!t) return; i.value = '';
+      const res = await callApi('enviarMensaje', { usuario: myUsername, texto: t, tipo: 'msg' });
       if(res.success) loadMessages();
     }
 
     async function sendNudge() {
-      if (isNudging) return;
-      
-      isNudging = true;
-      const res = await callApi('enviarMensaje', {
-        usuario: myUsername,
-        texto: 'ZUMBIDO',
-        tipo: 'zumbido'
-      });
-      
-      triggerVisualNudge(); // También vibra para el emisor
-      setTimeout(() => isNudging = false, 5000); // 5 seg de enfriamiento
+      if (isNudging) return; isNudging = true;
+      await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido' });
+      triggerVisualNudge();
+      setTimeout(() => isNudging = false, 5000);
     }
 
     function triggerVisualNudge() {
-      const win = document.getElementById('msnWindow');
-      win.classList.add('nudge-vibration', 'nudge-flash');
-      
-      // Sonido sintético del zumbido (Web Audio API)
-      try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // Tono inicial
-        oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.3); // Caída
-        gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
-        gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.3);
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.start(); oscillator.stop(audioCtx.currentTime + 0.3);
-      } catch (e) { console.log("Audio bloqueado"); }
-
-      // Si el navegador lo permite, vibrar el dispositivo (Android)
-      if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate([200, 100, 200]);
-      }
-
-      setTimeout(() => {
-        win.classList.remove('nudge-vibration', 'nudge-flash');
-      }, 1000);
+      const w = document.getElementById('msnWindow');
+      const a = document.getElementById('nudgeAudio');
+      a.currentTime = 0; a.play().catch(()=>{});
+      w.classList.add('nudge-vibration', 'nudge-flash');
+      if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+      setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000);
     }
   </script>
 </body>
