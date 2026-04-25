@@ -199,6 +199,13 @@
       font-weight: bold;
       font-size: 10px;
       flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .msg-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
     }
 
     .msg-text {
@@ -217,29 +224,14 @@
     }
 
     @keyframes blink {
-      0% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.5;
-      }
-
-      100% {
-        opacity: 1;
-      }
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
     }
 
     @keyframes fadeIn {
-      from {
-        opacity: 0;
-        transform: translateY(5px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(5px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .msg-nudge {
@@ -260,29 +252,20 @@
     }
 
     @keyframes nudge-anim {
-      0% {
-        transform: translate(3px, 3px);
-      }
-
-      50% {
-        transform: translate(-3px, -3px);
-      }
-
-      100% {
-        transform: translate(3px, 3px);
-      }
+      0% { transform: translate(3px, 3px); }
+      50% { transform: translate(-3px, -3px); }
+      100% { transform: translate(3px, 3px); }
     }
 
     .nudge-flash {
       background-color: #ff000022 !important;
     }
 
-    /* Estilos Galería de Avatares */
+    /* Galería */
     .avatar-gallery {
       display: none;
       position: absolute;
-      top: 50%;
-      left: 50%;
+      top: 50%; left: 50%;
       transform: translate(-50%, -50%);
       background: white;
       border: 2px solid var(--msn-blue);
@@ -292,35 +275,24 @@
       border-radius: 8px;
       width: 210px;
     }
-
     .avatar-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-top: 10px;
     }
-
     .avatar-option {
-      width: 40px;
-      height: 40px;
+      width: 40px; height: 40px;
       cursor: pointer;
       border: 1px solid #ddd;
       padding: 2px;
       object-fit: contain;
     }
-
-    .avatar-option:hover {
-      border-color: var(--msn-blue);
-      background: #eee;
-    }
-
+    .avatar-option:hover { border-color: var(--msn-blue); background: #eee; }
     .overlay {
       display: none;
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0; width: 100%; height: 100%;
       background: rgba(0, 0, 0, 0.3);
       z-index: 999;
     }
@@ -328,7 +300,6 @@
 </head>
 
 <body>
-
   <div id="msnWindow" class="msn-container">
     <div class="msn-header">
       <span style="display:flex; align-items:center; gap:6px;">
@@ -336,23 +307,14 @@
         <span style="font-size: 11px; font-weight: bold;">Messenger - Control Estudiantil</span>
       </span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button id="btnInstall" onclick="installApp()"
-          style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥
-          Instalar App</button>
-        <button onclick="vaciarChat()"
-          style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;"
-          title="Limpiar chat activo">🗑️ Limpiar</button>
-        <button onclick="window.close()"
-          style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
+        <button id="btnInstall" onclick="installApp()" style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥 Instalar App</button>
+        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
+        <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
     </div>
 
-    <!-- Aviso Modo App -->
-    <div id="pwaNotice"
-      style="background:#fff3cd; color:#856404; font-size:9px; padding:3px; text-align:center; border-bottom:1px solid #ffeeba;">
-      💡 Tip: Ve a <b>⚙️ > Guardar y Compartir > Instalar</b> para verlo como App real. <span
-        onclick="this.parentElement.style.display='none'"
-        style="cursor:pointer; font-weight:bold; float:right; margin-right:5px;">[X]</span>
+    <div id="pwaNotice" style="background:#fff3cd; color:#856404; font-size:9px; padding:3px; text-align:center; border-bottom:1px solid #ffeeba;">
+      💡 Tip: Ve a <b>⚙️ > Guardar y Compartir > Instalar</b> para verlo como App real. <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:bold; float:right; margin-right:5px;">[X]</span>
     </div>
 
     <div class="user-info">
@@ -380,18 +342,15 @@
 
     <div class="footer-actions">
       <input type="file" id="fileInput" style="display:none" onchange="manejarArchivo(this)">
-      <button class="btn-nudge" onclick="document.getElementById('fileInput').click()" title="Enviar un archivo">📎
-        Archivo</button>
+      <button class="btn-nudge" onclick="document.getElementById('fileInput').click()" title="Enviar un archivo">📎 Archivo</button>
       <button class="btn-nudge" onclick="sendNudge()">🔔 Zumbido</button>
       <button class="btn-send" onclick="sendMsg()">Enviar</button>
     </div>
   </div>
 
-  <!-- Galería de Avatares -->
   <div id="overlay" class="overlay" onclick="closeGallery()"></div>
   <div id="avatarGallery" class="avatar-gallery">
-    <div style="font-size:12px; font-weight:bold; color:var(--msn-blue); border-bottom:1px solid #eee; padding-bottom:5px;">
-      Elige tu imagen:</div>
+    <div style="font-size:12px; font-weight:bold; color:var(--msn-blue); border-bottom:1px solid #eee; padding-bottom:5px;">Elige tu imagen:</div>
     <div class="avatar-grid" id="avatarGrid"></div>
     <button onclick="closeGallery()" style="width:100%; margin-top:10px; font-size:10px; cursor:pointer;">Cancelar</button>
   </div>
@@ -399,31 +358,22 @@
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
 
-    // --- ICONOS CLÁSICOS (URLs directas) ---
     const AVATARS = [
       "msn_icon.png",
-      "https://cdn-icons-png.flaticon.com/512/3306/3306613.png", // Balon
-      "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", // Persona azul
-      "https://cdn-icons-png.flaticon.com/128/2928/2928158.png", // Guitarra
-      "https://cdn-icons-png.flaticon.com/128/1040/1040230.png", // Sol
-      "https://cdn-icons-png.flaticon.com/128/1164/1164620.png", // Flor
-      "https://cdn-icons-png.flaticon.com/128/3069/3069172.png", // Pato
-      "https://cdn-icons-png.flaticon.com/128/806/806542.png"    // Mariposa
+      "https://cdn-icons-png.flaticon.com/512/3306/3306613.png",
+      "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+      "https://cdn-icons-png.flaticon.com/128/2928/2928158.png",
+      "https://cdn-icons-png.flaticon.com/128/1040/1040230.png",
+      "https://cdn-icons-png.flaticon.com/128/1164/1164620.png",
+      "https://cdn-icons-png.flaticon.com/128/3069/3069172.png",
+      "https://cdn-icons-png.flaticon.com/128/806/806542.png"
     ];
 
-    // --- SONIDOS ORIGINALES ---
     const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
     const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
 
-    function playNudgeSound() {
-      sndNudge.currentTime = 0;
-      sndNudge.play().catch(e => console.log('Audio blocked', e));
-    }
-
-    function playMsgSound() {
-      sndMsg.currentTime = 0;
-      sndMsg.play().catch(e => console.log('Audio blocked', e));
-    }
+    function playNudgeSound() { sndNudge.currentTime = 0; sndNudge.play().catch(e => { }); }
+    function playMsgSound() { sndMsg.currentTime = 0; sndMsg.play().catch(e => { }); }
 
     let lastMsgCount = 0;
     let myUsername = "Usuario";
@@ -432,69 +382,55 @@
     let unreadUsers = new Set();
     let deferredInstallPrompt = null;
 
-    // --- LÓGICA GALERÍA ---
+    function parseUser(raw) {
+      if (!raw) return { name: '?', avatar: 'msn_icon.png' };
+      const parts = raw.split('|');
+      return { name: parts[0], avatar: parts[1] || 'msn_icon.png' };
+    }
+
+    function getMyIdent() {
+      const saved = localStorage.getItem('msn_avatar_' + myUsername) || 'msn_icon.png';
+      return `${myUsername}|${saved}`;
+    }
+
     function openGallery() {
       const grid = document.getElementById('avatarGrid');
       grid.innerHTML = '';
       AVATARS.forEach(url => {
         const img = document.createElement('img');
-        img.src = url;
-        img.className = 'avatar-option';
+        img.src = url; img.className = 'avatar-option';
         img.onclick = () => selectAvatar(url);
         grid.appendChild(img);
       });
       document.getElementById('avatarGallery').style.display = 'block';
       document.getElementById('overlay').style.display = 'block';
     }
-
     function closeGallery() {
       document.getElementById('avatarGallery').style.display = 'none';
       document.getElementById('overlay').style.display = 'none';
     }
-
     function selectAvatar(url) {
       localStorage.setItem('msn_avatar_' + myUsername, url);
       document.getElementById('myAvatarImg').src = url;
       closeGallery();
     }
 
-    // --- REGISTRO PWA ---
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => { });
-    }
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredInstallPrompt = e;
-      document.getElementById('btnInstall').style.display = 'block';
-    });
-    async function installApp() {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      const { outcome } = await deferredInstallPrompt.userChoice;
-      if (outcome === 'accepted') document.getElementById('btnInstall').style.display = 'none';
-      deferredInstallPrompt = null;
-    }
+    if ('serviceWorker' in navigator) { navigator.serviceWorker.register('sw.js').catch(() => { }); }
+    window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredInstallPrompt = e; document.getElementById('btnInstall').style.display = 'block'; });
+    async function installApp() { if (!deferredInstallPrompt) return; deferredInstallPrompt.prompt(); const { outcome } = await deferredInstallPrompt.userChoice; if (outcome === 'accepted') document.getElementById('btnInstall').style.display = 'none'; deferredInstallPrompt = null; }
 
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
-
-      // Cargar avatar guardado
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
-
-      // Desbloquear audio al primer click
       document.body.addEventListener('click', () => {
         sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(() => { });
         sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(() => { });
       }, { once: true });
-
       loadMessages();
       setInterval(loadMessages, 2500);
-
-      document.getElementById('msgInput').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
-      });
+      document.getElementById('msgInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
     };
 
     async function callApi(action, data = {}) {
@@ -511,25 +447,18 @@
           const nuevos = res.data.slice(lastMsgCount);
           let hayMsgNuevo = false;
           nuevos.forEach(m => {
-            const emisor = m[1];
+            const userInf = parseUser(m[1]);
+            const emisor = userInf.name;
             const receptor = m[4] || 'TODOS';
-            if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) {
-              unreadUsers.add(emisor);
-            }
-            if (emisor !== myUsername && m[3] !== 'zumbido') {
-              if (receptor === 'TODOS' || receptor === myUsername) hayMsgNuevo = true;
-            }
+            if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) { unreadUsers.add(emisor); }
+            if (emisor !== myUsername && m[3] !== 'zumbido') { if (receptor === 'TODOS' || receptor === myUsername) hayMsgNuevo = true; }
           });
-
           if (hayMsgNuevo) playMsgSound();
-
           const lastMsg = res.data[res.data.length - 1];
           if (lastMsg && lastMsg[3] === 'zumbido') {
-            const emisor = lastMsg[1];
+            const emisor = parseUser(lastMsg[1]).name;
             const receptor = lastMsg[4] || 'TODOS';
-            if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
-              triggerVisualNudge();
-            }
+            if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) triggerVisualNudge();
           }
         }
         renderMessages(res.data);
@@ -539,8 +468,7 @@
     }
 
     function selectChat(user) {
-      currentChat = user;
-      unreadUsers.delete(user);
+      currentChat = user; unreadUsers.delete(user);
       document.getElementById('selfName').innerText = myUsername + " > " + user;
       loadMessages();
     }
@@ -549,49 +477,39 @@
       const list = document.getElementById('onlineList');
       const ahora = Date.now();
       const TRES_MINUTOS = 180000;
-      const usuariosActivos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS).map(m => m[1]);
-      const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
+      const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS);
+      const userNames = [...new Set(activos.map(m => parseUser(m[1]).name))].filter(u => u !== myUsername);
 
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
-      users.forEach(u => {
+      userNames.forEach(u => {
         const isUnread = unreadUsers.has(u);
         html += `<div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
       });
       list.innerHTML = html;
     }
 
-    // Colores para avatares de usuarios
-    const USER_COLORS = ['#004b91', '#10b981', '#f97316', '#8b5cf6', '#ef4444', '#0ea5e9', '#d97706'];
-    function getUserColor(name) {
-      let hash = 0;
-      for (let c of (name || '?')) hash = (hash * 31 + c.charCodeAt(0)) & 0xFFFFFF;
-      return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
-    }
-
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory');
       h.innerHTML = '';
       const filtrados = msgs.filter(m => {
-        const emisor = m[1], receptor = m[4] || 'TODOS';
+        const emisor = parseUser(m[1]).name;
+        const receptor = m[4] || 'TODOS';
         if (currentChat === 'TODOS') return receptor === 'TODOS';
         return (emisor === myUsername && receptor === currentChat) || (emisor === currentChat && receptor === myUsername);
       });
       filtrados.forEach(m => {
+        const userInf = parseUser(m[1]);
         const d = document.createElement('div');
         if (m[3] === 'zumbido') {
-          d.className = 'msg-nudge';
-          d.innerHTML = `⚠️ Zumbido de <strong>${m[1]}</strong>`;
+          d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${userInf.name}</strong>`;
         } else if (m[3] === 'file') {
           d.className = 'msg-entry';
-          const inicial = (m[1] || '?')[0].toUpperCase();
-          const color = getUserColor(m[1]);
           let fileData = { nombre: 'Archivo', url: m[2] };
           try { if (m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch (e) { }
-
           d.innerHTML = `
-            <div class="msg-avatar" style="background:${color}">${inicial}</div>
+            <div class="msg-avatar"><img src="${userInf.avatar}"></div>
             <div class="msg-text">
-              <strong>${m[1]}:</strong> ha enviado un archivo:
+              <strong>${userInf.name}:</strong> ha enviado un archivo:
               <div style="background:#f1f5f9; border:1px solid #cbd5e1; padding:8px; border-radius:8px; margin-top:5px; display:flex; align-items:center; gap:10px;">
                 <span style="font-size:18px;">📄</span>
                 <div style="flex:1; overflow:hidden">
@@ -602,68 +520,39 @@
             </div>`;
         } else {
           d.className = 'msg-entry';
-          const inicial = (m[1] || '?')[0].toUpperCase();
-          const color = getUserColor(m[1]);
-          d.innerHTML = `<div class="msg-avatar" style="background:${color}">${inicial}</div><div class="msg-text"><strong>${m[1]}:</strong> ${m[2]}</div>`;
+          d.innerHTML = `<div class="msg-avatar"><img src="${userInf.avatar}"></div><div class="msg-text"><strong>${userInf.name}:</strong> ${m[2]}</div>`;
         }
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
     }
 
-    // FUNCIÓN PARA FORZAR DESCARGA FUERA DE LA PWA
-    function descargarArchivo(url) {
-      if (!url) return;
-      // Usamos window.open con noopener para que el navegador del sistema tome el control
-      const win = window.open(url, '_blank', 'noopener,noreferrer');
-      if (win) win.focus();
-    }
+    function descargarArchivo(url) { if (!url) return; const win = window.open(url, '_blank', 'noopener,noreferrer'); if (win) win.focus(); }
 
     async function manejarArchivo(input) {
       if (!input.files || !input.files[0]) return;
-      const file = input.files[0];
-      if (file.size > 10 * 1024 * 1024) { alert("El archivo es muy grande (máx 10MB)"); return; }
-
+      const file = input.files[0]; if (file.size > 10 * 1024 * 1024) { alert("El archivo es muy grande (máx 10MB)"); return; }
       const btn = document.querySelector('button[onclick*="fileInput"]');
-      const originalText = btn.innerHTML;
-      btn.innerHTML = "⏳ Subiendo...";
-      btn.disabled = true;
-
+      const originalText = btn.innerHTML; btn.innerHTML = "⏳ Subiendo..."; btn.disabled = true;
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target.result.split(',')[1];
-        const res = await callApi('enviarMensaje', {
-          usuario: myUsername,
-          texto: JSON.stringify({ nombre: file.name, url: "" }),
-          tipo: 'file',
-          receptor: currentChat,
-          archivo: {
-            nombre: file.name,
-            base64: base64,
-            mimeType: file.type
-          }
-        });
-
-        btn.innerHTML = originalText;
-        btn.disabled = false;
-        input.value = "";
-        loadMessages();
+        await callApi('enviarMensaje', { usuario: getMyIdent(), texto: JSON.stringify({ nombre: file.name, url: "" }), tipo: 'file', receptor: currentChat, archivo: { nombre: file.name, base64: base64, mimeType: file.type } });
+        btn.innerHTML = originalText; btn.disabled = false; input.value = ""; loadMessages();
       };
       reader.readAsDataURL(file);
     }
 
     async function sendMsg() {
-      const i = document.getElementById('msgInput');
-      const t = i.value.trim(); if (!t) return; i.value = '';
-      await callApi('enviarMensaje', { usuario: myUsername, texto: t, tipo: 'msg', receptor: currentChat });
+      const i = document.getElementById('msgInput'); const t = i.value.trim(); if (!t) return; i.value = '';
+      await callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat });
       loadMessages();
     }
 
     async function sendNudge() {
       if (isNudging) return; isNudging = true;
-      await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
-      triggerVisualNudge();
-      setTimeout(() => isNudging = false, 5000);
+      await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
+      triggerVisualNudge(); setTimeout(() => isNudging = false, 5000);
     }
 
     async function vaciarChat() {
@@ -674,8 +563,7 @@
     }
 
     function triggerVisualNudge() {
-      const w = document.getElementById('msnWindow');
-      playNudgeSound();
+      const w = document.getElementById('msnWindow'); playNudgeSound();
       w.classList.add('nudge-vibration', 'nudge-flash');
       if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
       setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000);
