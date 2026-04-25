@@ -862,7 +862,7 @@
       });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]);
-        const esPropio = ui.name === myUsername;
+        const esPropio = String(ui.name || '').trim().toUpperCase() === String(myUsername || '').trim().toUpperCase();
         const d = document.createElement('div');
 
         if (m[3] === 'zumbido') {
