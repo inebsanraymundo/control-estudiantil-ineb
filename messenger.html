@@ -234,6 +234,7 @@
     /* Bubble: mensaje propio (derecha) */
     .msg-me {
       flex-direction: row-reverse;
+      margin-left: auto;
     }
     .msg-me .msg-text {
       background: #dbeafe;
@@ -756,17 +757,26 @@
           nuevos.forEach(m => {
             if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return;
             const ui = parseUser(m[1]);
+            const senderName = String(ui.name || '').trim().toUpperCase();
+            const myName = String(myUsername || '').trim().toUpperCase();
+            const chatPartner = String(currentChat || '').trim().toUpperCase();
 
             // Solo procesar sonidos si no es la primera carga (lastMsgCount > 0)
             if (lastMsgCount > 0) {
-              if (ui.name !== myUsername && ui.name !== currentChat && m[4] === myUsername) unreadUsers.add(ui.name);
-              if (ui.name !== myUsername && m[3] !== 'zumbido' && (m[4] === 'TODOS' || m[4] === myUsername)) hayMsgNuevo = true;
-              if (m[3] === 'zumbido' && ui.name !== myUsername && (m[4] === 'TODOS' || m[4] === myUsername)) {
-                const nudgeId = m[0] + ui.name; // ID único: timestamp + autor
+              if (senderName !== myName && senderName !== chatPartner && (m[4] || 'TODOS').trim().toUpperCase() === myName) {
+                unreadUsers.add(ui.name);
+              }
+              if (senderName !== myName && m[3] !== 'zumbido' && ((m[4] || 'TODOS').trim().toUpperCase() === 'TODOS' || (m[4] || '').trim().toUpperCase() === myName)) {
+                hayMsgNuevo = true;
+              }
+              if (m[3] === 'zumbido' && senderName !== myName && ((m[4] || 'TODOS').trim().toUpperCase() === 'TODOS' || (m[4] || '').trim().toUpperCase() === myName)) {
+                const nudgeId = m[0] + ui.name;
                 if (!seenNudges.has(nudgeId)) { seenNudges.add(nudgeId); hayZumbidoNuevo = true; }
               }
             }
           });
+          // Limpiar notificaciones del chat activo si llegaron mensajes nuevos de él
+          if (currentChat !== 'TODOS') unreadUsers.delete(currentChat);
 
           if (hayMsgNuevo) playMsgSound();
           if (hayZumbidoNuevo) triggerVisualNudge();
@@ -829,10 +839,15 @@
     }
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory'); h.innerHTML = '';
+      const myName = String(myUsername || '').trim().toUpperCase();
+      const chatPartner = String(currentChat || '').trim().toUpperCase();
+
       const filtrados = msgs.filter(m => {
         if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return false;
-        const e = parseUser(m[1]).name, r = m[4] || 'TODOS';
-        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername);
+        const e = String(parseUser(m[1]).name || '').trim().toUpperCase();
+        const r = String(m[4] || 'TODOS').trim().toUpperCase();
+        
+        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myName && r === chatPartner) || (e === chatPartner && r === myName);
       });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]);
@@ -893,6 +908,8 @@
       if(res.success) {
         lastMsgCount = 0; 
         document.getElementById('chatHistory').innerHTML = '<div style="text-align:center; color:#999; font-size:10px; padding:10px;">Chat vaciado exitosamente</div>';
+        // Volver a anunciar presencia para no perder la imagen en el servidor
+        updatePresence();
         loadMessages(); 
       } else {
         alert("No se pudo vaciar el chat. Intenta de nuevo.");
