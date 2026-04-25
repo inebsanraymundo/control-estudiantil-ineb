@@ -1094,10 +1094,10 @@
           <div class="header-subtitle">Control Estudiantil</div>
         </div>
       </div>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
+      <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:15px;">
           <span id="lblUserGreeting" style="font-weight:600; color:#1e293b; font-size:0.95rem; display:none;"></span>
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:6px; background:linear-gradient(90deg, #0ea5e9, #0284c7); border-radius:40px; padding:8px 18px; font-size: 0.9rem;"><img src="msn_icon.png" style="width:20px; height:20px; object-fit:contain;" alt="MSN">Messenger</button>
           <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Cerrar sesión</button>
         </div>
       </div>
@@ -1373,6 +1373,15 @@
       return CONFIG_ROLES['usuario'];
     }
 
+    // === CONFIGURACIÓN DE ROLES EDITORES DE DOCENTES Y COORDINADORES ===
+    // Añade aquí los roles que tendrán permiso para editar estas áreas el próximo año
+    const ROLES_EDITORES_CONFIG = ['admin', 'subdirector', 'director'];
+
+    function puedeEditarConfig() {
+      const r = (sessionStorage.getItem('userRole') || 'usuario').toLowerCase();
+      return ROLES_EDITORES_CONFIG.includes(r);
+    }
+
     let estudiantesGlobal = [];
     let appConfig = { docentes: {} };
     let configExists = false;
@@ -1566,8 +1575,21 @@
 
       const GRADOS_INVALIDOS = ['', 'grado a cursar', 'sin asignar'];
 
-      // Agrupar por grado (filtrar grados vacíos/placeholder)
-      const grupos = {};
+      function extractNivel(gradoStr) {
+        let str = gradoStr.trim().toLowerCase();
+        if (str.match(/^1/i) || str.includes('primer')) return '1';
+        if (str.match(/^2/i) || str.includes('segund')) return '2';
+        if (str.match(/^3/i) || str.includes('tercer')) return '3';
+        if (str.match(/^4/i) || str.includes('cuart')) return '4';
+        if (str.match(/^5/i) || str.includes('quint')) return '5';
+        if (str.match(/^6/i) || str.includes('sext')) return '6';
+        return '0'; // Nivel base "Otros"
+      }
+      
+      const lbls = {'1':'Primeros', '2':'Segundos', '3':'Terceros', '4':'Cuartos', '5':'Quintos', '6':'Sextos', '0':'Otros'};
+
+      // Agrupar por NIVEL y luego GRADO
+      const gruposNivel = {};
       lista
         .filter(e => !GRADOS_INVALIDOS.includes(e.grado.toLowerCase().trim()))
         .sort((a, b) => {
@@ -1586,38 +1608,56 @@
           return a.nombre.localeCompare(b.nombre);
         })
         .forEach(est => {
-          if (!grupos[est.grado]) grupos[est.grado] = [];
-          grupos[est.grado].push(est);
+          let nId = extractNivel(est.grado);
+          if (!gruposNivel[nId]) gruposNivel[nId] = {};
+          if (!gruposNivel[nId][est.grado]) gruposNivel[nId][est.grado] = [];
+          gruposNivel[nId][est.grado].push(est);
         });
 
       const total = lista.length;
       document.getElementById('resultsInfo').textContent =
-        `${total} estudiante${total !== 1 ? 's' : ''} activos en ${Object.keys(grupos).length} grado${Object.keys(grupos).length !== 1 ? 's' : ''}`;
+        `${total} estudiante${total !== 1 ? 's' : ''} en la tabla`;
 
-      Object.entries(grupos).forEach(([grado, students]) => {
-        const isOpen = gradoStates[grado] === true; // default CERRADO
+      Object.keys(gruposNivel).sort().forEach(nId => {
+        const nLabel = lbls[nId] || 'Nivel';
+        
+        // Fila Súper-Cabecera de Nivel
+        const rowNivel = tbody.insertRow();
+        rowNivel.className = 'nivel-header-row';
+        const cellNivel = rowNivel.insertCell(0);
+        cellNivel.colSpan = 8;
+        cellNivel.innerHTML = `
+          <div style="display:flex; align-items:center; background:#1e293b; color:white; padding:8px 12px; border-radius:6px; margin:15px 0 5px 0; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+             <div style="flex:1; font-weight:bold; font-size:1.1rem; text-shadow:1px 1px 2px rgba(0,0,0,0.5);">📚 NIVEL: ${nLabel.toUpperCase()}</div>
+             ${getCoordinadorHtml(nId, nLabel)}
+          </div>
+        `;
 
-        // Fila cabecera del grado (clickable)
-        const headerRow = tbody.insertRow();
-        headerRow.className = 'grado-header-row';
-        const hCell = headerRow.insertCell(0);
-        hCell.colSpan = 8;
-        hCell.innerHTML = `
-          <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
-            <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center; flex-wrap:wrap;">
-              <div style="display:flex; align-items:center;">
-                <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
-                📚 Grado y Sección: ${grado} <span class="grado-count" style="margin-right:10px;">${students.length} alumnos</span>
+        // Filas interiores del Nivel
+        Object.entries(gruposNivel[nId]).forEach(([grado, students]) => {
+          const isOpen = gradoStates[grado] === true; // default CERRADO
+
+          // Fila cabecera del grado (clickable)
+          const headerRow = tbody.insertRow();
+          headerRow.className = 'grado-header-row';
+          const hCell = headerRow.insertCell(0);
+          hCell.colSpan = 8;
+          hCell.innerHTML = `
+            <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
+              <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center; flex-wrap:wrap;">
+                <div style="display:flex; align-items:center;">
+                  <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
+                  📑 Grado y Sección: ${grado} <span class="grado-count" style="margin-right:10px;">${students.length} alumnos</span>
+                </div>
+                ${getDocentesHtml(grado)}
               </div>
-              ${getDocentesHtml(grado)}
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
-              <label style="font-size:10px; font-weight:normal; cursor:pointer; display:flex; align-items:center; gap:5px;">
-                <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master"> Seleccionar grado
-              </label>
-              <button onclick="imprimirFichasPorGrado('${grado}')" style="background:#1e3a8a; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:9px; cursor:pointer;">🖨️ Imprimir Grupo</button>
-            </div>
-          </div>`;
+              <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
+                <label style="font-size:10px; font-weight:normal; cursor:pointer; display:flex; align-items:center; gap:5px;">
+                  <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master"> Seleccionar grado
+                </label>
+                <button onclick="imprimirFichasPorGrado('${grado}')" style="background:#1e3a8a; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:9px; cursor:pointer;">🖨️ Imprimir Grupo</button>
+              </div>
+            </div>`;
 
         // Filas de estudiantes
         students.forEach(est => {
@@ -2517,41 +2557,52 @@
         cargarListaEstudiantes();
       }
     };
-    // ==================== CONFIGURACIÓN DE DOCENTES GUÍAS ====================
+    // ==================== CONFIGURACIÓN DE DOCENTES GUÍAS Y COORDINADORES ====================
+    function getCoordinadorHtml(nId, nLabel) {
+      const co = (appConfig.coordinadores && appConfig.coordinadores[nId]) || 'Sin asignar';
+      const cnf = puedeEditarConfig();
+      let html = `<div style="font-size:0.9rem; display:flex; align-items:center; gap:8px;">
+                    <span>📋 <strong>Coordinador de ${nLabel}:</strong> ${co}</span>`;
+      if (cnf) {
+        html += `<button onclick="editarCoordinador(event, '${nId}', '${nLabel}')" style="background:none; border:none; cursor:pointer; font-size:1.1rem; filter:brightness(0) invert(1);" title="Editar Coordinador">⚙️</button>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function editarCoordinador(e, nId, nLabel) {
+      if(e) e.stopPropagation();
+      const actualCoord = (appConfig.coordinadores && appConfig.coordinadores[nId]) || '';
+      const nuevoCoord = prompt(`Ingresa el Coordinador para todos los "${nLabel}"\\n(Ejemplo: Licda. Ana Morales):`, actualCoord);
+      if (nuevoCoord === null) return;
+      if (!appConfig.coordinadores) appConfig.coordinadores = {};
+      appConfig.coordinadores[nId] = nuevoCoord.trim();
+      guardarConfiguracionBase();
+    }
+
     function getDocentesHtml(grado) {
       const gu = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || 'Sin asignar';
-      const co = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].coord) || 'Sin asignar';
-      const cnf = getRolConfig();
+      const cnf = puedeEditarConfig();
       
       let html = `<div style="font-size:0.85rem; color:#475569; border-left:2px solid #cbd5e1; padding-left:10px; margin-left:15px; display:flex; align-items:center; gap:8px;">
-                    <span>🧑‍🏫 <strong style="color:#1e293b;">Guía:</strong> ${gu}</span>
-                    <span style="color:#cbd5e1;">|</span>
-                    <span>📋 <strong style="color:#1e293b;">Coordinador:</strong> ${co}</span>`;
+                    <span>🧑‍🏫 <strong style="color:#1e293b;">Docente Guía:</strong> <span style="font-weight:600; color:#0f172a;">${gu}</span></span>`;
       
-      if (cnf.permiteBorrar) {
-        html += `<button onclick="editarDocentes(event, '${grado}')" style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left:8px;" title="Editar Docentes">⚙️</button>`;
+      if (cnf) {
+        html += `<button onclick="editarDocentes(event, '${grado}')" style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left:2px;" title="Editar Docente Guía">⚙️</button>`;
       }
       html += `</div>`;
       return html;
     }
 
     function editarDocentes(e, grado) {
-      e.stopPropagation(); // Evitar que el acordeón se colapse al hacer clic en el botón
+      if(e) e.stopPropagation(); // Evitar que el acordeón se colapse al hacer clic en el botón
       const actualGuia = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || '';
-      const actualCoord = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].coord) || '';
-      
-      const nuevoGuia = prompt(`Ingresa el Docente Guía para "${grado}"\\n(Ejemplo: Prof. Mario López):`, actualGuia);
+      const nuevoGuia = prompt(`Ingresa el Docente Guía para la sección "${grado}"\\n(Ejemplo: Prof. Mario López):`, actualGuia);
       if (nuevoGuia === null) return; 
-      
-      const nuevoCoord = prompt(`Ingresa el Coordinador de Grado para "${grado}"\\n(Ejemplo: Licda. Ana Morales):`, actualCoord);
-      if (nuevoCoord === null) return;
       
       if (!appConfig.docentes) appConfig.docentes = {};
       if (!appConfig.docentes[grado]) appConfig.docentes[grado] = {};
-      
       appConfig.docentes[grado].guia = nuevoGuia.trim();
-      appConfig.docentes[grado].coord = nuevoCoord.trim();
-      
       guardarConfiguracionBase();
     }
 
