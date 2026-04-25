@@ -3,20 +3,22 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Messenger Retro - Control Estudiantil</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MSN Messenger Retro</title>
   <link rel="manifest" href="manifest.json">
-  <link rel="icon" href="msn_icon.png" type="image/png">
   <style>
     :root {
       --msn-blue: #004b91;
-      --msn-light: #e1eefc;
-      --msn-border: #82a9d8;
+      --msn-light-blue: #e1e9f3;
+      --msn-header-blue: #0056b3;
+      --msn-border: #a2b1c1;
     }
 
     body {
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: #f0f0f0;
       margin: 0;
+      padding: 0;
+      font-family: 'Tahoma', sans-serif;
+      background-color: #f0f0f0;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -27,51 +29,51 @@
     .msn-container {
       width: 100%;
       height: 100%;
-      max-width: 500px;
-      max-height: 600px;
-      background: white;
+      background: var(--msn-light-blue);
       border: 1px solid var(--msn-border);
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
       display: flex;
       flex-direction: column;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
     .msn-header {
-      background: linear-gradient(to bottom, #7fb2e5 0%, #004b91 100%);
+      background: linear-gradient(to bottom, #0078d7, #0056b3);
       color: white;
-      padding: 5px 10px;
+      padding: 4px 8px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      user-select: none;
     }
 
     .user-info {
       padding: 10px;
-      background: var(--msn-light);
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid var(--msn-border);
+      border-bottom: 1px solid #c0cedd;
+      background: linear-gradient(to bottom, #fcfdfe, #e1e9f3);
     }
 
     .avatar-frame {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       border: 2px solid white;
-      background: #ccc;
+      box-shadow: 0 0 3px rgba(0, 0, 0, 0.3);
       overflow: hidden;
+      background: white;
     }
 
     .avatar-frame img {
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
 
     .user-name {
       font-weight: bold;
       color: var(--msn-blue);
-      font-size: 14px;
+      font-size: 13px;
     }
 
     .msn-main-layout {
@@ -80,101 +82,65 @@
       overflow: hidden;
     }
 
-    /* Área de chat */
     .chat-side {
       flex: 1;
       display: flex;
       flex-direction: column;
-      border-right: 1px solid #ccc;
+      padding: 8px;
+      background: white;
     }
 
     .chat-history {
       flex: 1;
-      padding: 10px;
-      overflow-y: auto;
+      border: 1px solid var(--msn-border);
       background: white;
+      overflow-y: auto;
+      padding: 8px;
       font-size: 12px;
-    }
-
-    .msg-entry {
-      margin-bottom: 6px;
-      line-height: 1.4;
-      color: #333;
-      display: flex;
-      align-items: flex-start;
-      gap: 5px;
-    }
-    .msg-avatar {
-      width: 20px;
-      height: 20px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: bold;
-      color: white;
-      flex-shrink: 0;
-      margin-top: 1px;
-    }
-    .msg-text { flex: 1; }
-
-    .msg-nudge {
-      background: #fff3f3;
-      color: #d00;
-      font-weight: bold;
-      padding: 5px;
-      border: 1px dashed #f00;
-      margin: 5px 0;
-      font-size: 11px;
+      margin-bottom: 8px;
     }
 
     .writing-area {
       height: 60px;
-      padding: 5px;
-      background: #fff;
-      border-top: 1px solid #ccc;
+      border: 1px solid var(--msn-border);
     }
 
     .writing-area textarea {
       width: 100%;
       height: 100%;
       border: none;
-      outline: none;
       resize: none;
-      font-size: 12px;
+      padding: 5px;
+      font-family: inherit;
+      outline: none;
+      box-sizing: border-box;
     }
 
-    /* Barra lateral */
     .contacts-side {
       width: 120px;
-      background: #fdfdfd;
-      display: flex;
-      flex-direction: column;
+      border-left: 1px solid var(--msn-border);
+      background: #fbfcfe;
       padding: 5px;
+      overflow-y: auto;
     }
 
     .contacts-title {
-      font-size: 11px;
       font-weight: bold;
-      color: #666;
-      margin-bottom: 5px;
+      font-size: 11px;
+      color: #555;
+      margin-bottom: 8px;
       border-bottom: 1px solid #eee;
     }
 
     .contact-item {
+      font-size: 11px;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 0;
-      border-radius: 4px;
-      transition: 0.2s;
-      padding-left: 5px;
-      font-size: 11px;
-    }
-
-    .contact-item:hover {
-      background: #eee;
+      gap: 5px;
+      margin-bottom: 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .contact-status {
@@ -184,19 +150,79 @@
       background: #10b981;
     }
 
-    .has-new-msg {
-      background: #ffd6a5 !important;
-      font-weight: bold;
-      animation: pulse 1s infinite;
+    .footer-actions {
+      padding: 8px;
+      display: flex;
+      gap: 8px;
+      background: #e1e9f3;
+      border-top: 1px solid #c0cedd;
     }
 
-    @keyframes pulse {
+    .btn-nudge,
+    .btn-send {
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .btn-nudge {
+      background: linear-gradient(to bottom, #fff, #e0e0e0);
+      border: 1px solid #a0a0a0;
+    }
+
+    .btn-send {
+      background: linear-gradient(to bottom, #86d26d, #4e9e36);
+      color: white;
+      border: 1px solid #3d7d2a;
+      margin-left: auto;
+    }
+
+    /* Mensajes */
+    .msg-entry {
+      margin-bottom: 8px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      animation: fadeIn 0.3s forwards;
+    }
+
+    .msg-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: bold;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .msg-text {
+      background: #f1f5f9;
+      padding: 5px 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      word-break: break-word;
+    }
+
+    .has-new-msg {
+      background: #fff3cd;
+      animation: blink 1s infinite;
+      padding: 2px;
+      border-radius: 4px;
+    }
+
+    @keyframes blink {
       0% {
         opacity: 1;
       }
 
       50% {
-        opacity: 0.6;
+        opacity: 0.5;
       }
 
       100% {
@@ -204,35 +230,33 @@
       }
     }
 
-    .footer-actions {
-      padding: 5px 10px;
-      background: #eee;
-      display: flex;
-      justify-content: flex-end;
-      gap: 5px;
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(5px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
-    .btn-send {
-      background: linear-gradient(to bottom, #fff 0%, #ccc 100%);
-      border: 1px solid #999;
-      padding: 4px 15px;
+    .msg-nudge {
+      text-align: center;
+      padding: 5px;
+      background: #fff5f5;
+      border: 1px dashed #feb2b2;
+      color: #c53030;
+      font-weight: bold;
       font-size: 11px;
-      cursor: pointer;
-      border-radius: 3px;
+      margin: 10px 0;
+      border-radius: 4px;
     }
 
-    .btn-nudge {
-      background: white;
-      border: 1px solid #ccc;
-      padding: 4px 8px;
-      font-size: 11px;
-      cursor: pointer;
-      border-radius: 3px;
-    }
-
-    /* Animaciones */
+    /* Animación Zumbido */
     .nudge-vibration {
-      animation: nudge-anim 0.1s linear infinite;
+      animation: nudge-anim 0.08s infinite;
     }
 
     @keyframes nudge-anim {
@@ -311,7 +335,21 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw9htZRC8wxgmX-WJQqFbYMz3NU5XPi7GIaAT6nrJT9r3GF3CvGtCbg5kWobMzxYzwJ/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
+    
+    // --- SONIDOS ORIGINALES ---
+    const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
+    const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
+    
+    function playNudgeSound() {
+      sndNudge.currentTime = 0;
+      sndNudge.play().catch(e => console.log('Audio blocked', e));
+    }
+    
+    function playMsgSound() {
+      sndMsg.currentTime = 0;
+      sndMsg.play().catch(e => console.log('Audio blocked', e));
+    }
 
     let lastMsgCount = 0;
     let myUsername = "Usuario";
@@ -337,97 +375,15 @@
       deferredInstallPrompt = null;
     }
 
-    // --- AUDIO (síntesis pura, sin dependencias externas) ---
-    let audioCtx = null;
-    function getAudioCtx() {
-      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      if (audioCtx.state === 'suspended') audioCtx.resume();
-      return audioCtx;
-    }
-    function playNudgeSound() {
-      try {
-        const ctx = getAudioCtx();
-        // Sonido MSN nudge original: emula el "bzzt-bzzt-bzzt" con ruido modulado
-        // Basado en análisis espectral del nudge.mp3 original de Windows Live Messenger
-        const t = ctx.currentTime;
-
-        // Crea un buffer de ruido blanco para el buzz
-        const bufferSize = ctx.sampleRate * 0.08;
-        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-        const data = noiseBuffer.getChannelData(0);
-        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-
-        // 3 pulsos: bzt bzt bzt
-        for (let p = 0; p < 3; p++) {
-          const tP = t + p * 0.15;
-
-          // Ruido filtrado (da el característico timbre "suave-brusco" del nudge)
-          const src = ctx.createBufferSource();
-          src.buffer = noiseBuffer;
-          src.loop = true;
-
-          const filter = ctx.createBiquadFilter();
-          filter.type = 'bandpass';
-          filter.frequency.value = 800;
-          filter.Q.value = 0.8;
-
-          // Oscilador tonal mezclado con el ruido
-          const osc = ctx.createOscillator();
-          osc.type = 'square';
-          osc.frequency.setValueAtTime(220, tP);
-          osc.frequency.exponentialRampToValueAtTime(110, tP + 0.08);
-
-          const gainOsc = ctx.createGain();
-          gainOsc.gain.setValueAtTime(0.25, tP);
-          gainOsc.gain.exponentialRampToValueAtTime(0.001, tP + 0.08);
-
-          const gainNoise = ctx.createGain();
-          gainNoise.gain.setValueAtTime(0.4, tP);
-          gainNoise.gain.exponentialRampToValueAtTime(0.001, tP + 0.08);
-
-          src.connect(filter); filter.connect(gainNoise); gainNoise.connect(ctx.destination);
-          osc.connect(gainOsc); gainOsc.connect(ctx.destination);
-
-          src.start(tP); src.stop(tP + 0.08);
-          osc.start(tP); osc.stop(tP + 0.08);
-        }
-      } catch(e) { console.error('Audio error:', e); }
-    }
-
-    // Sonido suave de mensaje nuevo ("ding" clasico MSN)
-    function playMsgSound() {
-      try {
-        const ctx = getAudioCtx();
-        const t = ctx.currentTime;
-        // Ding: tono suave descendente, como campana pequeña
-        const notas = [{ f: 1318, dur: 0.12 }, { f: 1046, dur: 0.18 }];
-        notas.forEach(({ f, dur }, i) => {
-          const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.type = 'sine';
-          osc.frequency.value = f;
-          const inicio = t + i * 0.1;
-          gain.gain.setValueAtTime(0.18, inicio);
-          gain.gain.exponentialRampToValueAtTime(0.001, inicio + dur);
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.start(inicio); osc.stop(inicio + dur);
-        });
-      } catch(e) {}
-    }
-    async function testSound() {
-      playNudgeSound();
-      const btn = document.getElementById('btnSoundAuth');
-      btn.style.background = "#10b981";
-      btn.innerText = "🔊 Sonando!";
-      setTimeout(() => { btn.style.background = "#f97316"; btn.innerText = "🔊 Probar Sonido"; }, 1500);
-    }
-
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
 
-      // Desbloquear AudioContext al primer click
-      document.body.addEventListener('click', () => { getAudioCtx(); }, { once: true });
+      // Desbloquear audio al primer click
+      document.body.addEventListener('click', () => { 
+        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(()=>{});
+        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(()=>{});
+      }, { once: true });
 
       loadMessages();
       setInterval(loadMessages, 2500);
@@ -456,12 +412,11 @@
             if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) {
               unreadUsers.add(emisor);
             }
-            // Sonido de mensaje nuevo si es de otro usuario y no es zumbido
             if (emisor !== myUsername && m[3] !== 'zumbido') {
-              const paraNosotr = receptor === 'TODOS' || receptor === myUsername;
-              if (paraNosotr) hayMsgNuevo = true;
+              if (receptor === 'TODOS' || receptor === myUsername) hayMsgNuevo = true;
             }
           });
+          
           if (hayMsgNuevo) playMsgSound();
 
           const lastMsg = res.data[res.data.length - 1];
@@ -492,11 +447,11 @@
       const TRES_MINUTOS = 180000;
       const usuariosActivos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS).map(m => m[1]);
       const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
-
+      
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
       users.forEach(u => {
         const isUnread = unreadUsers.has(u);
-        html += `<div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
+        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
       });
       list.innerHTML = html;
     }
@@ -526,7 +481,6 @@
           d.className = 'msg-entry';
           const inicial = (m[1] || '?')[0].toUpperCase();
           const color = getUserColor(m[1]);
-          // Intentar parsear si el texto es JSON (contiene nombre y url)
           let fileData = { nombre: 'Archivo', url: m[2] };
           try { if(m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch(e){}
           
@@ -558,7 +512,7 @@
       const file = input.files[0];
       if (file.size > 10 * 1024 * 1024) { alert("El archivo es muy grande (máx 10MB)"); return; }
 
-      const btn = event.target.parentElement.querySelector('button[onclick*="fileInput"]');
+      const btn = document.querySelector('button[onclick*="fileInput"]');
       const originalText = btn.innerHTML;
       btn.innerHTML = "⏳ Subiendo...";
       btn.disabled = true;
@@ -568,7 +522,7 @@
         const base64 = e.target.result.split(',')[1];
         const res = await callApi('enviarMensaje', { 
           usuario: myUsername, 
-          texto: JSON.stringify({ nombre: file.name, url: "" }), // El backend pondrá la URL real
+          texto: JSON.stringify({ nombre: file.name, url: "" }), 
           tipo: 'file', 
           receptor: currentChat,
           archivo: {
