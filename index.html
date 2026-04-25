@@ -1416,16 +1416,18 @@
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
             style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
+          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
+            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">⏰ Agregar<br>Horario</div></button>
+          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
+          
+          <button class="btn-export" onclick="agregarGradoSección()"
+            title="Agregar nueva opción de grado al formulario" style="background:linear-gradient(90deg,#10b981,#059669); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">➕ Agregar<br>Grado/Secc</div></button>
+
           <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
             title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
         </div>
-        <div class="results-area" style="display:flex; gap:10px; align-items:center;">
+        <div class="results-area">
           <div id="resultsInfo" class="results-info"></div>
-          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
-            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; font-size:0.85rem; padding:8px 15px; border-radius:60px;">➕ Agregar Horario (aSc)</button>
-          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
-          <button class="btn-add-inline" onclick="agregarGradoSección()"
-            title="Agregar nueva opción de grado al formulario">➕ Agregar Grado/Sección</button>
         </div>
         <div class="table-wrapper">
           <table>
@@ -2752,9 +2754,15 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          // Usamos windows-1252 para leer correctamente acentos y eñes de aSc Horarios
-          const decoder = new TextDecoder('windows-1252');
-          const decodedText = decoder.decode(e.target.result);
+          // Intentamos decodificar. Si falla windows-1252, dejamos que el sistema use UTF-8 por defecto
+          let decodedText;
+          try {
+            const decoder = new TextDecoder('windows-1252', { fatal: true });
+            decodedText = decoder.decode(e.target.result);
+          } catch(err) {
+            const decoder = new TextDecoder('utf-8');
+            decodedText = decoder.decode(e.target.result);
+          }
           
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(decodedText, "text/xml");
