@@ -314,6 +314,8 @@
     }
 
     @media (max-width: 600px) {
+      .desktop-only { display: none !important; }
+      
       .nivel-header-content {
         flex-direction: column;
         align-items: flex-start;
@@ -331,6 +333,11 @@
         justify-content: space-between;
         align-items: center;
       }
+      .coord-name-inline {
+        display: block;
+        margin-left: 22px;
+        margin-top: 2px;
+      }
       
       .grado-header-content {
         flex-direction: column;
@@ -339,12 +346,15 @@
       .grado-title-main {
         width: 100%;
         margin-bottom: 4px;
+        display: flex;
+        align-items: center;
       }
       .grado-docente-info {
         margin-left: 0 !important;
         border-left: none !important;
         padding-left: 0 !important;
         font-size: 0.7rem !important;
+        width: 100%;
       }
       .grado-actions-mobile {
         width: 100%;
@@ -1749,12 +1759,13 @@
                   <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master" title="Seleccionar todo el bloque">
                 </div>
 
-                <div class="grado-title-main" style="display:flex; align-items:center; flex:1;">
+                <div class="grado-title-main" style="display:flex; align-items:center;">
                   <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
+                  <span class="desktop-only" style="margin-right:5px;">📑</span>
                   <span style="font-weight:700;">Grado y Sección: ${grado}</span>
                   <span class="grado-count" style="margin-left:8px; font-size:0.85rem; opacity:0.8;">${students.length} alumnos</span>
                 </div>
-                <div class="grado-docente-info" style="width:100%; margin-top:2px;">
+                <div class="grado-docente-info" style="margin-left:15px; display:inline-block;">
                   ${getDocentesHtml(grado)}
                 </div>
               </div>
@@ -2675,7 +2686,7 @@
       const co = (appConfig.coordinadores && appConfig.coordinadores[nId]) || 'Sin asignar';
       const cnf = puedeEditarConfig();
       let html = `<div class="coordinador-info" style="font-size:0.9rem; display:flex; align-items:center; gap:8px;">
-                    <span style="display:block; line-height:1.2;">📋 <strong>Coordinador de ${nLabel}:</strong><br><span style="margin-left:22px;">${co}</span></span>`;
+                    <span class="coordinador-text" style="display:block; line-height:1.2;">📋 <strong>Coordinador de ${nLabel}:</strong> <span class="coord-name-inline">${co}</span></span>`;
       if (cnf) {
         html += `<button onclick="editarCoordinador(event, '${nId}', '${nLabel}')" style="background:none; border:none; cursor:pointer; font-size:1.1rem; filter:brightness(0) invert(1);" title="Editar Coordinador">⚙️</button>`;
       }
