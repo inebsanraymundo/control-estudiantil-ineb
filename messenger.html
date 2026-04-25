@@ -165,23 +165,54 @@
     sndNudge.preload = 'auto';
     sndMsg.preload = 'auto';
 
+    // Sintetizador de audio de respaldo en caso de que el MP3 local falle
+    function playSyntheticDing() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine';
+        
+        // Simular el clásico "Da-ding" de notificación
+        osc.frequency.setValueAtTime(740, ctx.currentTime);     // F#5
+        osc.frequency.setValueAtTime(932, ctx.currentTime + 0.1); // A#5
+        
+        gain.gain.setValueAtTime(0, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.5, ctx.currentTime + 0.05);
+        gain.gain.linearRampToValueAtTime(0.0, ctx.currentTime + 0.3);
+        
+        osc.start(ctx.currentTime);
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
     function playNudgeSound() {
       try {
         if (!sndNudge) sndNudge = new Audio(NUDGE_URL);
         sndNudge.currentTime = 0;
-        sndNudge.play().catch(e => console.warn("Audio Nudge Error:", e));
-      } catch(e) { console.error("Nudge sound fail", e); }
+        let p = sndNudge.play();
+        if (p !== undefined) p.catch(e => console.warn("Nudge Error:", e));
+      } catch(e) {}
     }
+    
     function playMsgSound() {
       try {
         if (!sndMsg) sndMsg = new Audio(MSG_URL);
         sndMsg.currentTime = 0;
-        sndMsg.play().catch(e => console.warn("Audio Msg Error:", e));
-      } catch(e) { console.error("Msg sound fail", e); }
+        let p = sndMsg.play();
+        if (p !== undefined) {
+          p.catch(e => {
+            console.warn("Msg Error (Fallback a sintético):", e);
+            playSyntheticDing();
+          });
+        }
+      } catch(e) { playSyntheticDing(); }
     }
+    
     function testAudio() {
       playMsgSound();
-      alert("Si no escuchaste nada, asegúrate de haber hecho clic en la página y que el volumen esté alto.");
+      setTimeout(() => alert("Se reprodujo el sonido Mnsaje Nuevo. Si no lo has escuchado, revisa tu volumen o los permisos del navegador."), 500);
     }
 
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
@@ -203,32 +234,41 @@
     }
 
     function descargarArchivo(url, nombre) {
-      if (!url || url === "" || url === "undefined") {
+      if (!url || url === "" || url === "undefined" || url === "#") {
         alert("El archivo aún se está procesando o el enlace es inválido.");
         return;
       }
       
       let downloadUrl = url;
-      // Forzar descarga para Google Drive si es posible
-      if (url.includes('drive.google.com')) {
-        const match = url.match(/[-\w]{25,}/);
-        if (match) {
-          downloadUrl = `https://drive.google.com/uc?id=${match[0]}&export=download`;
+      
+      // Intentamos extraer el ID de Google Drive para forzar la descarga binaria nativa
+      const match = url.match(/[-\w]{25,}/);
+      if (match) {
+        const fileId = match[0];
+        // Convertir enlaces de Google Docs a formatos descargables físicos (Word, Excel)
+        if (url.includes('docs.google.com/document/')) {
+          downloadUrl = `https://docs.google.com/document/d/${fileId}/export?format=docx`;
+        } else if (url.includes('docs.google.com/spreadsheets/')) {
+          downloadUrl = `https://docs.google.com/spreadsheets/d/${fileId}/export?format=xlsx`;
+        } else if (url.includes('docs.google.com/presentation/')) {
+          downloadUrl = `https://docs.google.com/presentation/d/${fileId}/export/pptx`;
+        } else if (url.includes('drive.google.com') || url.includes('docs.google.com/file/d/')) {
+          // Utilizar la vista UC de Drive para forzar el encabezado de "Descarga" (Content-Disposition: attachment)
+          downloadUrl = `https://drive.google.com/uc?export=download&id=${fileId}`;
         }
       }
 
-      // Intentar abrir en pestaña nueva como método más compatible
-      const win = window.open(downloadUrl, '_blank');
-      if (!win) {
-        // Fallback si el popup es bloqueado
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.target = '_blank';
-        link.download = nombre || 'archivo';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // Método más moderno y confiable para lanzar descargas sin que el bloqueador de popups lo estropee: 
+      // Al ser URLs de Google formateadas con `export=download`, esto forzará la descarga en tu ordenador en lugar de abrir la web.
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.target = '_top'; // Previene bloqueos de iframe
+      link.style.display = 'none';
+      if(nombre) link.download = nombre;
+      
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => document.body.removeChild(link), 1000);
     }
 
     function toggleMusic() {
@@ -373,8 +413,8 @@
             fd.url = rawTexto;
           }
 
-          // Si el servidor envía la URL separada o en otra columna, pero aquí asumimos que viene en el texto
-          const displayUrl = fd.url || '#';
+          // Obtenemos la url original que subió el script
+          let displayUrl = fd.url || '#';
           const fileName = fd.nombre || 'Archivo adjunto';
 
           d.className = 'msg-entry'; 
@@ -386,9 +426,10 @@
                 <span style="font-size:20px;">📄</span>
                 <div style="flex:1; overflow:hidden; display:flex; flex-direction:column;">
                   <span style="font-size:10px; font-weight:bold; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${fileName}</span>
-                  <a href="javascript:void(0)" onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="font-size:9px; color:#004b91; text-decoration:underline;">Ver / Descargar</a>
+                  <a href="${displayUrl !== '#' ? displayUrl : 'javascript:void(0)'}" target="_blank" style="font-size:9px; color:#004b91; text-decoration:underline;" title="Abre el archivo original en otra pestaña">Ver en línea</a>
                 </div>
-                <button onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="background:#004b91; color:white; border:none; padding:4px 10px; font-size:9px; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Bajar</button>
+                <!-- El botón '💾 Descargar' usa la lógica Javascript para FORZAR la descarga como Word, Excel, etc. -->
+                <button onclick="descargarArchivo('${displayUrl}', '${fileName}')" style="background:#004b91; color:white; border:none; padding:4px 10px; font-size:9px; border-radius:4px; cursor:pointer; font-weight:bold;">💾 Descargar</button>
               </div>
             </div>`;
         } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2] || '')}</div>`; }
