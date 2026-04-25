@@ -76,8 +76,6 @@
     .avatar-option { width: 40px; height: 40px; cursor: pointer; border: 1px solid #ddd; padding: 2px; object-fit: contain; }
     .avatar-option:hover { border-color: var(--msn-blue); background: #eee; }
     .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.3); z-index: 999; }
-    
-    /* Estilos Especiales MSN */
     .status-select { font-size: 9px; border: 1px solid #a2b1c1; background: white; cursor: pointer; outline: none; }
     .personal-msg-area { display: flex; align-items: center; gap: 5px; width: 100%; }
     .personal-msg-input { border: 1px solid transparent; background: transparent; font-size: 10px; color: #555; flex: 1; font-style: italic; outline: none; padding: 1px; }
@@ -96,7 +94,6 @@
         <span style="font-size: 11px; font-weight: bold;">Messenger - Control Estudiantil</span>
       </span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button id="btnInstall" onclick="installApp()" style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥 Instalar App</button>
         <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
         <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
@@ -147,6 +144,7 @@
     <div class="avatar-grid" id="avatarGrid"></div>
     <button onclick="closeGallery()" style="width:100%; margin-top:10px; font-size:10px; cursor:pointer;">Cancelar</button>
   </div>
+
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
     const AVATARS = [
@@ -156,20 +154,26 @@
       "https://cdn-icons-png.flaticon.com/128/806/806542.png"
     ];
     const EMOTICONS = { '(L)': '❤️', '(Y)': '👍', '(N)': '👎', '(A)': '😇', '(H)': '😎', '(K)': '💋', '(G)': '🎁', '(F)': '🌹', '(S)': '🌙', '(W)': '🌻' };
-    const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
-    const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
 
-    function playNudgeSound() { 
-      sndNudge.currentTime = 0; 
-      sndNudge.play().catch(() => { }); 
+    // SONIDOS DIRECTOS DE GITHUB (Más estables)
+    const NUDGE_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3";
+    const MSG_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/message.mp3";
+
+    let sndNudge = new Audio(NUDGE_URL);
+    let sndMsg = new Audio(MSG_URL);
+
+    function playNudgeSound() {
+      if (!sndNudge) sndNudge = new Audio(NUDGE_URL);
+      sndNudge.currentTime = 0;
+      sndNudge.play().catch(e => console.log("Audio Error:", e));
     }
-    function playMsgSound() { 
-      sndMsg.currentTime = 0; 
-      sndMsg.play().catch(() => { }); 
+    function playMsgSound() {
+      if (!sndMsg) sndMsg = new Audio(MSG_URL);
+      sndMsg.currentTime = 0;
+      sndMsg.play().catch(e => console.log("Audio Error:", e));
     }
-    function playNudgeSound() { sndNudge.currentTime = 0; sndNudge.play().catch(e => { }); }
-    function playMsgSound() { sndMsg.currentTime = 0; sndMsg.play().catch(e => { }); }
-    let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), deferredInstallPrompt = null, myStatus = "online", myStatusMsg = "", myMusic = "";
+
+    let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
 
     function parseUser(raw) {
       if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '', music: '' };
@@ -186,6 +190,35 @@
       const savedAv = localStorage.getItem('msn_avatar_' + myUsername) || 'msn_icon.png';
       return `${myUsername}|${savedAv}|${myStatus}|${myStatusMsg}|${myMusic}`;
     }
+
+    function descargarArchivo(url) {
+      if (!url) return;
+      console.log("Original URL:", url);
+      let downloadUrl = url;
+
+      // DIAGNÓSTICO Y CONVERSIÓN FUERTE DE LINK DE DRIVE
+      if (url.includes('drive.google.com')) {
+        let fileId = "";
+        // Intenta extraer ID de diferentes formatos de link
+        const match = url.match(/[-\w]{25,}/);
+        if (match) {
+          fileId = match[0];
+          downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+        }
+      }
+
+      console.log("Forcing Download URL:", downloadUrl);
+      
+      // CREAR FORMULARIO O IFRAME (A veces es más efectivo que <a> para evitar previews)
+      const hiddenLink = document.createElement('a');
+      hiddenLink.href = downloadUrl;
+      hiddenLink.target = "_blank"; // Abrir en pestaña nueva ayuda a que el navegador lo vea como descarga
+      hiddenLink.setAttribute('download', 'file'); // Solo funciona en mismo dominio pero ayuda
+      document.body.appendChild(hiddenLink);
+      hiddenLink.click();
+      setTimeout(() => document.body.removeChild(hiddenLink), 100);
+    }
+
     function toggleMusic() {
       const inp = document.getElementById('musicInput');
       const btn = document.getElementById('btnMusic');
@@ -239,10 +272,13 @@
       document.getElementById('selfName').innerText = myUsername;
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
+      
+      // UN-SILENCE AUDIO ON FIRST CLICK
       document.body.addEventListener('click', () => {
-        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(() => { });
-        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(() => { });
+        playMsgSound();
+        setTimeout(() => { sndMsg.pause(); sndMsg.currentTime = 0; }, 100);
       }, { once: true });
+
       loadMessages(); setInterval(loadMessages, 2500);
       document.getElementById('msgInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
     };
@@ -295,29 +331,11 @@
         if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
         else if (m[3] === 'file') {
           let fd = { nombre: 'Archivo', url: m[2] }; try { if (m[2].startsWith('{')) fd = JSON.parse(m[2]); } catch (e) { }
-          d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> envió archivo: <button onclick="descargarArchivo('${fd.url}')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:9px; text-decoration:underline;">${fd.nombre}</button></div>`;
+          d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> enviando: <button onclick="descargarArchivo('${fd.url}')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:9px; text-decoration:underline;">${fd.nombre}</button></div>`;
         } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2])}</div>`; }
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
-    }
-    function descargarArchivo(url) {
-      if (!url) return;
-      let finalUrl = url;
-      if (url.includes('drive.google.com')) {
-        // Convierte link de vista a link de descarga directa
-        finalUrl = url.replace('/view', '/download').replace('?usp=sharing', '');
-        if (!finalUrl.includes('export=download')) {
-          finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'export=download';
-        }
-      }
-      const link = document.createElement('a');
-      link.href = finalUrl;
-      link.setAttribute('download', '');
-      link.target = '_blank';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     }
     async function manejarArchivo(input) {
       const file = input.files[0]; if (!file || file.size > 10*1024*1024) return;
@@ -331,7 +349,6 @@
     async function sendNudge() { if (isNudging) return; isNudging = true; await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat }); triggerVisualNudge(); setTimeout(() => isNudging = false, 5000); }
     async function vaciarChat() { if (!confirm("¿Limpiar?")) return; await callApi('vaciarChat', { yo: myUsername, destinatario: currentChat }); lastMsgCount = 0; loadMessages(); }
     function triggerVisualNudge() { const w = document.getElementById('msnWindow'); playNudgeSound(); w.classList.add('nudge-vibration', 'nudge-flash'); setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000); }
-    async function installApp() { if (deferredInstallPrompt) { deferredInstallPrompt.prompt(); deferredInstallPrompt = null; } }
   </script>
 </body>
 </html>
