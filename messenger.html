@@ -116,6 +116,7 @@
           <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..." onblur="updatePresence()">
           <button id="btnMusic" class="music-btn" onclick="toggleMusic()" title="Lo que estoy escuchando">🎵</button>
           <input type="text" id="musicInput" class="music-input" placeholder="Canción - Artista" onblur="saveMusic()">
+          <button onclick="testAudio()" style="background:#10b981; color:white; border:none; padding:2px 6px; font-size:8px; border-radius:4px; cursor:pointer; margin-left:5px;">🔊 Activar Sonidos</button>
         </div>
       </div>
     </div>
@@ -155,22 +156,32 @@
     ];
     const EMOTICONS = { '(L)': '❤️', '(Y)': '👍', '(N)': '👎', '(A)': '😇', '(H)': '😎', '(K)': '💋', '(G)': '🎁', '(F)': '🌹', '(S)': '🌙', '(W)': '🌻' };
 
-    // SONIDOS DIRECTOS DE GITHUB (Más estables)
-    const NUDGE_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3";
-    const MSG_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/message.mp3";
+    // SONIDOS LOCALES (Descargados para mayor estabilidad)
+    const NUDGE_URL = "./nudge.mp3";
+    const MSG_URL = "./message.mp3";
 
     let sndNudge = new Audio(NUDGE_URL);
     let sndMsg = new Audio(MSG_URL);
+    sndNudge.preload = 'auto';
+    sndMsg.preload = 'auto';
 
     function playNudgeSound() {
-      if (!sndNudge) sndNudge = new Audio(NUDGE_URL);
-      sndNudge.currentTime = 0;
-      sndNudge.play().catch(e => console.log("Audio Error:", e));
+      try {
+        if (!sndNudge) sndNudge = new Audio(NUDGE_URL);
+        sndNudge.currentTime = 0;
+        sndNudge.play().catch(e => console.warn("Audio Nudge Error:", e));
+      } catch(e) { console.error("Nudge sound fail", e); }
     }
     function playMsgSound() {
-      if (!sndMsg) sndMsg = new Audio(MSG_URL);
-      sndMsg.currentTime = 0;
-      sndMsg.play().catch(e => console.log("Audio Error:", e));
+      try {
+        if (!sndMsg) sndMsg = new Audio(MSG_URL);
+        sndMsg.currentTime = 0;
+        sndMsg.play().catch(e => console.warn("Audio Msg Error:", e));
+      } catch(e) { console.error("Msg sound fail", e); }
+    }
+    function testAudio() {
+      playMsgSound();
+      alert("Si no escuchaste nada, asegúrate de haber hecho clic en la página y que el volumen esté alto.");
     }
 
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
@@ -191,32 +202,25 @@
       return `${myUsername}|${savedAv}|${myStatus}|${myStatusMsg}|${myMusic}`;
     }
 
-    function descargarArchivo(url) {
+    function descargarArchivo(url, nombre) {
       if (!url) return;
-      console.log("Original URL:", url);
+      console.log("Downloading:", url);
+      
       let downloadUrl = url;
-
-      // DIAGNÓSTICO Y CONVERSIÓN FUERTE DE LINK DE DRIVE
       if (url.includes('drive.google.com')) {
-        let fileId = "";
-        // Intenta extraer ID de diferentes formatos de link
         const match = url.match(/[-\w]{25,}/);
         if (match) {
-          fileId = match[0];
-          downloadUrl = `https://drive.google.com/uc?id=${fileId}&export=download`;
+          downloadUrl = `https://drive.google.com/uc?id=${match[0]}&export=download`;
         }
       }
 
-      console.log("Forcing Download URL:", downloadUrl);
-      
-      // CREAR FORMULARIO O IFRAME (A veces es más efectivo que <a> para evitar previews)
-      const hiddenLink = document.createElement('a');
-      hiddenLink.href = downloadUrl;
-      hiddenLink.target = "_blank"; // Abrir en pestaña nueva ayuda a que el navegador lo vea como descarga
-      hiddenLink.setAttribute('download', 'file'); // Solo funciona en mismo dominio pero ayuda
-      document.body.appendChild(hiddenLink);
-      hiddenLink.click();
-      setTimeout(() => document.body.removeChild(hiddenLink), 100);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.setAttribute('download', nombre || 'archivo');
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      setTimeout(() => document.body.removeChild(link), 200);
     }
 
     function toggleMusic() {
@@ -273,10 +277,12 @@
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
       
-      // UN-SILENCE AUDIO ON FIRST CLICK
+      // DESBLOQUEAR AUDIO AL PRIMER CLIC (Requerido por navegadores)
       document.body.addEventListener('click', () => {
-        playMsgSound();
-        setTimeout(() => { sndMsg.pause(); sndMsg.currentTime = 0; }, 100);
+        // Reproducir y pausar inmediatamente para "despertar" el contexto de audio
+        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(()=>{});
+        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(()=>{});
+        console.log("Audio unlocked");
       }, { once: true });
 
       loadMessages(); setInterval(loadMessages, 2500);
@@ -289,17 +295,33 @@
         if (res.data.length > lastMsgCount) {
           const nuevos = res.data.slice(lastMsgCount);
           let hayMsgNuevo = false;
+          let hayZumbidoNuevo = false;
+
           nuevos.forEach(m => {
             if (m[3] === 'status_update') return;
             const ui = parseUser(m[1]);
-            if (ui.name !== myUsername && ui.name !== currentChat && m[4] === myUsername) unreadUsers.add(ui.name);
-            if (ui.name !== myUsername && m[3] !== 'zumbido' && (m[4] === 'TODOS' || m[4] === myUsername)) hayMsgNuevo = true;
+            
+            // Solo procesar sonidos si no es la primera carga (lastMsgCount > 0)
+            if (lastMsgCount > 0) {
+              if (ui.name !== myUsername && ui.name !== currentChat && m[4] === myUsername) unreadUsers.add(ui.name);
+              if (ui.name !== myUsername && m[3] !== 'zumbido' && (m[4] === 'TODOS' || m[4] === myUsername)) hayMsgNuevo = true;
+              if (m[3] === 'zumbido' && ui.name !== myUsername && (lastMsgCount > 0) && (m[4] === 'TODOS' || m[4] === myUsername)) hayZumbidoNuevo = true;
+            }
           });
+
           if (hayMsgNuevo) playMsgSound();
-          const lastMsg = res.data[res.data.length - 1];
-          if (lastMsg && lastMsg[3] === 'zumbido') { if (parseUser(lastMsg[1]).name !== myUsername && (lastMsg[4] === 'TODOS' || lastMsg[4] === myUsername)) triggerVisualNudge(); }
+          if (hayZumbidoNuevo) triggerVisualNudge();
+          
+          // SOLO RENDERIZAR SI HAY MENSAJES NUEVOS PARA EVITAR "TEMBLORES"
+          renderMessages(res.data);
+          updateOnlineList(res.data);
+          lastMsgCount = res.data.length;
+        } else if (res.data.length < lastMsgCount) {
+          // Si el chat se vació, también renderizar
+          renderMessages(res.data);
+          updateOnlineList(res.data);
+          lastMsgCount = res.data.length;
         }
-        renderMessages(res.data); updateOnlineList(res.data); lastMsgCount = res.data.length;
       }
     }
     function selectChat(user) { currentChat = user; unreadUsers.delete(user); document.getElementById('selfName').innerText = myUsername + (user==='TODOS'?'':' > '+user); loadMessages(); }
@@ -331,7 +353,17 @@
         if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
         else if (m[3] === 'file') {
           let fd = { nombre: 'Archivo', url: m[2] }; try { if (m[2].startsWith('{')) fd = JSON.parse(m[2]); } catch (e) { }
-          d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> enviando: <button onclick="descargarArchivo('${fd.url}')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:9px; text-decoration:underline;">${fd.nombre}</button></div>`;
+          d.className = 'msg-entry'; 
+          d.innerHTML = `
+            <div class="msg-avatar"><img src="${ui.avatar}"></div>
+            <div class="msg-text">
+              <strong>${ui.name}:</strong> te envió un archivo:
+              <div style="margin-top:5px; background:#fff; border:1px solid #ddd; padding:5px; border-radius:4px; display:flex; align-items:center; gap:10px;">
+                <span style="font-size:16px;">📄</span>
+                <span style="font-size:10px; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${fd.nombre}</span>
+                <button onclick="descargarArchivo('${fd.url}', '${fd.nombre}')" style="background:#004b91; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:4px; cursor:pointer;">💾 Descargar</button>
+              </div>
+            </div>`;
         } else { d.className = 'msg-entry'; d.innerHTML = `<div class="msg-avatar"><img src="${ui.avatar}"></div><div class="msg-text"><strong>${ui.name}:</strong> ${processEmoticons(m[2])}</div>`; }
         h.appendChild(d);
       });
