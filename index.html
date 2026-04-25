@@ -238,9 +238,26 @@
 
       .glass-header > div:last-child > div {
         display: flex !important;
-        flex-direction: column;
-        align-items: flex-end;
-        gap: 8px !important;
+        flex-direction: row;
+        align-items: center;
+        gap: 15px !important;
+      }
+      .user-profile-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255,255,255,0.5);
+        padding: 5px 12px;
+        border-radius: 50px;
+        border: 1px solid rgba(255,255,255,0.8);
+      }
+      .user-avatar-header {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       }
 
       /* Messenger button below name */
@@ -1258,10 +1275,15 @@
         </div>
       </div>
       <div style="display:flex; align-items:center;">
-        <div style="display:flex; align-items:center; gap:15px;">
-          <span id="lblUserGreeting" style="font-weight:600; color:#1e293b; font-size:0.95rem; display:none;"></span>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <!-- AREA PERFIL USUARIO -->
+          <div id="userProfileArea" class="user-profile-header" style="display:none;">
+            <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+            <span id="lblUserGreeting" style="font-weight:600; color:#1e293b; font-size:0.9rem;"></span>
+          </div>
+          
           <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:6px; background:linear-gradient(90deg, #0ea5e9, #0284c7); border-radius:40px; padding:8px 18px; font-size: 0.9rem;"><img src="msn_icon.png" style="width:20px; height:20px; object-fit:contain;" alt="MSN">Messenger</button>
-          <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Cerrar sesión</button>
+          <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Salir</button>
         </div>
       </div>
     </div>
@@ -1640,7 +1662,7 @@
       window.location.href = window.location.pathname;
     }
 
-    function updateGreeting() {
+    async function updateGreeting() {
       const username = sessionStorage.getItem('userName');
       if(username) {
         const hour = new Date().getHours();
@@ -1650,7 +1672,20 @@
         
         const lbl = document.getElementById('lblUserGreeting');
         lbl.textContent = `${greeting}, ${username}`;
-        lbl.style.display = 'inline-block';
+        
+        document.getElementById('userProfileArea').style.display = 'flex';
+        
+        // Intentar obtener foto de perfil desde el sistema de mensajería (que se guarda en el servidor)
+        try {
+          const res = await callApi('obtenerUsuarioMessenger', { usuario: username });
+          if (res && res.foto) {
+            document.getElementById('userAvatarHeader').src = res.foto;
+          } else {
+            document.getElementById('userAvatarHeader').src = `https://ui-avatars.com/api/?name=${username}&background=random&color=fff`;
+          }
+        } catch(e) {
+          document.getElementById('userAvatarHeader').src = `https://ui-avatars.com/api/?name=${username}&background=random&color=fff`;
+        }
       }
     }
 
