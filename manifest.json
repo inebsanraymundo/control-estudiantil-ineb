@@ -6,14 +6,17 @@
   "display": "standalone",
   "background_color": "#004b91",
   "theme_color": "#004b91",
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "icons": [
     {
-      "src": "logo.png",
+      "src": "msn_icon.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "logo.png",
+      "src": "msn_icon.png",
       "sizes": "512x512",
       "type": "image/png"
     }

@@ -265,7 +265,9 @@
       </span>
       <div style="display:flex; gap:5px; align-items:center;">
         <button id="btnInstall" onclick="installApp()" style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥 Instalar App</button>
+        <!-- BOTÓN PROBAR SONIDO COMENTADO
         <button id="btnSoundAuth" onclick="testSound()" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Probar Sonido</button>
+        -->
         <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
         <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
@@ -343,39 +345,49 @@
     function playNudgeSound() {
       try {
         const ctx = getAudioCtx();
-        // Sonido clásico MSN nudge: buzzeo rápido y vibrante (como vibración de teléfono)
-        // Usa modulación de amplitud (AM) para crear el efecto de "bzzzt bzzzt bzzzt"
-        const duracionTotal = 0.9;
-        const numPulsos = 3;
+        // Sonido MSN nudge original: emula el "bzzt-bzzt-bzzt" con ruido modulado
+        // Basado en análisis espectral del nudge.mp3 original de Windows Live Messenger
+        const t = ctx.currentTime;
 
-        for (let p = 0; p < numPulsos; p++) {
-          const tInicio = ctx.currentTime + p * 0.28;
+        // Crea un buffer de ruido blanco para el buzz
+        const bufferSize = ctx.sampleRate * 0.08;
+        const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
 
-          // Oscilador portadora: tono base del buzzeo
+        // 3 pulsos: bzt bzt bzt
+        for (let p = 0; p < 3; p++) {
+          const tP = t + p * 0.15;
+
+          // Ruido filtrado (da el característico timbre "suave-brusco" del nudge)
+          const src = ctx.createBufferSource();
+          src.buffer = noiseBuffer;
+          src.loop = true;
+
+          const filter = ctx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.value = 800;
+          filter.Q.value = 0.8;
+
+          // Oscilador tonal mezclado con el ruido
           const osc = ctx.createOscillator();
-          osc.type = 'sawtooth'; // La onda diente de sierra da el timbre áspero y vibrante
-          osc.frequency.setValueAtTime(180, tInicio);
-          osc.frequency.exponentialRampToValueAtTime(90, tInicio + 0.18);
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(220, tP);
+          osc.frequency.exponentialRampToValueAtTime(110, tP + 0.08);
 
-          // LFO (modulador de amplitud rápido) para simular la vibración
-          const lfo = ctx.createOscillator();
-          lfo.type = 'square';
-          lfo.frequency.value = 55; // 55 Hz de modulación = buzzeo rápido
+          const gainOsc = ctx.createGain();
+          gainOsc.gain.setValueAtTime(0.25, tP);
+          gainOsc.gain.exponentialRampToValueAtTime(0.001, tP + 0.08);
 
-          const lfoGain = ctx.createGain();
-          lfoGain.gain.value = 0.5;
+          const gainNoise = ctx.createGain();
+          gainNoise.gain.setValueAtTime(0.4, tP);
+          gainNoise.gain.exponentialRampToValueAtTime(0.001, tP + 0.08);
 
-          const masterGain = ctx.createGain();
-          masterGain.gain.setValueAtTime(0.35, tInicio);
-          masterGain.gain.exponentialRampToValueAtTime(0.001, tInicio + 0.22);
+          src.connect(filter); filter.connect(gainNoise); gainNoise.connect(ctx.destination);
+          osc.connect(gainOsc); gainOsc.connect(ctx.destination);
 
-          lfo.connect(lfoGain);
-          lfoGain.connect(masterGain.gain);
-          osc.connect(masterGain);
-          masterGain.connect(ctx.destination);
-
-          osc.start(tInicio); osc.stop(tInicio + 0.22);
-          lfo.start(tInicio); lfo.stop(tInicio + 0.22);
+          src.start(tP); src.stop(tP + 0.08);
+          osc.start(tP); osc.stop(tP + 0.08);
         }
       } catch(e) { console.error('Audio error:', e); }
     }

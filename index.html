@@ -1096,7 +1096,7 @@
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
-        <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+        <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Cerrar sesión</button>
       </div>
     </div>
 
@@ -1142,13 +1142,14 @@
                     <option>3A</option>
                     <option>3B</option>
                   </select></div>
-                <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
-                <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10">
-                </div>
+                <div class="form-group"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
+                <div class="form-group"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
+                <!-- CAMPO CAMBIÓ COMENTADO - NO SE USA ACTUALMENTE
                 <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion">
                     <option>NO</option>
                     <option>SI</option>
                   </select></div>
+                -->
               </div>
             </div>
           </div>
