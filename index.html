@@ -1447,6 +1447,8 @@
           document.getElementById('appContainer').style.display = 'block';
           aplicarPermisos();
           cargarListaEstudiantes();
+          // Anunciar presencia al resto del sistema al iniciar sesión
+          callApi('enviarMensaje', { usuario: u + '|online|', texto: '[LOGIN_PING]', tipo: 'login_ping', receptor: 'TODOS' });
         } else showMessage(res.msg || "Credenciales incorrectas", true);
       } catch (err) { showMessage("Error de conexión: " + err.message, true); }
       showLoader(false);
@@ -2623,36 +2625,43 @@
       }
     }
 
-    // ==================== NOTIFICACIONES FANTASMA (MSN PING) ====================
-    let msnLastCheck = Date.now();
+    // ==================== NOTIFICACIONES DE PRESENCIA (LOGIN PING) ====================
+    // Detecta cuando cualquier usuario inicia sesión en el sistema principal
+    let loginPingLastCheck = Date.now();
     const onlineUsersCache = new Set();
-    
+
     async function checkMsnPresence() {
       if (sessionStorage.getItem('logged') !== 'true') return;
       try {
-        const res = await callApi('obtenerMensajes', { t: msnLastCheck });
-        msnLastCheck = Date.now() - 5000;
-        if(res.success && res.data && res.data.length > 0) {
+        const res = await callApi('obtenerMensajes', { t: loginPingLastCheck });
+        loginPingLastCheck = Date.now() - 5000;
+        if (res.success && res.data && res.data.length > 0) {
           const ahora = Date.now();
-          const TRES_MINUTOS = 180000;
-          const activos = res.data.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS);
-          const nUsers = [];
-          
-          activos.forEach(m => {
-            const p = m[1].split('|');
-            const n = p[0] || 'Anon';
-            if(n !== sessionStorage.getItem('userName')) nUsers.push(n);
+          const DOS_MINUTOS = 120000;
+          const myUser = sessionStorage.getItem('userName') || '';
+
+          // Filtrar solo mensajes tipo 'login_ping' recientes
+          const pings = res.data.filter(m => {
+            const tipoOk = (m[4] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]'));
+            const reciente = (ahora - new Date(m[0]).getTime()) < DOS_MINUTOS;
+            const quien = (m[1] || '').split('|')[0].trim();
+            return tipoOk && reciente && quien !== myUser;
           });
-          
-          const newSet = new Set(nUsers);
-          newSet.forEach(user => {
-            if(!onlineUsersCache.has(user)) {
+
+          const nuevosSet = new Set();
+          pings.forEach(m => {
+            const nombre = (m[1] || '').split('|')[0].trim() || 'Un usuario';
+            nuevosSet.add(nombre);
+          });
+
+          nuevosSet.forEach(user => {
+            if (!onlineUsersCache.has(user)) {
               showMsnToast(user);
             }
           });
-          
+
           onlineUsersCache.clear();
-          newSet.forEach(u => onlineUsersCache.add(u));
+          nuevosSet.forEach(u => onlineUsersCache.add(u));
         }
       } catch(e) {}
     }
