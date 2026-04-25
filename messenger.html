@@ -116,7 +116,7 @@
           <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..." onblur="updatePresence()">
           <button id="btnMusic" class="music-btn" onclick="toggleMusic()" title="Lo que estoy escuchando">🎵</button>
           <input type="text" id="musicInput" class="music-input" placeholder="Canción - Artista" onblur="saveMusic()">
-          <button onclick="testAudio()" style="background:#10b981; color:white; border:none; padding:2px 6px; font-size:8px; border-radius:4px; cursor:pointer; margin-left:5px;">🔊 Activar Sonidos</button>
+          <button onclick="testAudio()" style="display:none; background:#10b981; color:white; border:none; padding:2px 6px; font-size:8px; border-radius:4px; cursor:pointer; margin-left:5px;">🔊 Activar Sonidos</button>
         </div>
       </div>
     </div>
@@ -294,7 +294,8 @@
     }
     function updatePresence() {
       myStatusMsg = document.getElementById('personalMsg').value;
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '', tipo: 'status_update', receptor: 'SISTEMA' });
+      // Usar texto explícito [PRESENCE_SYNC] para evitar que el backend (GAS) rechace/ignore textos vacíos
+      callApi('enviarMensaje', { usuario: getMyIdent(), texto: '[PRESENCE_SYNC]', tipo: 'status_update', receptor: 'SISTEMA' });
     }
     function processEmoticons(text) {
       let t = text;

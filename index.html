@@ -1096,7 +1096,10 @@
       </div>
       <div style="display:flex; gap:10px; align-items:center;">
         <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
-        <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Cerrar sesión</button>
+        <div style="display:flex; align-items:center; gap:15px;">
+          <span id="lblUserGreeting" style="font-weight:600; color:#1e293b; font-size:0.95rem; display:none;"></span>
+          <button onclick="cerrarSesion()" style="background:linear-gradient(90deg,#1e3a5f,#2563eb); color:white; border:none; border-radius:40px; padding:8px 18px; font-size:0.9rem; cursor:pointer; font-weight:600;">🔒 Cerrar sesión</button>
+        </div>
       </div>
     </div>
 
@@ -1244,14 +1247,14 @@
           <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..."
             oninput="filtrarEstudiantes()">
           <button class="btn-primary" id="btnImprimirSeleccion" onclick="imprimirSeleccionados()" style="background:linear-gradient(90deg,#8b5cf6,#6d28d9); display:none; border-radius:60px;">🖨️ Imprimir Seleccionados (<span id="countSeleccion">0</span>)</button>
-          <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()">📊 Exportar Excel</button>
+          <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📊 Exportar<br>Excel</div></button>
           <button class="btn-export" id="btnFotosMasivo" onclick="window.location.href='fotos_masivo.html'"
-            style="background:linear-gradient(90deg,#3b82f6,#2563eb)">📸 Subida Masiva</button>
+            style="background:linear-gradient(90deg,#3b82f6,#2563eb); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📸 Subida<br>Masiva</div></button>
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
-            style="border-color:#f97316;color:#c2410c;background:#fff7ed">🗑️ Borrado de Grado</button>
+            style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
           <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
-            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar">🗑️ Borrado de ciclo</button>
+            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
         </div>
         <div class="results-area">
           <div id="resultsInfo" class="results-info"></div>
@@ -1371,6 +1374,8 @@
     }
 
     let estudiantesGlobal = [];
+    let appConfig = { docentes: {} };
+    let configExists = false;
     let listaFiltradaActual = [];
     let editMode = false;
     let editCodigo = null;
@@ -1435,6 +1440,7 @@
           sessionStorage.setItem('logged', 'true');
           sessionStorage.setItem('userName', u);
           sessionStorage.setItem('userRole', res.role || 'usuario');
+          updateGreeting();
           document.getElementById('loginContainer').style.display = 'none';
           document.getElementById('appContainer').style.display = 'block';
           aplicarPermisos();
@@ -1445,11 +1451,24 @@
     };
 
     function cerrarSesion() {
-      sessionStorage.clear();
-      document.getElementById('appContainer').style.display = 'none';
-      document.getElementById('loginContainer').style.display = 'flex';
-      estudiantesGlobal = [];
-      resetFormulario();
+      sessionStorage.removeItem('userLogueado');
+      sessionStorage.removeItem('userRole');
+      sessionStorage.removeItem('userName'); 
+      window.location.reload();
+    }
+
+    function updateGreeting() {
+      const username = sessionStorage.getItem('userName');
+      if(username) {
+        const hour = new Date().getHours();
+        let greeting = 'Buenos días';
+        if (hour >= 12 && hour < 18) greeting = 'Buenas tardes';
+        else if (hour >= 18) greeting = 'Buenas noches';
+        
+        const lbl = document.getElementById('lblUserGreeting');
+        lbl.textContent = `${greeting}, ${username}`;
+        lbl.style.display = 'inline-block';
+      }
     }
 
     // ==================== PERMISOS ====================
@@ -1467,8 +1486,17 @@
       showLoader(true);
       try {
         const res = await callApi('listarTodos');
-        if (res.success && res.data) {
-          window.rawDebugData = res.data[0] || "No hay datos";
+        if (res.success) {
+          const configItem = res.data.find(e => e.codigo === 'CONFIG_APP_DATA');
+          if (configItem && configItem.nombre) {
+            configExists = true;
+            try { appConfig = JSON.parse(configItem.nombre); } catch(e) {}
+          }
+          if (!appConfig.docentes) appConfig.docentes = {};
+
+          estudiantesGlobal = res.data.filter(e => e.codigo !== 'CONFIG_APP_DATA' && !e.archivado);
+          listaFiltradaActual = [...estudiantesGlobal];
+          
           // Diagnóstico técnico en consola
           if (res.data.length > 0) console.log("🔍 DIAGNÓSTICO: Formato primer estudiante:", res.data[0]);
 
@@ -1523,6 +1551,9 @@
       if (s.length > 0) {
         const gradosResultados = [...new Set(listaFiltradaActual.map(e => e.grado))];
         gradosResultados.forEach(g => { gradoStates[g] = true; });
+      } else {
+        // CERRAR TODOS AL VACIAR EL FILTRO
+        Object.keys(gradoStates).forEach(g => { gradoStates[g] = false; });
       }
 
       renderizarTabla(listaFiltradaActual);
@@ -1572,10 +1603,13 @@
         const hCell = headerRow.insertCell(0);
         hCell.colSpan = 8;
         hCell.innerHTML = `
-          <div style="display:flex; align-items:center; justify-content:space-between; width:100%;">
-            <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center;">
-              <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
-              📚 Grado y Sección: ${grado} <span class="grado-count">${students.length} alumnos</span>
+          <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
+            <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center; flex-wrap:wrap;">
+              <div style="display:flex; align-items:center;">
+                <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
+                📚 Grado y Sección: ${grado} <span class="grado-count" style="margin-right:10px;">${students.length} alumnos</span>
+              </div>
+              ${getDocentesHtml(grado)}
             </div>
             <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
               <label style="font-size:10px; font-weight:normal; cursor:pointer; display:flex; align-items:center; gap:5px;">
@@ -2483,6 +2517,67 @@
         cargarListaEstudiantes();
       }
     };
+    // ==================== CONFIGURACIÓN DE DOCENTES GUÍAS ====================
+    function getDocentesHtml(grado) {
+      const gu = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || 'Sin asignar';
+      const co = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].coord) || 'Sin asignar';
+      const cnf = getRolConfig();
+      
+      let html = `<div style="font-size:0.85rem; color:#475569; border-left:2px solid #cbd5e1; padding-left:10px; margin-left:15px; display:flex; align-items:center; gap:8px;">
+                    <span>🧑‍🏫 <strong style="color:#1e293b;">Guía:</strong> ${gu}</span>
+                    <span style="color:#cbd5e1;">|</span>
+                    <span>📋 <strong style="color:#1e293b;">Coordinador:</strong> ${co}</span>`;
+      
+      if (cnf.permiteBorrar) {
+        html += `<button onclick="editarDocentes(event, '${grado}')" style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left:8px;" title="Editar Docentes">⚙️</button>`;
+      }
+      html += `</div>`;
+      return html;
+    }
+
+    function editarDocentes(e, grado) {
+      e.stopPropagation(); // Evitar que el acordeón se colapse al hacer clic en el botón
+      const actualGuia = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || '';
+      const actualCoord = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].coord) || '';
+      
+      const nuevoGuia = prompt(`Ingresa el Docente Guía para "${grado}"\\n(Ejemplo: Prof. Mario López):`, actualGuia);
+      if (nuevoGuia === null) return; 
+      
+      const nuevoCoord = prompt(`Ingresa el Coordinador de Grado para "${grado}"\\n(Ejemplo: Licda. Ana Morales):`, actualCoord);
+      if (nuevoCoord === null) return;
+      
+      if (!appConfig.docentes) appConfig.docentes = {};
+      if (!appConfig.docentes[grado]) appConfig.docentes[grado] = {};
+      
+      appConfig.docentes[grado].guia = nuevoGuia.trim();
+      appConfig.docentes[grado].coord = nuevoCoord.trim();
+      
+      guardarConfiguracionBase();
+    }
+
+    async function guardarConfiguracionBase() {
+      showLoader(true);
+      const data = {
+        codigo: 'CONFIG_APP_DATA',
+        nombre: JSON.stringify(appConfig),
+        grado: 'CONFIG', foto: '', fecha_nac: '1900-01-01', alergias: 'No', enf: 'No',
+        detalle_enf:'', zurdo:'No', etnia:'', direccion:'', aldea:'', padre:'', 
+        dpi_padre:'', tel_padre:'', madre:'', dpi_madre:'', tel_madre:'', enc_padre:'No',
+        enc_madre:'No', encargado:'', dpi_enc:'', tel_enc:'', dir_enc:'', aldea_enc:'', relacion:'', tel_extra:''
+      };
+      
+      const action = configExists ? 'actualizar' : 'guardar';
+      const res = await callApi(action, data);
+      showLoader(false);
+      
+      if(res.success) {
+        configExists = true;
+        showMessage("Configuración de docentes guardada ✅");
+        renderizarTabla(listaFiltradaActual);
+      } else {
+        showMessage("Error al guardar la configuración.", true);
+      }
+    }
   </script>
 </body>
 
