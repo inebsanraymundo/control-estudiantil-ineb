@@ -128,8 +128,16 @@
   <div id="msnWindow" class="msn-container">
     <div class="msn-header">
       <span style="font-size: 11px; font-weight: bold;">Messenger - Control Docente</span>
-      <button id="btnSoundAuth" onclick="this.style.display='none'" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Activar Sonido</button>
-      <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">×</button>
+      <div style="display:flex; gap:5px; align-items:center;">
+        <button id="btnSoundAuth" onclick="this.style.display='none'" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Activar Sonido</button>
+        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Borrar todo el historial">🗑️ Limpiar</button>
+        <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
+      </div>
+    </div>
+
+    <!-- Aviso Modo App -->
+    <div id="pwaNotice" style="background:#fff3cd; color:#856404; font-size:9px; padding:3px; text-align:center; border-bottom:1px solid #ffeeba;">
+      💡 Tip: Ve a <b>⚙️ > Guardar y Compartir > Instalar</b> para verlo como App real. <span onclick="this.parentElement.style.display='none'" style="cursor:pointer; font-weight:bold; float:right; margin-right:5px;">[X]</span>
     </div>
 
     <div class="user-info">
@@ -288,6 +296,16 @@
       await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
       triggerVisualNudge();
       setTimeout(() => isNudging = false, 5000);
+    }
+
+    async function vaciarChat() {
+      if (!confirm("¿Seguro que quieres borrar TODO el historial de mensajes para todos los usuarios?")) return;
+      const res = await callApi('vaciarChat');
+      if (res.success) {
+        lastMsgCount = 0;
+        loadMessages();
+        alert("Chat vaciado correctamente.");
+      }
     }
 
     function triggerVisualNudge() {
