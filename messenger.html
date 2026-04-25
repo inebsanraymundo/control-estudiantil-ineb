@@ -163,6 +163,7 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbyHuYjUl6JX8XKSxIm2EpQbV40lUqEy83eu0lnqY4VsmkI09scJ3KbdKXGwn5_r1PQ3/exec";
     let lastMsgCount = 0;
     let myUsername = "Usuario";
+    let currentChat = "TODOS"; // Por defecto chat general
     let isNudging = false;
 
     window.onload = () => {
@@ -190,38 +191,51 @@
     }
 
     async function loadMessages() {
-      const res = await callApi('obtenerMensajes');
+      // Pasamos nuestro usuario para que el servidor filtre los privados para nosotros
+      const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
-        if (res.data.length !== lastMsgCount || true) { // Siempre actualizamos la lista por el tiempo
-          renderMessages(res.data);
-          updateOnlineList(res.data);
-          
-          const lastMsg = res.data[res.data.length - 1];
-          if(lastMsg && lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) { 
-            triggerVisualNudge(); 
-          }
-          lastMsgCount = res.data.length;
+        renderMessages(res.data);
+        updateOnlineList(res.data);
+        
+        // El zumbido solo suena si es para TODOS o específicamente para MÍ
+        const lastMsg = res.data[res.data.length - 1];
+        if(lastMsg && lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) {
+           const emisor = lastMsg[1];
+           const receptor = lastMsg[4] || 'TODOS';
+           
+           if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
+             triggerVisualNudge();
+           }
         }
+        lastMsgCount = res.data.length;
       }
+    }
+
+    function selectChat(user) {
+      currentChat = user;
+      document.getElementById('selfName').innerText = myUsername + " > " + user;
+      loadMessages(); // Refrescar vista
     }
 
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
       const ahora = new Date().getTime();
       const TRES_MINUTOS = 3 * 60 * 1000;
-
-      // Filtramos usuarios que hayan escrito en los últimos 3 minutos
+      
       const usuariosActivos = msgs
         .filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS)
         .map(m => m[1]);
 
       const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
       
-      list.innerHTML = users.length ? '' : '<div style="color:#999; font-size:10px;">Nadie online...</div>';
+      list.innerHTML = '<div class="contact-item" onclick="selectChat(\'TODOS\')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue);">🌐 Chat General</div>';
+      
       users.forEach(u => {
         const d = document.createElement('div');
         d.className = 'contact-item';
-        d.innerHTML = '<div class="contact-status"></div>' + u;
+        d.style.cursor = 'pointer';
+        d.onclick = () => selectChat(u);
+        d.innerHTML = `<div class="contact-status"></div> ${u}`;
         list.appendChild(d);
       });
     }
@@ -229,10 +243,25 @@
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory');
       h.innerHTML = '';
-      msgs.forEach(m => {
+      
+      // Filtrar mensajes para mostrar SOLO los de la conversación activa (TODOS o el usuario X)
+      const filtrados = msgs.filter(m => {
+        const emisor = m[1];
+        const receptor = m[4] || 'TODOS';
+        
+        if (currentChat === 'TODOS') {
+          return receptor === 'TODOS';
+        } else {
+          // Chat privado entre yo y currentChat
+          return (emisor === myUsername && receptor === currentChat) || 
+                 (emisor === currentChat && receptor === myUsername);
+        }
+      });
+
+      filtrados.forEach(m => {
         const d = document.createElement('div');
         d.className = m[3] === 'zumbido' ? 'msg-nudge' : 'msg-entry';
-        d.innerHTML = m[3] === 'zumbido' ? `⚠️ Has recibido un zumbido.` : `<strong>${m[1]}:</strong> ${m[2]}`;
+        d.innerHTML = m[3] === 'zumbido' ? `⚠️ Zumbido de ${m[1]}` : `<strong>${m[1]}:</strong> ${m[2]}`;
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
@@ -241,13 +270,23 @@
     async function sendMsg() {
       const i = document.getElementById('msgInput');
       const t = i.value.trim(); if (!t) return; i.value = '';
-      const res = await callApi('enviarMensaje', { usuario: myUsername, texto: t, tipo: 'msg' });
-      if(res.success) loadMessages();
+      await callApi('enviarMensaje', { 
+        usuario: myUsername, 
+        texto: t, 
+        tipo: 'msg',
+        receptor: currentChat // Se envía al usuario activo o a TODOS
+      });
+      loadMessages();
     }
 
     async function sendNudge() {
       if (isNudging) return; isNudging = true;
-      await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido' });
+      await callApi('enviarMensaje', { 
+        usuario: myUsername, 
+        texto: 'ZUMBIDO', 
+        tipo: 'zumbido',
+        receptor: currentChat 
+      });
       triggerVisualNudge();
       setTimeout(() => isNudging = false, 5000);
     }
