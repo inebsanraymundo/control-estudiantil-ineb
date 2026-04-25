@@ -106,8 +106,11 @@
     .btn-nudge { background: white; border: 1px solid #ccc; padding: 4px 8px; font-size: 11px; cursor: pointer; }
 
     /* Contactos */
-    .contact-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+    .contact-item { display: flex; align-items: center; gap: 6px; padding: 4px 0; border-radius: 4px; transition: 0.2s; padding-left: 5px; }
+    .contact-item:hover { background: #eee; }
     .contact-status { width: 8px; height: 8px; border-radius: 50%; background: #10b981; }
+    .has-new-msg { background: #ffd6a5 !important; font-weight: bold; animation: pulse 1s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
 
     /* Animaciones */
     .nudge-vibration { animation: nudge 0.1s linear infinite; }
@@ -125,7 +128,8 @@
   <div id="msnWindow" class="msn-container">
     <div class="msn-header">
       <span style="font-size: 11px; font-weight: bold;">Messenger - Control Docente</span>
-      <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer;">×</button>
+      <button id="btnSoundAuth" onclick="this.style.display='none'" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Activar Sonido</button>
+      <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold;">×</button>
     </div>
 
     <div class="user-info">
@@ -163,8 +167,9 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbzwoQh2vjlj-Wz0YtBJTOkPOvWPHXq16g-XnrgYiS0iPTAU0gp4op4saNGalco2jYKq/exec";
     let lastMsgCount = 0;
     let myUsername = "Usuario";
-    let currentChat = "TODOS"; // Por defecto chat general
+    let currentChat = "TODOS";
     let isNudging = false;
+    let unreadUsers = new Set();
 
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
@@ -173,10 +178,11 @@
       document.body.addEventListener('click', () => {
         const a = document.getElementById('nudgeAudio');
         a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(()=>{});
+        if(document.getElementById('btnSoundAuth')) document.getElementById('btnSoundAuth').style.display='none';
       }, { once: true });
 
       loadMessages();
-      setInterval(loadMessages, 4000);
+      setInterval(loadMessages, 2500); // Polling más rápido (2.5 seg)
 
       document.getElementById('msgInput').addEventListener('keypress', (e) => {
         if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
@@ -191,18 +197,28 @@
     }
 
     async function loadMessages() {
-      // Pasamos nuestro usuario para que el servidor filtre los privados para nosotros
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
+        
+        // Detección de mensajes nuevos para notificaciones
+        if (res.data.length > lastMsgCount) {
+          const nuevos = res.data.slice(lastMsgCount);
+          nuevos.forEach(m => {
+            const emisor = m[1];
+            const receptor = m[4] || 'TODOS';
+            if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) {
+              unreadUsers.add(emisor);
+            }
+          });
+        }
+
         renderMessages(res.data);
         updateOnlineList(res.data);
         
-        // El zumbido solo suena si es para TODOS o específicamente para MÍ
         const lastMsg = res.data[res.data.length - 1];
         if(lastMsg && lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) {
            const emisor = lastMsg[1];
            const receptor = lastMsg[4] || 'TODOS';
-           
            if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
              triggerVisualNudge();
            }
@@ -213,8 +229,9 @@
 
     function selectChat(user) {
       currentChat = user;
+      unreadUsers.delete(user);
       document.getElementById('selfName').innerText = myUsername + " > " + user;
-      loadMessages(); // Refrescar vista
+      loadMessages();
     }
 
     function updateOnlineList(msgs) {
@@ -228,40 +245,32 @@
 
       const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
       
-      list.innerHTML = '<div class="contact-item" onclick="selectChat(\'TODOS\')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue);">🌐 Chat General</div>';
+      let html = `<div class="contact-item ${currentChat==='TODOS'?'':'msg-unread'}" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
       
       users.forEach(u => {
-        const d = document.createElement('div');
-        d.className = 'contact-item';
-        d.style.cursor = 'pointer';
-        d.onclick = () => selectChat(u);
-        d.innerHTML = `<div class="contact-status"></div> ${u}`;
-        list.appendChild(d);
+        const isUnread = unreadUsers.has(u);
+        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')">
+                  <div class="contact-status"></div> ${u}
+                 </div>`;
       });
+      list.innerHTML = html;
     }
 
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory');
       h.innerHTML = '';
       
-      // Filtrar mensajes para mostrar SOLO los de la conversación activa (TODOS o el usuario X)
       const filtrados = msgs.filter(m => {
         const emisor = m[1];
         const receptor = m[4] || 'TODOS';
-        
-        if (currentChat === 'TODOS') {
-          return receptor === 'TODOS';
-        } else {
-          // Chat privado entre yo y currentChat
-          return (emisor === myUsername && receptor === currentChat) || 
-                 (emisor === currentChat && receptor === myUsername);
-        }
+        if (currentChat === 'TODOS') return receptor === 'TODOS';
+        return (emisor === myUsername && receptor === currentChat) || (emisor === currentChat && receptor === myUsername);
       });
 
       filtrados.forEach(m => {
         const d = document.createElement('div');
         d.className = m[3] === 'zumbido' ? 'msg-nudge' : 'msg-entry';
-        d.innerHTML = m[3] === 'zumbido' ? `⚠️ Zumbido de ${m[1]}` : `<strong>${m[1]}:</strong> ${m[2]}`;
+        d.innerHTML = m[3] === 'zumbido' ? `⚠️ Has recibido un zumbido.` : `<strong>${m[1]}:</strong> ${m[2]}`;
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
@@ -270,23 +279,13 @@
     async function sendMsg() {
       const i = document.getElementById('msgInput');
       const t = i.value.trim(); if (!t) return; i.value = '';
-      await callApi('enviarMensaje', { 
-        usuario: myUsername, 
-        texto: t, 
-        tipo: 'msg',
-        receptor: currentChat // Se envía al usuario activo o a TODOS
-      });
+      await callApi('enviarMensaje', { usuario: myUsername, texto: t, tipo: 'msg', receptor: currentChat });
       loadMessages();
     }
 
     async function sendNudge() {
       if (isNudging) return; isNudging = true;
-      await callApi('enviarMensaje', { 
-        usuario: myUsername, 
-        texto: 'ZUMBIDO', 
-        tipo: 'zumbido',
-        receptor: currentChat 
-      });
+      await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
       triggerVisualNudge();
       setTimeout(() => isNudging = false, 5000);
     }
