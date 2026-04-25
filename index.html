@@ -1591,7 +1591,7 @@
     }
 
     // ==================== API ====================
-    async function callApi(action, data = {}, timeoutMs = 22000) {
+    async function callApi(action, data = {}, timeoutMs = 45000) {
       const ctrl = new AbortController();
       const tid = setTimeout(() => ctrl.abort(), timeoutMs);
       try {
@@ -2781,24 +2781,24 @@
           const lessonsMap = {};
           xmlDoc.querySelectorAll('lesson').forEach(l => {
             lessonsMap[l.getAttribute('id')] = {
-              subId: l.getAttribute('subjectid'),
-              teaId: l.getAttribute('teacherids').split(',')[0]
+              s: l.getAttribute('subjectid'),
+              t: l.getAttribute('teacherids').split(',')[0]
             };
           });
 
-          // 6. Tarjetas (El horario real)
+          // 6. Tarjetas (El horario real - Formato Comprimido: [clsId, day, period, subId, teaId])
           xmlDoc.querySelectorAll('card').forEach(c => {
             const lesson = lessonsMap[c.getAttribute('lessonid')];
             if (!lesson) return;
             const classIds = c.getAttribute('classroomids').split(',');
             classIds.forEach(cls => {
-              data.cards.push({
-                clsId: cls,
-                day: c.getAttribute('days').indexOf('1'), // 10000=0 (Lun), 01000=1 (Mar)...
-                period: c.getAttribute('period'),
-                sub: data.subjects[lesson.subId] || '?',
-                tea: data.teachers[lesson. teaId] || '?'
-              });
+              data.cards.push([
+                cls,
+                c.getAttribute('days').indexOf('1'),
+                c.getAttribute('period'),
+                lesson.s,
+                lesson.t
+              ]);
             });
           });
 
@@ -2831,13 +2831,14 @@
       
       if (!targetClsId) return showMessage(`⚠️ No se encontró horario específico para '${grado}' en el archivo XML.`, true);
 
-      const cards = data.cards.filter(c => c.clsId === targetClsId);
-      renderizarHorarioGrid(grado, cards, data.periods);
+      const cards = data.cards.filter(c => c[0] === targetClsId);
+      renderizarHorarioGrid(grado, cards, data);
     }
 
-    function renderizarHorarioGrid(grado, cards, periods) {
+    function renderizarHorarioGrid(grado, cards, data) {
       document.getElementById('horarioModalTitle').textContent = `📅 Horario: ${grado}`;
       const container = document.getElementById('horarioContainer');
+      const periods = data.periods;
       
       const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
       let html = `<div class="schedule-grid">
@@ -2847,11 +2848,11 @@
       periods.sort((a,b) => parseInt(a.id) - parseInt(b.id)).forEach(p => {
         html += `<div class="schedule-time"><b>${p.name}</b><br>${p.start}-${p.end}</div>`;
         for (let d = 0; d < 5; d++) {
-          const card = cards.find(c => c.day == d && c.period == p.id);
+          const card = cards.find(c => c[1] == d && c[2] == p.id);
           if (card) {
             html += `<div class="schedule-cell">
-                        <div class="sch-subject">${card.sub}</div>
-                        <div class="sch-teacher">${card.tea}</div>
+                        <div class="sch-subject">${data.subjects[card[3]] || '?'}</div>
+                        <div class="sch-teacher">${data.teachers[card[4]] || '?'}</div>
                      </div>`;
           } else {
             html += `<div class="schedule-cell"></div>`;
