@@ -1489,41 +1489,21 @@
       try {
         const res = await callApi('listarTodos');
         if (res.success) {
-          const configItem = res.data.find(e => e.codigo === 'CONFIG_APP_DATA');
-          if (configItem && configItem.nombre) {
-            configExists = true;
-            try { appConfig = JSON.parse(configItem.nombre); } catch(e) {}
-          }
-          if (!appConfig.docentes) appConfig.docentes = {};
-
-          estudiantesGlobal = res.data.filter(e => e.codigo !== 'CONFIG_APP_DATA' && !e.archivado);
-          listaFiltradaActual = [...estudiantesGlobal];
-          
-          // Diagnóstico técnico en consola
-          if (res.data.length > 0) console.log("🔍 DIAGNÓSTICO: Formato primer estudiante:", res.data[0]);
-
           const extraerValor = (e, propBuscada, indiceFijo) => {
             if (!e) return "";
-            // 1. Si es un array (respuesta cruda), usar el índice
             if (Array.isArray(e)) return (e[indiceFijo] !== undefined && e[indiceFijo] !== null) ? e[indiceFijo] : "";
-
-            // 2. Buscar por coincidencia exacta de propiedad
             if (e[propBuscada] !== undefined && e[propBuscada] !== null && e[propBuscada] !== "") return e[propBuscada];
-
-            // 3. Búsqueda exhaustiva (insensible a mayúsculas, espacios y acentos básicos)
             const target = propBuscada.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
             const keys = Object.keys(e);
-
             for (const k of keys) {
               const normalizedK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-              if (normalizedK === target || normalizedK.includes(target)) {
-                return e[k];
-              }
+              if (normalizedK === target || normalizedK.includes(target)) return e[k];
             }
             return "";
           };
 
-          estudiantesGlobal = res.data.map(e => ({
+          // 1. Normalizar todos los datos primero
+          let todosLosRegistros = res.data.map(e => ({
             ...e,
             nombre: String(extraerValor(e, 'nombre', 1) || extraerValor(e, 'NOMBRES Y APELLIDOS', 1) || ""),
             codigo: String(extraerValor(e, 'codigo', 2) || extraerValor(e, 'CODIGO PERSONAL', 2) || ""),
@@ -1534,8 +1514,21 @@
             foto: String(extraerValor(e, 'foto', 32) || extraerValor(e, 'FOTO', 32) || ""),
             edad: String(extraerValor(e, 'edad', 3) || ""),
             genero: String(extraerValor(e, 'genero', 7) || ""),
-            etnia: String(extraerValor(e, 'etnia', 12) || "")
+            etnia: String(extraerValor(e, 'etnia', 12) || ""),
+            archivado: e.hasOwnProperty('archivado') ? e.archivado : (extraerValor(e, 'archivado', 30) === 'true' || extraerValor(e, 'archivado', 30) === true)
           }));
+
+          // 2. Extraer configuración antes del filtrado
+          const configItem = todosLosRegistros.find(e => e.codigo === 'CONFIG_APP_DATA');
+          if (configItem && configItem.nombre) {
+            configExists = true;
+            try { appConfig = JSON.parse(configItem.nombre); } catch(e) {}
+          }
+          if (!appConfig.docentes) appConfig.docentes = {};
+
+          // 3. Establecer array de estudiantes REALES
+          estudiantesGlobal = todosLosRegistros.filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true');
+          
           filtrarEstudiantes();
         } else showMessage("Error al cargar: " + (res.msg || ""), true);
       } catch (err) { showMessage("Error de red: " + err.message, true); }
