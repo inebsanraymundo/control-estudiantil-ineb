@@ -193,39 +193,102 @@
 
     @media(max-width:768px) {
       .glass-header {
-        padding: 1rem;
-        gap: 0.5rem;
+        padding: 0.8rem;
+        display: grid !important;
+        grid-template-columns: 45px 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 8px 12px;
+        border-radius: 1.2rem;
+        margin-bottom: 1rem;
+      }
+
+      .logo-area {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
 
       .logo-area img {
-        height: 40px !important;
-        border-radius: 10px !important;
+        height: 38px !important;
+        width: 38px !important;
       }
 
       .header-inst {
-        font-size: 0.9rem;
+        font-size: 0.82rem;
+        white-space: normal;
+        line-height: 1.2;
+        max-height: none;
+        display: block;
       }
 
-      .header-subtitle {
-        font-size: 0.85rem;
+      .header-subtitle { display: none; }
+
+      /* Logout button on top right */
+      .glass-header > div:last-child {
+        grid-column: 3;
+        grid-row: 1;
+        align-self: start;
+        display: flex;
+        justify-content: flex-end;
       }
 
-      #lblUserGreeting {
-        display: none !important;
+      .glass-header > div:last-child > div {
+        display: flex !important;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px !important;
       }
 
-      .btn-logout {
-        font-size: 0;
-        padding: 10px;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
+      /* Messenger button below name */
+      .btn-primary[onclick*="messenger.html"] {
+        grid-column: 2 / 4;
+        grid-row: 2;
+        justify-self: start;
+        margin-left: 0;
+        font-size: 0.75rem !important;
+        padding: 6px 12px !important;
+        width: fit-content;
+      }
+
+      button[onclick="cerrarSesion()"] {
+        font-size: 0 !important;
+        width: 32px;
+        height: 32px;
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
         justify-content: center;
+        border-radius: 50% !important;
+        background: #ef4444 !important;
       }
+      button[onclick="cerrarSesion()"]::after { content: "🔒"; font-size: 1rem; }
 
-      .btn-logout::before {
-        content: "🚪";
-        font-size: 1.1rem;
+      #lblUserGreeting { display: none !important; }
+
+      /* Toolbar Mobile */
+      .toolbar {
+        flex-direction: column !important;
+        gap: 12px !important;
+        padding: 1rem !important;
+      }
+      .toolbar input[type=text] {
+        width: 100% !important;
+      }
+      /* Toolbar buttons in 2x2 grid */
+      .toolbar > div:last-child {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px !important;
+      }
+      .toolbar button {
+        width: 100%;
+        padding: 8px 4px !important;
+        font-size: 0.72rem !important;
+        justify-content: center;
       }
     }
 
@@ -243,8 +306,51 @@
       }
     }
 
-    .dashboard.docente-view {
-      grid-template-columns: 1fr
+    .nivel-header-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      gap: 10px;
+    }
+
+    @media (max-width: 600px) {
+      .nivel-header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 5px;
+      }
+      .nivel-title {
+        font-size: 0.85rem !important;
+        white-space: pre-wrap !important;
+      }
+      .coordinador-info {
+        font-size: 0.75rem !important;
+        margin-left: 0 !important;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      
+      .grado-header-content {
+        flex-direction: column;
+        align-items: flex-start !important;
+      }
+      .grado-title-main {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+      .grado-docente-info {
+        margin-left: 0 !important;
+        border-left: none !important;
+        padding-left: 0 !important;
+        font-size: 0.7rem !important;
+      }
+      .grado-actions-mobile {
+        width: 100%;
+        justify-content: flex-end !important;
+        margin-top: 5px;
+      }
     }
 
     /* FORM CARD */
@@ -1619,8 +1725,8 @@
         const cellNivel = rowNivel.insertCell(0);
         cellNivel.colSpan = 8;
         cellNivel.innerHTML = `
-          <div style="display:flex; align-items:center; background:#1e293b; color:white; padding:8px 12px; border-radius:6px; margin:15px 0 5px 0; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-             <div style="flex:1; font-weight:bold; font-size:1.1rem; text-shadow:1px 1px 2px rgba(0,0,0,0.5);">📚 NIVEL: ${nLabel.toUpperCase()}</div>
+          <div class="nivel-header-content" style="background:#1e293b; color:white; padding:8px 12px; border-radius:6px; margin:15px 0 5px 0; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+             <div class="nivel-title" style="flex:1; font-weight:bold; font-size:1.1rem; text-shadow:1px 1px 2px rgba(0,0,0,0.5);">📚 NIVEL: ${nLabel.toUpperCase()}</div>
              ${getCoordinadorHtml(nId, nLabel)}
           </div>
         `;
@@ -1638,20 +1744,23 @@
           const hCell = headerRow.insertCell(0);
           hCell.colSpan = 8;
           hCell.innerHTML = `
-            <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
+            <div class="grado-header-content" style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
               <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center; flex-wrap:wrap;">
                 
                 <div style="display:flex; align-items:center; width:40px; justify-content:center;" onclick="event.stopPropagation()">
                   <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master" title="Seleccionar todo el bloque">
                 </div>
 
-                <div style="display:flex; align-items:center;">
+                <div class="grado-title-main" style="display:flex; align-items:center; flex:1;">
                   <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
-                  📑 Grado y Sección: ${grado} <span class="grado-count" style="margin-right:10px;">${students.length} alumnos</span>
+                  <span style="font-weight:700;">Grado y Sección: ${grado}</span>
+                  <span class="grado-count" style="margin-left:8px; font-size:0.85rem; opacity:0.8;">${students.length} alumnos</span>
                 </div>
-                ${getDocentesHtml(grado)}
+                <div class="grado-docente-info" style="width:100%; margin-top:2px;">
+                  ${getDocentesHtml(grado)}
+                </div>
               </div>
-              <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
+              <div class="grado-actions-mobile" style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
                 <button onclick="imprimirFichasPorGrado('${grado}')" style="background:#1e3a8a; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:9px; cursor:pointer;">🖨️ Imprimir Grupo</button>
               </div>
             </div>`;
@@ -2560,8 +2669,8 @@
     function getCoordinadorHtml(nId, nLabel) {
       const co = (appConfig.coordinadores && appConfig.coordinadores[nId]) || 'Sin asignar';
       const cnf = puedeEditarConfig();
-      let html = `<div style="font-size:0.9rem; display:flex; align-items:center; gap:8px;">
-                    <span>📋 <strong>Coordinador de ${nLabel}:</strong> ${co}</span>`;
+      let html = `<div class="coordinador-info" style="font-size:0.9rem; display:flex; align-items:center; gap:8px;">
+                    <span style="display:block; line-height:1.2;">📋 <strong>Coordinador de ${nLabel}:</strong><br><span style="margin-left:22px;">${co}</span></span>`;
       if (cnf) {
         html += `<button onclick="editarCoordinador(event, '${nId}', '${nLabel}')" style="background:none; border:none; cursor:pointer; font-size:1.1rem; filter:brightness(0) invert(1);" title="Editar Coordinador">⚙️</button>`;
       }

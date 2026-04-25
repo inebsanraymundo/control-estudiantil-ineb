@@ -23,6 +23,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
     }
 
@@ -140,6 +141,13 @@
       background: #fbfcfe;
       padding: 5px;
       overflow-y: auto;
+    }
+
+    @media (max-width: 600px) {
+      .contacts-side { width: 130px; }
+      .footer-actions { padding: 12px 8px; gap: 4px; }
+      .btn-nudge, .btn-send { padding: 8px 10px; font-size: 10px; }
+      .avatar-frame { width: 50px; height: 50px; }
     }
 
     .contacts-title {
@@ -798,6 +806,8 @@
       unreadUsers.delete(user);
       const lbl = user === 'TODOS' ? '' : ` — Conversando con: ${user}`;
       document.getElementById('selfName').innerText = myUsername + lbl;
+      // Forzar limpieza inmediata de la notificación al entrar al chat
+      unreadUsers.delete(user); 
       // Forzar re-render inmediato para mostrar mensajes del chat seleccionado
       callApi('obtenerMensajes', { usuarioActual: myUsername }).then(res => {
         if (res.success && res.data) renderMessages(res.data);
