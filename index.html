@@ -365,26 +365,30 @@
     }
 
     /* MODAL HORARIO */
-    .schedule-modal { max-width: 95%; width: 800px; }
+    .schedule-modal { max-width: none !important; width: 1000px; padding: 1.2rem !important; }
     .schedule-grid {
       display: grid;
-      grid-template-columns: 80px repeat(5, 1fr);
-      gap: 1px;
-      background: #cbd5e1;
-      border: 1px solid #cbd5e1;
+      grid-template-columns: 100px repeat(5, 1fr);
+      gap: 1.5px;
+      background: #e2e8f0;
+      border: 1px solid #e2e8f0;
       margin-top: 15px;
+      border-radius: 8px;
+      overflow: hidden;
     }
-    .schedule-header { background: #1e3a8a; color: white; padding: 10px; font-weight: 600; text-align: center; font-size: 0.8rem; }
-    .schedule-time { background: #f1f5f9; padding: 10px; font-weight: 600; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; text-align: center; }
-    .schedule-cell { background: white; padding: 8px; min-height: 60px; font-size: 0.7rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
-    .sch-subject { font-weight: 700; color: #1e293b; margin-bottom: 2px; }
-    .sch-teacher { font-weight: 400; color: #64748b; font-style: italic; }
+    .schedule-header { background: #1e3a8a; color: white; padding: 12px; font-weight: 600; text-align: center; font-size: 0.85rem; }
+    .schedule-time { background: #f8fafc; padding: 10px; font-weight: 600; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 2px solid #cbd5e1; }
+    .schedule-cell { background: white; padding: 10px; min-height: 85px; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; transition: background 0.2s; }
+    .schedule-cell:hover { background: #f1f5f9; }
+    .sch-subject { font-weight: 700; color: #0f172a; margin-bottom: 4px; line-height: 1.2; }
+    .sch-teacher { font-weight: 400; color: #64748b; font-size: 0.65rem; }
     
-    @media (max-width: 600px) {
-      .schedule-grid { grid-template-columns: 60px repeat(5, 1fr); }
-      .schedule-header { font-size: 0.6rem; padding: 5px; }
-      .schedule-time { font-size: 0.6rem; padding: 5px; }
-      .schedule-cell { font-size: 0.55rem; padding: 4px; }
+    @media (max-width: 900px) {
+      .schedule-modal { width: 98vw; }
+      .schedule-grid { grid-template-columns: 60px repeat(5, 1fr); gap: 1px; }
+      .schedule-header { font-size: 0.6rem; padding: 6px; }
+      .schedule-time { font-size: 0.6rem; padding: 6px; }
+      .schedule-cell { font-size: 0.55rem; padding: 4px; min-height: 60px; }
     }
     
     .btn-horario { background: #0891b2; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
@@ -1408,14 +1412,14 @@
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
             style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
-          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
-            title="Importar archivo XML de aSc Horarios" style="background:#0891b2;"><div style="line-height:1.2;">⏰ Sincronizar<br>Horarios</div></button>
-          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
           <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
             title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
         </div>
-        <div class="results-area">
+        <div class="results-area" style="display:flex; gap:10px; align-items:center;">
           <div id="resultsInfo" class="results-info"></div>
+          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
+            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; font-size:0.85rem; padding:8px 15px; border-radius:60px;">➕ Agregar Horario (aSc)</button>
+          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
           <button class="btn-add-inline" onclick="agregarGradoSección()"
             title="Agregar nueva opción de grado al formulario">➕ Agregar Grado/Sección</button>
         </div>
