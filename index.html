@@ -1619,23 +1619,8 @@
           </div>
         `;
 
-        // Fila de Columnas debajo del Nivel
-        const rowCols = tbody.insertRow();
-        rowCols.className = 'table-columns-header-row';
-        const cellCols = rowCols.insertCell(0);
-        cellCols.colSpan = 8;
-        cellCols.innerHTML = `
-          <div style="display:grid; grid-template-columns: 40px 50px 50px 1fr 100px 100px 150px; background:#f1f5f9; padding:8px 5px; font-weight:bold; color:#475569; font-size:0.8rem; border-bottom:2px solid #cbd5e1; align-items:center; text-align:left;">
-            <div style="text-align:center;"><input type="checkbox" id="chkMasterTotal_${nId}" onclick="toggleTodosLosGradosVisibles(this)"></div>
-            <div>Foto</div>
-            <div>Clave</div>
-            <div>Nombre</div>
-            <div>Código</div>
-            <div>Teléfono</div>
-            <!--<div>Cambio</div>-->
-            <div>Acciones</div>
-          </div>
-        `;
+        // BARRA DE COLUMNAS COMENTADA — no alinea bien con celdas reales de la tabla
+        // const rowCols = tbody.insertRow(); rowCols.style.display='none';
 
         // Filas interiores del Nivel
         Object.entries(gruposNivel[nId]).forEach(([grado, students]) => {
@@ -1672,13 +1657,13 @@
 
           const codigoSafe = est.codigo ? String(est.codigo).replace(/'/g, "\\'") : '';
 
-          // Checkbox Selección
+          // Celda 0: Checkbox Selección
           const tdChk = row.insertCell(0);
           tdChk.style.textAlign = 'center';
           tdChk.innerHTML = `<input type="checkbox" class="chk-estudiante" value="${est.codigo}" onchange="actualizarContadorSeleccion()">`;
 
-          // Foto
-          const tdFoto = row.insertCell(0);
+          // Celda 1: Foto
+          const tdFoto = row.insertCell(1);
           const img = document.createElement('img');
           const thumb = getDriveThumbnail(est.foto);
           img.src = thumb || 'https://placehold.co/40x40?text=👤';
@@ -1687,17 +1672,18 @@
           img.onerror = function () { this.onerror = null; this.src = 'https://placehold.co/40x40?text=👤'; };
           tdFoto.appendChild(img);
 
-          row.insertCell(1).textContent = est.clave || '—';
+          // Celda 2: Clave
+          row.insertCell(2).textContent = est.clave || '—';
 
-          const tdNombre = row.insertCell(2);
+          // Celda 3: Nombre
+          const tdNombre = row.insertCell(3);
           tdNombre.textContent = est.nombre || '—';
           tdNombre.style.fontWeight = '600';
           tdNombre.style.cursor = 'pointer';
           tdNombre.title = "Doble clic (Windows) o mantén presionado (Android) para vista previa";
 
-          // --- INTERACCIONES: DOBLE CLIC Y LONG PRESS ---
+          // Doble clic y long-press para vista previa
           tdNombre.ondblclick = () => vistaPrevia(codigoSafe);
-
           let touchTimer;
           tdNombre.ontouchstart = () => {
             touchTimer = setTimeout(() => {
@@ -1707,24 +1693,25 @@
           };
           tdNombre.ontouchend = () => clearTimeout(touchTimer);
           tdNombre.ontouchmove = () => clearTimeout(touchTimer);
-          // ----------------------------------------------
 
-          row.insertCell(3).textContent = est.codigo || '—';
-          const tdTel = row.insertCell(4);
+          // Celda 4: Código
+          row.insertCell(4).textContent = est.codigo || '—';
+
+          // Celda 5: Teléfono
+          const tdTel = row.insertCell(5);
           tdTel.textContent = est.telefono || '—';
           tdTel.className = 'col-tel';
 
-          // El campo Cambio Sección fue comentado a petición del usuario
-          // const tdCS = row.insertCell(5);
-          // const esSI = est.cambio_seccion.toUpperCase() === 'SI';
-          // tdCS.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀' : '—'}</span>`;
+          // Cambio Sección — comentado a petición del usuario
+          // const tdCS = row.insertCell(6);
+          // tdCS.innerHTML = `<span class="badge-cambio">${est.cambio_seccion}</span>`;
 
-          const tdAcc = row.insertCell(5);
+          // Celda 6: Acciones
+          const tdAcc = row.insertCell(6);
           const config = getRolConfig();
 
           let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
-                           <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>`;
-
+                             <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>`;
           if (config.editar) {
             actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
           }
@@ -2593,7 +2580,7 @@
       const cnf = puedeEditarConfig();
       
       let html = `<div style="font-size:0.85rem; color:#475569; border-left:2px solid #cbd5e1; padding-left:10px; margin-left:15px; display:flex; align-items:center; gap:8px;">
-                    <span>🧑‍🏫 <strong style="color:#1e293b;">Docente Guía:</strong> <span style="font-weight:600; color:#0f172a;">${gu}</span></span>`;
+                    <span><strong style="color:#1e293b;">Guía:</strong> <span style="font-weight:600; color:#0f172a;">${gu}</span></span>`;
       
       if (cnf) {
         html += `<button onclick="editarDocentes(event, '${grado}')" style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left:2px;" title="Editar Docente Guía">⚙️</button>`;
