@@ -343,20 +343,40 @@
     function playNudgeSound() {
       try {
         const ctx = getAudioCtx();
-        // Reproduce una secuencia de 3 tonos estilo MSN: do-mi-sol
-        const notas = [523, 659, 784];
-        notas.forEach((freq, i) => {
+        // Sonido clásico MSN nudge: buzzeo rápido y vibrante (como vibración de teléfono)
+        // Usa modulación de amplitud (AM) para crear el efecto de "bzzzt bzzzt bzzzt"
+        const duracionTotal = 0.9;
+        const numPulsos = 3;
+
+        for (let p = 0; p < numPulsos; p++) {
+          const tInicio = ctx.currentTime + p * 0.28;
+
+          // Oscilador portadora: tono base del buzzeo
           const osc = ctx.createOscillator();
-          const gain = ctx.createGain();
-          osc.connect(gain); gain.connect(ctx.destination);
-          osc.type = 'sine';
-          osc.frequency.value = freq;
-          const inicio = ctx.currentTime + i * 0.12;
-          gain.gain.setValueAtTime(0.4, inicio);
-          gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.1);
-          osc.start(inicio);
-          osc.stop(inicio + 0.12);
-        });
+          osc.type = 'sawtooth'; // La onda diente de sierra da el timbre áspero y vibrante
+          osc.frequency.setValueAtTime(180, tInicio);
+          osc.frequency.exponentialRampToValueAtTime(90, tInicio + 0.18);
+
+          // LFO (modulador de amplitud rápido) para simular la vibración
+          const lfo = ctx.createOscillator();
+          lfo.type = 'square';
+          lfo.frequency.value = 55; // 55 Hz de modulación = buzzeo rápido
+
+          const lfoGain = ctx.createGain();
+          lfoGain.gain.value = 0.5;
+
+          const masterGain = ctx.createGain();
+          masterGain.gain.setValueAtTime(0.35, tInicio);
+          masterGain.gain.exponentialRampToValueAtTime(0.001, tInicio + 0.22);
+
+          lfo.connect(lfoGain);
+          lfoGain.connect(masterGain.gain);
+          osc.connect(masterGain);
+          masterGain.connect(ctx.destination);
+
+          osc.start(tInicio); osc.stop(tInicio + 0.22);
+          lfo.start(tInicio); lfo.stop(tInicio + 0.22);
+        }
       } catch(e) { console.error('Audio error:', e); }
     }
     async function testSound() {
