@@ -1307,13 +1307,7 @@
       </div>
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
-            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
-            <span>Messenger</span>
-          </button>
-          
-          <!-- AREA PERFIL USUARIO (OPCION A) -->
+          <!-- AREA PERFIL USUARIO (OPCION A) - a la izquierda del Messenger -->
           <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
             <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
             <div class="user-info-stack" style="margin-left:8px;">
@@ -1321,6 +1315,12 @@
               <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:0px; font-size:0.75rem;">Cerrar sesión</button>
             </div>
           </div>
+
+          <!-- BOTON MESSENGER -->
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
+            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
+            <span>Messenger</span>
+          </button>
         </div>
       </div>
     </div>
@@ -2230,22 +2230,28 @@
       else showMessage('Permite ventanas emergentes para imprimir', true);
     }
 
-    // ==================== IMPRESIÓN ====================
-    function imprimirFichasPorGrado(grado) {
+    // ==================== IMPRESIÓN DE GRUPO ====================
+    // Usa la misma lógica que la impresión individual: llama al servidor por cada estudiante
+    async function imprimirFichasPorGrado(grado) {
       if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
       const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
       if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
       
-      let finalHtml = "";
-      seleccion.forEach(est => {
-        // Obtenemos los datos originales (el array de la fila) para asegurar compatibilidad total
-        const datosOriginales = est.rawData;
-        if (datosOriginales) {
-          finalHtml += generarHTMLFicha(datosOriginales);
-        }
-      });
+      showLoader(true);
+      showMessage(`Preparando ${seleccion.length} fichas...`, false);
       
-      if (!finalHtml) return showMessage('Error al generar las fichas. Verifica los datos.', true);
+      let finalHtml = "";
+      for (const est of seleccion) {
+        try {
+          const res = await callApi('buscar', { codigo: est.codigo });
+          if (res.success && res.data) {
+            finalHtml += generarHTMLFicha(res.data);
+          }
+        } catch(e) { /* Saltar si un estudiante falla */ }
+      }
+      
+      showLoader(false);
+      if (!finalHtml) return showMessage('No se pudieron obtener los datos del servidor.', true);
       abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
     }
 
