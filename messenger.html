@@ -589,6 +589,7 @@
     }
 
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
+    let lastFetchedMsgs = []; // Caché en memoria para refrescar contactos
     const seenNudges = new Set(); // Para no re-reproducir zumbidos ya vistos
 
     function parseUser(raw) {
@@ -714,6 +715,7 @@
       try {
         const cached = JSON.parse(sessionStorage.getItem('msn_cache'));
         if (cached && cached.length > 0) {
+          lastFetchedMsgs = cached;
           renderMessages(cached);
           updateOnlineList(cached);
           lastMsgCount = cached.length;
@@ -722,6 +724,13 @@
 
       // Anunciar presencia inmediata al conectarse
       updatePresence();
+
+      // Refresco autónomo de la lista de contactos cada 30 segundos
+      setInterval(() => {
+        if (lastFetchedMsgs && lastFetchedMsgs.length > 0) {
+          updateOnlineList(lastFetchedMsgs);
+        }
+      }, 30000);
 
       // Latido cada 2 minutos para mantener presencia (ventana servidor: 5 min)
       setInterval(updatePresence, 120000);
@@ -770,7 +779,17 @@
     async function loadMessages() {
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
-        sessionStorage.setItem('msn_cache', JSON.stringify(res.data)); // Guardar en caché
+        
+        // FILTRO DE 30 DÍAS: Ignorar mensajes más antiguos localmente
+        const ahora = Date.now();
+        const TREINTA_DIAS = 30 * 24 * 60 * 60 * 1000;
+        res.data = res.data.filter(m => (ahora - new Date(m[0]).getTime()) < TREINTA_DIAS);
+        
+        lastFetchedMsgs = res.data;
+
+        // PROTECCIÓN ANTI-CRASH
+        try { sessionStorage.setItem('msn_cache', JSON.stringify(res.data)); } catch(e) {}
+        
         if (res.data.length > lastMsgCount) {
           const nuevos = res.data.slice(lastMsgCount);
           let hayMsgNuevo = false;
@@ -924,7 +943,7 @@
         btn.innerHTML = "📎"; btn.disabled = false; input.value = ""; loadMessages();
       }; reader.readAsDataURL(file);
     }
-    function sendMsg() { 
+    async function sendMsg() { 
       const i = document.getElementById('msgInput'), t = i.value.trim(); 
       if (!t) return; 
       i.value = ''; 
@@ -944,14 +963,16 @@
       h.appendChild(d);
       h.scrollTop = h.scrollHeight;
 
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat }).then(() => loadMessages()); 
+      await callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat });
+      loadMessages(); 
     }
     
-    function sendNudge() { 
+    async function sendNudge() { 
       if (isNudging) return; 
       isNudging = true; 
       triggerVisualNudge(); // Zumbido inmediato
-      callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat }).then(() => loadMessages()); 
+      await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
+      loadMessages(); 
       setTimeout(() => isNudging = false, 5000); 
     }
     async function vaciarChat() { 
