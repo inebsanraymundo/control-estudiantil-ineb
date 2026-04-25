@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Messenger Retro - Control Estudiantil</title>
+  <link rel="manifest" href="manifest.json">
   <style>
     :root {
       --msn-blue: #004b91;
@@ -242,14 +243,10 @@
     <div class="msn-header">
       <span style="font-size: 11px; font-weight: bold;">Messenger - Control Estudiantil</span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button id="btnSoundAuth" onclick="testSound()"
-          style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊
-          Probar Sonido</button>
-        <button onclick="vaciarChat()"
-          style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;"
-          title="Limpiar chat activo">🗑️ Limpiar</button>
-        <button onclick="window.close()"
-          style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
+        <button id="btnInstall" onclick="installApp()" style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥 Instalar App</button>
+        <button id="btnSoundAuth" onclick="testSound()" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Probar Sonido</button>
+        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
+        <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
     </div>
 
@@ -290,51 +287,71 @@
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw9htZRC8wxgmX-WJQqFbYMz3NU5XPi7GIaAT6nrJT9r3GF3CvGtCbg5kWobMzxYzwJ/exec";
-    const SOUND_URL = "https://raw.githubusercontent.com/HoussemBahri/MSN-Messenger-Clone/master/src/assets/sounds/nudge.mp3";
 
     let lastMsgCount = 0;
     let myUsername = "Usuario";
     let currentChat = "TODOS";
     let isNudging = false;
     let unreadUsers = new Set();
+    let deferredInstallPrompt = null;
 
-    // Web Audio API Context
+    // --- REGISTRO PWA ---
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      document.getElementById('btnInstall').style.display = 'block';
+    });
+    async function installApp() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') document.getElementById('btnInstall').style.display = 'none';
+      deferredInstallPrompt = null;
+    }
+
+    // --- AUDIO (síntesis pura, sin dependencias externas) ---
     let audioCtx = null;
-    let nudgeBuffer = null;
-
-    async function initAudio() {
-      if (audioCtx) return;
-      try {
-        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const res = await fetch(SOUND_URL);
-        const arrayBuffer = await res.arrayBuffer();
-        nudgeBuffer = await audioCtx.decodeAudioData(arrayBuffer);
-      } catch (e) { console.error("Audio init error", e); }
-    }
-
-    function playNudgeSound() {
-      if (!audioCtx || !nudgeBuffer) return;
+    function getAudioCtx() {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       if (audioCtx.state === 'suspended') audioCtx.resume();
-      const source = audioCtx.createBufferSource();
-      source.buffer = nudgeBuffer;
-      source.connect(audioCtx.destination);
-      source.start(0);
+      return audioCtx;
     }
-
+    function playNudgeSound() {
+      try {
+        const ctx = getAudioCtx();
+        // Reproduce una secuencia de 3 tonos estilo MSN: do-mi-sol
+        const notas = [523, 659, 784];
+        notas.forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain); gain.connect(ctx.destination);
+          osc.type = 'sine';
+          osc.frequency.value = freq;
+          const inicio = ctx.currentTime + i * 0.12;
+          gain.gain.setValueAtTime(0.4, inicio);
+          gain.gain.exponentialRampToValueAtTime(0.001, inicio + 0.1);
+          osc.start(inicio);
+          osc.stop(inicio + 0.12);
+        });
+      } catch(e) { console.error('Audio error:', e); }
+    }
     async function testSound() {
-      await initAudio();
       playNudgeSound();
       const btn = document.getElementById('btnSoundAuth');
       btn.style.background = "#10b981";
-      btn.innerText = "🔊 Audio Ok";
-      setTimeout(() => btn.style.display = "none", 2000);
+      btn.innerText = "🔊 Sonando!";
+      setTimeout(() => { btn.style.background = "#f97316"; btn.innerText = "🔊 Probar Sonido"; }, 1500);
     }
 
     window.onload = () => {
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
 
-      document.body.addEventListener('click', initAudio, { once: true });
+      // Desbloquear AudioContext al primer click
+      document.body.addEventListener('click', () => { getAudioCtx(); }, { once: true });
 
       loadMessages();
       setInterval(loadMessages, 2500);
