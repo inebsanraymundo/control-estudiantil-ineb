@@ -1711,7 +1711,7 @@
         document.getElementById('userProfileArea').style.display = 'flex';
         
         // 1. Intentar cargar desde memoria local (Carga instantánea)
-        const localAvatar = localStorage.getItem('msn_avatar');
+        const localAvatar = localStorage.getItem('msn_avatar_' + username);
         if (localAvatar) {
           document.getElementById('userAvatarHeader').src = localAvatar;
         }
@@ -1721,7 +1721,7 @@
           const res = await callApi('obtenerUsuarioMessenger', { usuario: username });
           if (res && res.foto) {
             document.getElementById('userAvatarHeader').src = res.foto;
-            localStorage.setItem('msn_avatar', res.foto); // Mantener actualizado el local
+            localStorage.setItem('msn_avatar_' + username, res.foto); // Mantener actualizado el local
           } else if (!localAvatar) {
             document.getElementById('userAvatarHeader').src = `https://ui-avatars.com/api/?name=${username}&background=random&color=fff`;
           }
@@ -2816,6 +2816,14 @@
         aplicarPermisos();
         cargarListaEstudiantes();
         updateGreeting();
+        
+        // Sincronización en tiempo real con Messenger (si cambia la foto allá, se actualiza acá)
+        window.addEventListener('storage', (e) => {
+          const username = sessionStorage.getItem('userName');
+          if (e.key === 'msn_avatar_' + username && e.newValue) {
+            document.getElementById('userAvatarHeader').src = e.newValue;
+          }
+        });
         
         // Cargar horarios del config si existen
         if (appConfig.horarios && typeof appConfig.horarios === 'string') {
