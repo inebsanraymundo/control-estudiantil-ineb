@@ -915,7 +915,18 @@
         alert("No se pudo vaciar el chat. Intenta de nuevo.");
       }
     }
-    function triggerVisualNudge() { const w = document.getElementById('msnWindow'); playNudgeSound(); w.classList.add('nudge-vibration', 'nudge-flash'); setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000); }
+    function triggerVisualNudge() { 
+      const w = document.getElementById('msnWindow'); 
+      playNudgeSound(); 
+      
+      // Vibración física para celulares (Android)
+      if ("vibrate" in navigator) {
+        navigator.vibrate([200, 100, 200, 100, 200]);
+      }
+
+      w.classList.add('nudge-vibration', 'nudge-flash'); 
+      setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000); 
+    }
   </script>
 </body>
 
