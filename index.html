@@ -211,12 +211,12 @@
   <div class="glass-header">
     <div class="logo-area">
       <img src="logo.png" alt="Logo" style="height:52px;border-radius:14px;" onerror="this.style.display='none'">
-      <div class="header-texts">
-        <div class="header-inst">Instituto Nacional Mixto de Educación Básica de San Raymundo</div>
-        <div class="header-subtitle">Control Estudiantil</div>
       </div>
     </div>
-    <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=380,height=550')" style="background:linear-gradient(90deg, #3b82f6, #2563eb); border-radius:40px; padding:8px 18px; font-size: 0.9rem;">💬 Chat Messenger</button>
+      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
   </div>
 
   <div class="dashboard" id="dashboardContainer">
@@ -498,6 +498,7 @@
       const res = await callApi('login', { u, p });
       if (res.success) {
         sessionStorage.setItem('logged', 'true');
+        sessionStorage.setItem('userName', u);
         sessionStorage.setItem('userRole', res.role || 'usuario');
         document.getElementById('loginContainer').style.display = 'none';
         document.getElementById('appContainer').style.display = 'block';

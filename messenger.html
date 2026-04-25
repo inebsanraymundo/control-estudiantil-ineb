@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>INEB Messenger</title>
+  <style>
+    :root {
+      --msn-blue: #0055e0;
+      --msn-light-blue: #eef3fa;
+      --msn-header-grad: linear-gradient(to bottom, #0055e0, #3b82f6);
+      --msn-border: #808080;
+    }
+
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Tahoma', 'Segoe UI', sans-serif; }
+
+    body {
+      background: #c7d2fe;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Contenedor Principal (Ventana de MSN) */
+    .msn-container {
+      width: 350px;
+      height: 500px;
+      background: var(--msn-light-blue);
+      border: 3px solid var(--msn-blue);
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 10px 10px 30px rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    /* Barra de título clásica */
+    .msn-header {
+      background: var(--msn-header-grad);
+      color: white;
+      padding: 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .msn-header span { font-size: 11px; font-weight: bold; letter-spacing: 0.5px; }
+    .header-btns { display: flex; gap: 4px; }
+    .header-btns button { 
+      background: #ffffff55; border: 1px solid #ffffffaa; 
+      color: white; width: 18px; height: 18px; font-size: 10px; cursor: pointer; 
+    }
+
+    /* Área de Usuario / Estado */
+    .user-info {
+      padding: 10px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(to bottom, #ffffff, #eef3fa);
+      border-bottom: 1px solid #ccc;
+    }
+    .avatar-frame {
+      width: 45px; height: 45px;
+      border: 2px solid #3b82f6;
+      background: white; padding: 2px;
+    }
+    .avatar-frame img { width: 100%; height: 100%; object-fit: cover; }
+    .user-details { display: flex; flex-direction: column; }
+    .user-name { font-weight: bold; color: #1e3a8a; font-size: 13px; }
+    .user-status { font-size: 10px; color: #666; }
+    .status-dot { 
+      display: inline-block; width: 8px; height: 8px; 
+      border-radius: 50%; background: #10b981; margin-right: 4px; 
+    }
+
+    /* Área de Chat (Historial) */
+    .chat-history {
+      flex: 1;
+      background: white;
+      margin: 10px;
+      border: 1px solid var(--msn-border);
+      padding: 8px;
+      overflow-y: auto;
+      font-size: 12px;
+      line-height: 1.4;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .msg-entry strong { color: #0055e0; }
+    .msg-system { font-style: italic; color: #666; text-align: center; font-size: 11px; margin: 5px 0; }
+    .msg-nudge { color: #dc2626; font-weight: bold; text-align: center; padding: 10px; background: #fee2e2; border-radius: 5px; }
+
+    /* Área de Escritura */
+    .writing-area {
+      padding: 10px;
+      background: var(--msn-light-blue);
+      border-top: 1px solid #ccc;
+    }
+    textarea {
+      width: 100%;
+      height: 60px;
+      border: 1px solid var(--msn-border);
+      padding: 5px;
+      font-size: 12px;
+      resize: none;
+      outline: none;
+    }
+
+    /* Botones Inferiores */
+    .footer-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 10px 12px;
+    }
+    .btn-send {
+      background: linear-gradient(to bottom, #f97316, #ea580c);
+      color: white; border: 1px solid #c2410c;
+      padding: 6px 20px; font-weight: bold; border-radius: 4px;
+      cursor: pointer; font-size: 12px;
+    }
+    .btn-nudge {
+      background: white; border: 1px solid #ccc;
+      padding: 4px 8px; font-size: 11px; cursor: pointer;
+      display: flex; align-items: center; gap: 4px;
+    }
+
+    /* Animación del Zumbido */
+    .nudge-vibration {
+      animation: nudge 0.1s linear infinite;
+    }
+    @keyframes nudge {
+      0% { transform: translate(5px, 5px); }
+      25% { transform: translate(-5px, -5px); }
+      50% { transform: translate(-5px, 5px); }
+      75% { transform: translate(5px, -5px); }
+      100% { transform: translate(5px, 5px); }
+    }
+
+    .nudge-flash {
+      background-color: #ff000033 !important;
+    }
+
+    /* Scrollbar clásica */
+    ::-webkit-scrollbar { width: 14px; }
+    ::-webkit-scrollbar-track { background: #f0f0f0; border-left: 1px solid #ccc; }
+    ::-webkit-scrollbar-thumb { background: #ccc; border: 1px solid #999; }
+  </style>
+</head>
+<body>
+
+  <div id="msnWindow" class="msn-container">
+    <div class="msn-header">
+      <span>Messenger - Establecimiento San Raymundo</span>
+      <div class="header-btns">
+        <button>_</button>
+        <button>×</button>
+      </div>
+    </div>
+
+    <div class="user-info">
+      <div class="avatar-frame">
+        <img src="logo.png" alt="User">
+      </div>
+      <div class="user-details">
+        <div id="selfName" class="user-name">Cargando...</div>
+        <div class="user-status"><span class="status-dot"></span>Disponible</div>
+      </div>
+    </div>
+
+    <div id="chatHistory" class="chat-history">
+      <div class="msg-system">Conectando con el servidor de chat...</div>
+    </div>
+
+    <div class="writing-area">
+      <textarea id="msgInput" placeholder="Escribe un mensaje aquí..."></textarea>
+    </div>
+
+    <div class="footer-actions">
+      <button class="btn-nudge" onclick="sendNudge()">
+        🔔 <u>Z</u>umbido
+      </button>
+      <button class="btn-send" onclick="sendMsg()">Enviar</button>
+    </div>
+  </div>
+
+  <script>
+    // Configuración Base (Usa tu propia URL de Apps Script si es distinta)
+    const API_URL = "https://script.google.com/macros/s/AKfycbyHuYjUl6JX8XKSxIm2EpQbV40lUqEy83eu0lnqY4VsmkI09scJ3KbdKXGwn5_r1PQ3/exec";
+    
+    let lastMsgCount = 0;
+    let myUsername = "Usuario";
+    let isNudging = false;
+
+    // Inicialización
+    window.onload = () => {
+      // Intentar obtener el nombre del usuario de la sesión del proyecto principal
+      const savedUser = sessionStorage.getItem('userName') || sessionStorage.getItem('userRole') || "Invitado";
+      myUsername = savedUser;
+      document.getElementById('selfName').innerText = myUsername;
+      
+      // Primera carga
+      loadMessages();
+      
+      // Polling cada 4 segundos (balance entre velocidad y cuotas de Google)
+      setInterval(loadMessages, 4000);
+
+      // Evento Enter para enviar (Shift+Enter para nueva línea)
+      document.getElementById('msgInput').addEventListener('keypress', (e) => {
+        if(e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMsg();
+        }
+      });
+    };
+
+    async function callApi(action, data = {}) {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action, data })
+        });
+        return await response.json();
+      } catch (e) {
+        console.error("Error en API:", e);
+        return { success: false };
+      }
+    }
+
+    async function loadMessages() {
+      const res = await callApi('obtenerMensajes');
+      if (res.success && res.data) {
+        if (res.data.length !== lastMsgCount) {
+          renderMessages(res.data);
+          
+          // Verificar si el último mensaje es un zumbido nuevo
+          const lastMsg = res.data[res.data.length - 1];
+          if(lastMsg[3] === 'zumbido' && res.data.length > lastMsgCount) {
+             triggerVisualNudge();
+          }
+          
+          lastMsgCount = res.data.length;
+        }
+      }
+    }
+
+    function renderMessages(msgs) {
+      const history = document.getElementById('chatHistory');
+      history.innerHTML = '';
+      
+      msgs.forEach(m => {
+        const date = new Date(m[0]);
+        const user = m[1];
+        const text = m[2];
+        const type = m[3];
+        const timeStr = date.getHours() + ":" + String(date.getMinutes()).padStart(2, '0');
+
+        const div = document.createElement('div');
+        div.className = 'msg-entry';
+        
+        if (type === 'zumbido') {
+          div.className = 'msg-nudge';
+          div.innerHTML = `⚠️ Has recibido un zumbido de ${user}.`;
+        } else {
+          div.innerHTML = `<span style="color:#999; font-size:10px;">[${timeStr}]</span> <strong>${user} dice:</strong><br>${text}`;
+        }
+        
+        history.appendChild(div);
+      });
+      
+      history.scrollTop = history.scrollHeight;
+    }
+
+    async function sendMsg() {
+      const input = document.getElementById('msgInput');
+      const text = input.value.trim();
+      if (!text) return;
+
+      input.value = '';
+      const res = await callApi('enviarMensaje', {
+        usuario: myUsername,
+        texto: text,
+        tipo: 'msg'
+      });
+      
+      if(res.success) loadMessages();
+    }
+
+    async function sendNudge() {
+      if (isNudging) return;
+      
+      isNudging = true;
+      const res = await callApi('enviarMensaje', {
+        usuario: myUsername,
+        texto: 'ZUMBIDO',
+        tipo: 'zumbido'
+      });
+      
+      triggerVisualNudge(); // También vibra para el emisor
+      setTimeout(() => isNudging = false, 5000); // 5 seg de enfriamiento
+    }
+
+    function triggerVisualNudge() {
+      const win = document.getElementById('msnWindow');
+      win.classList.add('nudge-vibration', 'nudge-flash');
+      
+      // Si el navegador lo permite, vibrar el dispositivo (Android)
+      if (window.navigator && window.navigator.vibrate) {
+        window.navigator.vibrate([200, 100, 200]);
+      }
+
+      setTimeout(() => {
+        win.classList.remove('nudge-vibration', 'nudge-flash');
+      }, 1000);
+    }
+  </script>
+</body>
+</html>
