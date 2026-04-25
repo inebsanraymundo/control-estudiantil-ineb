@@ -209,10 +209,10 @@
     .user-avatar-header {
       width: 44px;
       height: 44px;
-      border-radius: 8px 0 0 8px; /* Redondeado solo a la izquierda si pega al borde */
+      border-radius: 8px; /* Todas las esquinas redondeadas */
       object-fit: cover;
       border: none;
-      border-right: 1px solid rgba(255,255,255,0.6);
+      border-right: 1px solid rgba(148,163,184,0.3);
     }
     .user-info-stack {
       display: flex;
@@ -1307,7 +1307,13 @@
       </div>
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
-          <!-- AREA PERFIL USUARIO (OPCION A) - a la izquierda del Messenger -->
+          <!-- BOTON MESSENGER -->
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
+            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
+            <span>Messenger</span>
+          </button>
+
+          <!-- AREA PERFIL USUARIO (OPCION A) -->
           <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
             <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
             <div class="user-info-stack" style="margin-left:8px;">
@@ -1315,12 +1321,6 @@
               <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:0px; font-size:0.75rem;">Cerrar sesión</button>
             </div>
           </div>
-
-          <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
-            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
-            <span>Messenger</span>
-          </button>
         </div>
       </div>
     </div>
@@ -2230,29 +2230,62 @@
       else showMessage('Permite ventanas emergentes para imprimir', true);
     }
 
+    // Convierte el objeto mapeado de estudiantesGlobal al array indexado que espera generarHTMLFicha
+    function estudianteAArray(e) {
+      const d = [];
+      d[1]  = e.nombre       || '';
+      d[2]  = e.codigo       || '';
+      d[3]  = e.edad         || '';
+      d[4]  = e[4]           || e['fecha_nacimiento'] || '';
+      d[5]  = e.telefono     || '';
+      d[6]  = e[6]           || e['tel_emergencia']   || '';
+      d[7]  = e.genero       || '';
+      d[8]  = e[8]           || e['adec_curricular']  || '';
+      d[9]  = e[9]           || e['detalle_adec']     || '';
+      d[10] = e[10]          || e['lateralidad']      || '';
+      d[11] = e.grado        || '';
+      d[12] = e.etnia        || '';
+      d[13] = e[13]          || e['municipio']        || '';
+      d[14] = e[14]          || e['departamento']     || '';
+      d[15] = e[15]          || e['pais']             || '';
+      d[16] = e[16]          || e['nacionalidad']     || '';
+      d[17] = e[17]          || e['pueblo']           || '';
+      d[18] = e[18]          || e['idioma']           || '';
+      d[19] = e[19]          || e['religion']         || '';
+      d[20] = e[20]          || e['discapacidad']     || '';
+      d[21] = e[21]          || e['trabajo']          || '';
+      d[22] = e[22]          || e['beca']             || '';
+      d[23] = e[23]          || e['nombre_encargado'] || '';
+      d[24] = e[24]          || e['dpi_encargado']    || '';
+      d[25] = e[25]          || e['tel_encargado']    || '';
+      d[26] = e[26]          || e['direccion']        || '';
+      d[27] = e[27]          || e['aldea']            || '';
+      d[28] = e[28]          || e['relacion']         || '';
+      d[29] = e[29]          || e['tel_extra']        || '';
+      d[32] = e.foto         || '';
+      d[33] = e.clave        || '';
+      d[34] = e.cambio_seccion || '';
+      return d;
+    }
+
     // ==================== IMPRESIÓN DE GRUPO ====================
-    // Usa la misma lógica que la impresión individual: llama al servidor por cada estudiante
-    async function imprimirFichasPorGrado(grado) {
+    function imprimirFichasPorGrado(grado) {
       if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
       const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
       if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
       
-      showLoader(true);
-      showMessage(`Preparando ${seleccion.length} fichas...`, false);
-      
-      let finalHtml = "";
-      for (const est of seleccion) {
-        try {
-          const res = await callApi('buscar', { codigo: est.codigo });
-          if (res.success && res.data) {
-            finalHtml += generarHTMLFicha(res.data);
-          }
-        } catch(e) { /* Saltar si un estudiante falla */ }
-      }
-      
-      showLoader(false);
-      if (!finalHtml) return showMessage('No se pudieron obtener los datos del servidor.', true);
+      let finalHtml = seleccion.map(est => generarHTMLFicha(estudianteAArray(est))).join('');
       abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
+    }
+
+    function imprimirSeleccionados() {
+      const chks = document.querySelectorAll('.chk-estudiante:checked');
+      if (chks.length === 0) return showMessage('Selecciona al menos un estudiante', true);
+      const codigos = Array.from(chks).map(c => c.value);
+      const seleccion = estudiantesGlobal.filter(e => codigos.includes(e.codigo));
+      let finalHtml = seleccion.map(est => generarHTMLFicha(estudianteAArray(est))).join('');
+      if (!finalHtml) return showMessage('Error al generar las fichas.', true);
+      abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
     }
 
     function imprimirSeleccionados() {
