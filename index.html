@@ -1656,6 +1656,11 @@
           hCell.innerHTML = `
             <div style="display:flex; align-items:center; justify-content:space-between; width:100%; flex-wrap:wrap;">
               <div onclick="toggleGrado('${grado}')" style="flex:1; display:flex; align-items:center; flex-wrap:wrap;">
+                
+                <div style="display:flex; align-items:center; width:40px; justify-content:center;" onclick="event.stopPropagation()">
+                  <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master" title="Seleccionar todo el bloque">
+                </div>
+
                 <div style="display:flex; align-items:center;">
                   <span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 
                   📑 Grado y Sección: ${grado} <span class="grado-count" style="margin-right:10px;">${students.length} alumnos</span>
@@ -1663,9 +1668,6 @@
                 ${getDocentesHtml(grado)}
               </div>
               <div style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
-                <label style="font-size:10px; font-weight:normal; cursor:pointer; display:flex; align-items:center; gap:5px;">
-                  <input type="checkbox" onchange="toggleSeleccionGrado('${grado}', this)" class="chk-grado-master"> Seleccionar grado
-                </label>
                 <button onclick="imprimirFichasPorGrado('${grado}')" style="background:#1e3a8a; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:9px; cursor:pointer;">🖨️ Imprimir Grupo</button>
               </div>
             </div>`;
@@ -2641,6 +2643,61 @@
         showMessage("Error al guardar la configuración.", true);
       }
     }
+
+    // ==================== NOTIFICACIONES FANTASMA (MSN PING) ====================
+    let msnLastCheck = Date.now();
+    const onlineUsersCache = new Set();
+    
+    async function checkMsnPresence() {
+      if (sessionStorage.getItem('logged') !== 'true') return;
+      try {
+        const res = await callApi('obtenerMensajes', { t: msnLastCheck });
+        msnLastCheck = Date.now() - 5000;
+        if(res.success && res.data && res.data.length > 0) {
+          const ahora = Date.now();
+          const TRES_MINUTOS = 180000;
+          const activos = res.data.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS);
+          const nUsers = [];
+          
+          activos.forEach(m => {
+            const p = m[1].split('|');
+            const n = p[0] || 'Anon';
+            if(n !== sessionStorage.getItem('userName')) nUsers.push(n);
+          });
+          
+          const newSet = new Set(nUsers);
+          newSet.forEach(user => {
+            if(!onlineUsersCache.has(user)) {
+              showMsnToast(user);
+            }
+          });
+          
+          onlineUsersCache.clear();
+          newSet.forEach(u => onlineUsersCache.add(u));
+        }
+      } catch(e) {}
+    }
+
+    function showMsnToast(user) {
+      const toast = document.createElement('div');
+      toast.style.cssText = "position:fixed; bottom:-80px; right:20px; background:linear-gradient(135deg, #f8fafc, #cbd5e1); border:1px solid #94a3b8; padding:10px 15px; border-radius:8px; box-shadow:0 10px 20px rgba(0,0,0,0.3); display:flex; align-items:center; gap:10px; z-index:9999; transition:bottom 0.5s ease; font-family:Tahoma, sans-serif;";
+      toast.innerHTML = `<img src="msn_icon.png" style="width:24px; height:24px; object-fit:contain;">
+                         <div style="font-size:13px; color:#1e293b;">
+                            <b style="color:#0284c7">${user}</b><br>acaba de iniciar sesión.
+                         </div>`;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => { toast.style.bottom = '20px'; }, 100);
+      setTimeout(() => { 
+        toast.style.bottom = '-80px'; 
+        setTimeout(() => toast.remove(), 600);
+      }, 5000);
+    }
+
+    // Comprobar conexiones silenciosamente cada 45 segundos
+    setInterval(checkMsnPresence, 45000);
+    setTimeout(checkMsnPresence, 5000); // Primer ping temprano
+
   </script>
 </body>
 
