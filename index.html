@@ -1665,11 +1665,12 @@
               </div>
             </div>`;
 
-        // Filas de estudiantes
         students.forEach(est => {
           const row = tbody.insertRow();
           row.classList.add('student-row', `gr-${grado.replace(/\//g, '_')}`);
           row.style.display = isOpen ? '' : 'none';
+
+          const codigoSafe = est.codigo ? String(est.codigo).replace(/'/g, "\\'") : '';
 
           // Checkbox Selección
           const tdChk = row.insertCell(0);
