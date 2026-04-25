@@ -455,11 +455,6 @@
         <div class="user-name">
           <div id="statusDot" class="contact-status"></div>
           <span id="selfName">Cargando...</span>
-          <select id="statusSelect" class="status-select" onchange="changeStatus()">
-            <option value="online">Disponible</option>
-            <option value="busy">Ocupado</option>
-            <option value="away">Ausente</option>
-          </select>
         </div>
         <div class="personal-msg-area">
           <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..."
@@ -467,10 +462,12 @@
           <button id="btnMusic" class="music-btn" style="display:none !important;" onclick="toggleMusic()"
             title="Lo que estoy escuchando">🎵</button>
           <input type="text" id="musicInput" class="music-input" placeholder="Canción - Artista" onblur="saveMusic()">
-          <button onclick="testAudio()"
-            style="display:none; background:#10b981; color:white; border:none; padding:2px 6px; font-size:8px; border-radius:4px; cursor:pointer; margin-left:5px;">🔊
-            Activar Sonidos</button>
         </div>
+        <select id="statusSelect" class="status-select" onchange="changeStatus()" style="margin-top:3px; align-self:flex-start;">
+          <option value="online">Disponible</option>
+          <option value="busy">Ocupado</option>
+          <option value="away">Ausente</option>
+        </select>
       </div>
     </div>
     <div class="msn-main-layout">
@@ -580,6 +577,7 @@
     }
 
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
+    const seenNudges = new Set(); // Para no re-reproducir zumbidos ya vistos
 
     function parseUser(raw) {
       if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '', music: '' };
@@ -763,7 +761,10 @@
             if (lastMsgCount > 0) {
               if (ui.name !== myUsername && ui.name !== currentChat && m[4] === myUsername) unreadUsers.add(ui.name);
               if (ui.name !== myUsername && m[3] !== 'zumbido' && (m[4] === 'TODOS' || m[4] === myUsername)) hayMsgNuevo = true;
-              if (m[3] === 'zumbido' && ui.name !== myUsername && (lastMsgCount > 0) && (m[4] === 'TODOS' || m[4] === myUsername)) hayZumbidoNuevo = true;
+              if (m[3] === 'zumbido' && ui.name !== myUsername && (m[4] === 'TODOS' || m[4] === myUsername)) {
+                const nudgeId = m[0] + ui.name; // ID único: timestamp + autor
+                if (!seenNudges.has(nudgeId)) { seenNudges.add(nudgeId); hayZumbidoNuevo = true; }
+              }
             }
           });
 
@@ -787,7 +788,10 @@
       unreadUsers.delete(user);
       const lbl = user === 'TODOS' ? '' : ` — Conversando con: ${user}`;
       document.getElementById('selfName').innerText = myUsername + lbl;
-      loadMessages();
+      // Forzar re-render inmediato para mostrar mensajes del chat seleccionado
+      callApi('obtenerMensajes', { usuarioActual: myUsername }).then(res => {
+        if (res.success && res.data) renderMessages(res.data);
+      });
     }
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
@@ -797,7 +801,8 @@
       const uniqueUsers = {};
       activos.forEach(m => {
         const ui = parseUser(m[1]);
-        if (ui.name !== myUsername) uniqueUsers[ui.name] = ui;
+        // Ignorar entradas con nombre desconocido o vacío
+        if (ui.name && ui.name !== '?' && ui.name !== myUsername) uniqueUsers[ui.name] = ui;
       });
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:10px;">🌐 Chat General</div>`;
       Object.values(uniqueUsers).forEach(u => {
