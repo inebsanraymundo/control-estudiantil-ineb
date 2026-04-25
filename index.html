@@ -364,7 +364,37 @@
       }
     }
 
-    /* FORM CARD */
+    /* MODAL HORARIO */
+    .schedule-modal { max-width: 95%; width: 800px; }
+    .schedule-grid {
+      display: grid;
+      grid-template-columns: 80px repeat(5, 1fr);
+      gap: 1px;
+      background: #cbd5e1;
+      border: 1px solid #cbd5e1;
+      margin-top: 15px;
+    }
+    .schedule-header { background: #1e3a8a; color: white; padding: 10px; font-weight: 600; text-align: center; font-size: 0.8rem; }
+    .schedule-time { background: #f1f5f9; padding: 10px; font-weight: 600; font-size: 0.75rem; display: flex; align-items: center; justify-content: center; text-align: center; }
+    .schedule-cell { background: white; padding: 8px; min-height: 60px; font-size: 0.7rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; }
+    .sch-subject { font-weight: 700; color: #1e293b; margin-bottom: 2px; }
+    .sch-teacher { font-weight: 400; color: #64748b; font-style: italic; }
+    
+    @media (max-width: 600px) {
+      .schedule-grid { grid-template-columns: 60px repeat(5, 1fr); }
+      .schedule-header { font-size: 0.6rem; padding: 5px; }
+      .schedule-time { font-size: 0.6rem; padding: 5px; }
+      .schedule-cell { font-size: 0.55rem; padding: 4px; }
+    }
+    
+    .btn-horario { background: #0891b2; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .btn-horario:hover { background: #0e7490; }
+
+    /* Estilo para botón Imprimir en dos líneas */
+    .btn-imprimir-wrap { 
+      background: #1e3a8a; color: white; border: none; padding: 4px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; 
+      white-space: normal; line-height: 1.1; width: 60px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    }
     .form-card {
       background: white;
       border-radius: 1.8rem;
@@ -1378,6 +1408,9 @@
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
             style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
+          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
+            title="Importar archivo XML de aSc Horarios" style="background:#0891b2;"><div style="line-height:1.2;">⏰ Sincronizar<br>Horarios</div></button>
+          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
           <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
             title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
         </div>
@@ -1459,6 +1492,20 @@
   </div>
 
   <!-- El antiguo Modal de VISTA PREVIA se ha eliminado. Se usará el formulario de lectura. -->
+
+  <!-- MODAL: HORARIO -->
+  <div id="horarioModal" class="modal-overlay" style="display:none;">
+    <div class="modal-card schedule-modal">
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+        <h3 id="horarioModalTitle" style="margin:0;">📅 Horario de Clases</h3>
+        <button onclick="cerrarModalHorario()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+      </div>
+      <div id="horarioContainer" style="overflow-x:auto;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" onclick="cerrarModalHorario()">Cerrar</button>
+      </div>
+    </div>
+  </div>
 
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
@@ -1770,8 +1817,9 @@
                   ${getDocentesHtml(grado)}
                 </div>
               </div>
-              <div class="grado-actions-mobile" style="display:flex; gap:10px; align-items:center;" onclick="event.stopPropagation()">
-                <button onclick="imprimirFichasPorGrado('${grado}')" style="background:#1e3a8a; color:white; border:none; padding:4px 8px; border-radius:4px; font-size:9px; cursor:pointer;">🖨️ Imprimir Grupo</button>
+              <div class="grado-actions-mobile" style="display:flex; gap:6px; align-items:center;" onclick="event.stopPropagation()">
+                <button onclick="verHorarioGrado('${grado}')" class="btn-horario" title="Ver horario de clases">⏰</button>
+                <button onclick="imprimirFichasPorGrado('${grado}')" class="btn-imprimir-wrap"><span>🖨️ Imprimir</span><span>Grupo</span></button>
               </div>
             </div>`;
 
@@ -2677,11 +2725,138 @@
         if (appCont) appCont.style.display = 'block';
         aplicarPermisos();
         cargarListaEstudiantes();
+        
+        // Cargar horarios del config si existen
+        if (appConfig.horarios && typeof appConfig.horarios === 'string') {
+          try { appConfig.horariosData = JSON.parse(appConfig.horarios); } catch(e){}
+        }
       } else {
         if (loginCont) loginCont.style.setProperty('display', 'flex', 'important');
         if (appCont) appCont.style.setProperty('display', 'none', 'important');
       }
     };
+
+    // ==================== LÓGICA DE HORARIOS XML ====================
+    async function importarHorarioXML(input) {
+      const file = input.files[0];
+      if (!file) return;
+      showLoader(true);
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+          
+          const data = { subjects: {}, teachers: {}, classrooms: {}, periods: [], cards: [] };
+
+          // 1. Periodos
+          xmlDoc.querySelectorAll('period').forEach(p => {
+            data.periods.push({ id: p.getAttribute('period'), name: p.getAttribute('name'), start: p.getAttribute('starttime'), end: p.getAttribute('endtime') });
+          });
+
+          // 2. Materias
+          xmlDoc.querySelectorAll('subject').forEach(s => {
+            data.subjects[s.getAttribute('id')] = s.getAttribute('name');
+          });
+
+          // 3. Profesores
+          xmlDoc.querySelectorAll('teacher').forEach(t => {
+            data.teachers[t.getAttribute('id')] = t.getAttribute('name');
+          });
+
+          // 4. Aulas (Se usan como identificador de Grado)
+          xmlDoc.querySelectorAll('classroom').forEach(c => {
+            data.classrooms[c.getAttribute('id')] = c.getAttribute('name');
+          });
+
+          // 5. Lecciones (Relación Materia-Profe)
+          const lessonsMap = {};
+          xmlDoc.querySelectorAll('lesson').forEach(l => {
+            lessonsMap[l.getAttribute('id')] = {
+              subId: l.getAttribute('subjectid'),
+              teaId: l.getAttribute('teacherids').split(',')[0]
+            };
+          });
+
+          // 6. Tarjetas (El horario real)
+          xmlDoc.querySelectorAll('card').forEach(c => {
+            const lesson = lessonsMap[c.getAttribute('lessonid')];
+            if (!lesson) return;
+            const classIds = c.getAttribute('classroomids').split(',');
+            classIds.forEach(cls => {
+              data.cards.push({
+                clsId: cls,
+                day: c.getAttribute('days').indexOf('1'), // 10000=0 (Lun), 01000=1 (Mar)...
+                period: c.getAttribute('period'),
+                sub: data.subjects[lesson.subId] || '?',
+                tea: data.teachers[lesson. teaId] || '?'
+              });
+            });
+          });
+
+          // Guardar en config
+          appConfig.horarios = JSON.stringify(data);
+          appConfig.horariosData = data;
+          await guardarConfiguracionBase();
+          showMessage("✅ Horarios sincronizados correctamente");
+          input.value = "";
+        } catch (err) {
+          console.error(err);
+          showMessage("❌ Error al procesar el XML: " + err.message, true);
+        }
+        showLoader(false);
+      };
+      reader.readAsText(file);
+    }
+
+    function verHorarioGrado(grado) {
+      if (!appConfig.horariosData) return showMessage("⚠️ No hay horarios sincronizados. Usa el botón 'Sincronizar Horarios' arriba.", true);
+      
+      const data = appConfig.horariosData;
+      // Buscar el ID del aula que coincida con el nombre del grado
+      let targetClsId = null;
+      for (let id in data.classrooms) {
+        if (data.classrooms[id].trim().toUpperCase() === grado.trim().toUpperCase()) {
+          targetClsId = id; break;
+        }
+      }
+      
+      if (!targetClsId) return showMessage(`⚠️ No se encontró horario específico para '${grado}' en el archivo XML.`, true);
+
+      const cards = data.cards.filter(c => c.clsId === targetClsId);
+      renderizarHorarioGrid(grado, cards, data.periods);
+    }
+
+    function renderizarHorarioGrid(grado, cards, periods) {
+      document.getElementById('horarioModalTitle').textContent = `📅 Horario: ${grado}`;
+      const container = document.getElementById('horarioContainer');
+      
+      const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
+      let html = `<div class="schedule-grid">
+                    <div class="schedule-header">Hora</div>`;
+      days.forEach(d => html += `<div class="schedule-header">${d}</div>`);
+
+      periods.sort((a,b) => parseInt(a.id) - parseInt(b.id)).forEach(p => {
+        html += `<div class="schedule-time"><b>${p.name}</b><br>${p.start}-${p.end}</div>`;
+        for (let d = 0; d < 5; d++) {
+          const card = cards.find(c => c.day == d && c.period == p.id);
+          if (card) {
+            html += `<div class="schedule-cell">
+                        <div class="sch-subject">${card.sub}</div>
+                        <div class="sch-teacher">${card.tea}</div>
+                     </div>`;
+          } else {
+            html += `<div class="schedule-cell"></div>`;
+          }
+        }
+      });
+      html += `</div>`;
+      
+      container.innerHTML = html;
+      document.getElementById('horarioModal').style.display = 'flex';
+    }
+
+    function cerrarModalHorario() { document.getElementById('horarioModal').style.display = 'none'; }
     // ==================== CONFIGURACIÓN DE DOCENTES GUÍAS Y COORDINADORES ====================
     function getCoordinadorHtml(nId, nLabel) {
       const co = (appConfig.coordinadores && appConfig.coordinadores[nId]) || 'Sin asignar';
