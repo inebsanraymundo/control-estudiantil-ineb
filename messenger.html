@@ -708,7 +708,7 @@
           let hayZumbidoNuevo = false;
 
           nuevos.forEach(m => {
-            if (m[3] === 'status_update') return;
+            if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return;
             const ui = parseUser(m[1]);
 
             // Solo procesar sonidos si no es la primera carga (lastMsgCount > 0)
@@ -757,7 +757,11 @@
     }
     function renderMessages(msgs) {
       const h = document.getElementById('chatHistory'); h.innerHTML = '';
-      const filtrados = msgs.filter(m => { if (m[3] === 'status_update') return false; const e = parseUser(m[1]).name, r = m[4] || 'TODOS'; return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername); });
+      const filtrados = msgs.filter(m => { 
+        if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return false; 
+        const e = parseUser(m[1]).name, r = m[4] || 'TODOS'; 
+        return currentChat === 'TODOS' ? r === 'TODOS' : (e === myUsername && r === currentChat) || (e === currentChat && r === myUsername); 
+      });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]), d = document.createElement('div');
         if (m[3] === 'zumbido') { d.className = 'msg-nudge'; d.innerHTML = `⚠️ Zumbido de <strong>${ui.name}</strong>`; }
