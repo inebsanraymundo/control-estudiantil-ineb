@@ -591,6 +591,8 @@
     let lastMsgCount = 0, myUsername = "Usuario", currentChat = "TODOS", isNudging = false, unreadUsers = new Set(), myStatus = "online", myStatusMsg = "", myMusic = "";
     let lastFetchedMsgs = []; // Caché en memoria para refrescar contactos
     const seenNudges = new Set(); // Para no re-reproducir zumbidos ya vistos
+    let isFetchingMsgs = false;
+    let msgPollingTimer = null;
 
     function parseUser(raw) {
       if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '', music: '' };
@@ -772,18 +774,27 @@
         console.log("Audio unlocked");
       }, { once: true });
 
-      loadMessages(); setInterval(loadMessages, 2500);
+      // Iniciar el ciclo de carga seguro (sin empalmes)
+      loadMessages(); 
       document.getElementById('msgInput').addEventListener('keypress', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } });
     };
     async function callApi(action, data = {}) { try { const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }) }); return await response.json(); } catch (e) { return { success: false }; } }
     async function loadMessages() {
+      if (isFetchingMsgs) return;
+      isFetchingMsgs = true;
+
       const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
       if (res.success && res.data) {
         
         // FILTRO DE 30 DÍAS: Ignorar mensajes más antiguos localmente
         const ahora = Date.now();
         const TREINTA_DIAS = 30 * 24 * 60 * 60 * 1000;
-        res.data = res.data.filter(m => (ahora - new Date(m[0]).getTime()) < TREINTA_DIAS);
+        res.data = res.data.filter(m => {
+          const timestamp = new Date(m[0]).getTime();
+          // Validación segura: Si la fecha falla (NaN), no borrar el mensaje por accidente
+          if (isNaN(timestamp)) return true;
+          return (ahora - timestamp) < TREINTA_DIAS;
+        });
         
         lastFetchedMsgs = res.data;
 
@@ -833,6 +844,11 @@
           lastMsgCount = res.data.length;
         }
       }
+      
+      // Liberar cola y programar próxima lectura sin empalmar
+      isFetchingMsgs = false;
+      if (msgPollingTimer) clearTimeout(msgPollingTimer);
+      msgPollingTimer = setTimeout(loadMessages, 2500);
     }
     function selectChat(user) {
       currentChat = user;
@@ -841,10 +857,10 @@
       document.getElementById('selfName').innerText = myUsername + lbl;
       // Forzar limpieza inmediata de la notificación al entrar al chat
       unreadUsers.delete(user); 
-      // Forzar re-render inmediato para mostrar mensajes del chat seleccionado
-      callApi('obtenerMensajes', { usuarioActual: myUsername }).then(res => {
-        if (res.success && res.data) renderMessages(res.data);
-      });
+      
+      // Disparar ciclo sincronizado para no causar empalme de peticiones
+      if (msgPollingTimer) clearTimeout(msgPollingTimer);
+      loadMessages();
     }
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
@@ -964,6 +980,7 @@
       h.scrollTop = h.scrollHeight;
 
       await callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat });
+      if (msgPollingTimer) clearTimeout(msgPollingTimer);
       loadMessages(); 
     }
     
@@ -972,6 +989,7 @@
       isNudging = true; 
       triggerVisualNudge(); // Zumbido inmediato
       await callApi('enviarMensaje', { usuario: getMyIdent(), texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
+      if (msgPollingTimer) clearTimeout(msgPollingTimer);
       loadMessages(); 
       setTimeout(() => isNudging = false, 5000); 
     }
@@ -983,6 +1001,7 @@
         document.getElementById('chatHistory').innerHTML = '<div style="text-align:center; color:#999; font-size:10px; padding:10px;">Chat vaciado exitosamente</div>';
         // Volver a anunciar presencia para no perder la imagen en el servidor
         updatePresence();
+        if (msgPollingTimer) clearTimeout(msgPollingTimer);
         loadMessages(); 
       } else {
         alert("No se pudo vaciar el chat. Intenta de nuevo.");
