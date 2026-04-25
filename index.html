@@ -203,12 +203,11 @@
       padding: 0 12px;
       border-radius: 12px;
       border: 1px solid rgba(255,255,255,0.6);
-      height: 38px; /* Altura idéntica al botón Messenger */
-      justify-content: center;
+      height: 40px; /* Sincronizado con Messenger */
     }
     .user-avatar-header {
-      width: 32px;
-      height: 32px;
+      width: 38px;
+      height: 38px;
       border-radius: 8px; /* Estilo MSN Retro */
       object-fit: cover;
       border: 1px solid #94a3b8;
@@ -1308,7 +1307,7 @@
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
           <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:6px 14px; font-size: 0.8rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:38px;">
+          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 18px; font-size: 0.85rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:40px;">
             <img src="msn_icon.png" style="width:20px !important; height:20px !important; object-fit:contain; border-radius:4px;" alt="MSN">
             <span>Messenger</span>
           </button>
@@ -1316,9 +1315,9 @@
           <!-- AREA PERFIL USUARIO (OPCION A) -->
           <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
             <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
-            <div class="user-info-stack" style="margin-left:2px;">
+            <div class="user-info-stack" style="margin-left:4px;">
               <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.75rem; white-space:nowrap;"></span>
-              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:-2px;">Cerrar sesión</button>
+              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:-1px;">Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -1786,8 +1785,16 @@
           }
           if (!appConfig.docentes) appConfig.docentes = {};
 
-          // 3. Establecer array de estudiantes REALES
-          estudiantesGlobal = todosLosRegistros.filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true');
+          // 3. Establecer array de estudiantes REALES (Guardando rawData para impresión)
+          estudiantesGlobal = todosLosRegistros
+            .filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true')
+            .map(e => {
+              // Asegurar que rawData exista para las funciones de impresión clásicas
+              if (!e.rawData) {
+                e.rawData = Object.keys(e).filter(k => !isNaN(k)).sort((a,b) => a-b).map(k => e[k]);
+              }
+              return e;
+            });
           
           filtrarEstudiantes();
         } else showMessage("Error al cargar: " + (res.msg || ""), true);
@@ -2245,7 +2252,8 @@
       
       let finalHtml = "";
       seleccion.forEach(est => {
-        finalHtml += generarHTMLFichaMapeada(est);
+        // Usar rawData para que la función generarHTMLFicha (que espera el array d[]) funcione
+        finalHtml += generarHTMLFicha(est.rawData || est);
       });
       abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
     }
@@ -2803,7 +2811,6 @@
     // Ya no asignamos onclick aquí para btnGuardar porque usamos el evento submit del formulario
 
     window.onload = () => {
-      alert('¡SISTEMA ACTUALIZADO - VERSIÓN OK!');
       const isLogged = sessionStorage.getItem('logged') === 'true';
       const loginCont = document.getElementById('loginContainer');
       const appCont = document.getElementById('appContainer');
