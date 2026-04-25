@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
@@ -7,838 +8,1766 @@
   <!-- SheetJS para exportar Excel real (.xlsx) -->
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',system-ui,-apple-system,sans-serif}
-    body{background:linear-gradient(145deg,#f0f4fa,#e6edf4);min-height:100vh}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif
+    }
 
-    .copyright{position:fixed;bottom:8px;right:15px;color:rgba(100,116,139,.4);font-size:.78rem;z-index:999;pointer-events:none;font-weight:500}
+    body {
+      background: linear-gradient(145deg, #f0f4fa, #e6edf4);
+      min-height: 100vh
+    }
+
+    .copyright {
+      position: fixed;
+      bottom: 8px;
+      right: 15px;
+      color: rgba(100, 116, 139, .4);
+      font-size: .78rem;
+      z-index: 999;
+      pointer-events: none;
+      font-weight: 500
+    }
 
     /* LOGIN */
-    .login-container{position:fixed;inset:0;display:flex;justify-content:center;align-items:center;background:radial-gradient(circle at 10% 30%,#1e2b4f,#0f172a);z-index:1000}
-    .login-card{background:rgba(255,255,255,.98);border-radius:2rem;padding:2rem 2rem 2.5rem;width:90%;max-width:400px;box-shadow:0 25px 45px rgba(0,0,0,.2);text-align:center}
-    .logo-institucional{width:100px;height:auto;margin-bottom:1rem;border-radius:20px}
-    .login-card h2{font-size:1.8rem;background:linear-gradient(135deg,#1e3a8a,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;margin-bottom:.3rem}
-    .login-card p{color:#4b5563;margin-bottom:.5rem;font-size:.9rem}
-    .login-card input{width:100%;padding:14px 18px;margin:10px 0;border:1px solid #cbd5e1;border-radius:60px;font-size:1rem;background:#f8fafc;transition:all .2s}
-    .login-card input:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.2)}
-    .login-card button{background:linear-gradient(90deg,#1e3a8a,#2563eb);width:100%;padding:14px;border:none;border-radius:60px;color:white;font-weight:bold;font-size:1rem;cursor:pointer;margin-top:12px;transition:transform .2s,box-shadow .2s}
-    .login-card button:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(0,0,0,.2)}
+    .login-container {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 10% 30%, #1e2b4f, #0f172a);
+      z-index: 1000
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, .98);
+      border-radius: 2rem;
+      padding: 2rem 2rem 2.5rem;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 25px 45px rgba(0, 0, 0, .2);
+      text-align: center
+    }
+
+    .logo-institucional {
+      width: 100px;
+      height: auto;
+      margin-bottom: 1rem;
+      border-radius: 20px
+    }
+
+    .login-card h2 {
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #1e3a8a, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: .3rem
+    }
+
+    .login-card p {
+      color: #4b5563;
+      margin-bottom: .5rem;
+      font-size: .9rem
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px 18px;
+      margin: 10px 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 60px;
+      font-size: 1rem;
+      background: #f8fafc;
+      transition: all .2s
+    }
+
+    .login-card input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, .2)
+    }
+
+    .login-card button {
+      background: linear-gradient(90deg, #1e3a8a, #2563eb);
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 60px;
+      color: white;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 12px;
+      transition: transform .2s, box-shadow .2s
+    }
+
+    .login-card button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, .2)
+    }
 
     /* APP */
-    .app-container{display:none;max-width:1600px;margin:0 auto;padding:20px}
+    .app-container {
+      display: none;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 20px
+    }
 
     /* HEADER */
-    .glass-header{background:rgba(255,255,255,.85);backdrop-filter:blur(12px);border-radius:2rem;padding:1rem 2rem;margin-bottom:2rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:nowrap;gap:1rem;box-shadow:0 8px 20px rgba(0,0,0,.05);border:1px solid rgba(255,255,255,.5)}
-    .logo-area{display:flex;align-items:center;gap:14px;flex-shrink:1;min-width:0}
-    .header-texts{display:flex;flex-direction:column;gap:2px;min-width:0}
-    .header-inst{font-size:1.12rem;font-weight:700;color:#1e293b;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .header-subtitle{font-size:1.1rem;font-weight:800;background:linear-gradient(120deg,#1e3a8a,#3b82f6);-webkit-background-clip:text;background-clip:text;color:transparent;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .btn-logout{background:#ef4444;border:none;padding:10px 20px;border-radius:40px;color:white;font-weight:600;cursor:pointer;transition:all .2s;display:flex;gap:8px;align-items:center;flex-shrink:0}
-    .btn-logout:hover{background:#dc2626}
-    @media(max-width:768px){
-      .glass-header{padding:1rem;gap:0.5rem;}
-      .logo-area img{height:40px !important;border-radius:10px !important;}
-      .header-inst{font-size:0.9rem;}
-      .header-subtitle{font-size:0.85rem;}
-      .btn-logout{font-size:0;padding:10px;border-radius:50%;width:40px;height:40px;justify-content:center;}
-      .btn-logout::before{content:"🚪";font-size:1.1rem;}
+    .glass-header {
+      background: rgba(255, 255, 255, .85);
+      backdrop-filter: blur(12px);
+      border-radius: 2rem;
+      padding: 1rem 2rem;
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 1rem;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .05);
+      border: 1px solid rgba(255, 255, 255, .5)
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-shrink: 1;
+      min-width: 0
+    }
+
+    .header-texts {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0
+    }
+
+    .header-inst {
+      font-size: 1.12rem;
+      font-weight: 700;
+      color: #1e293b;
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .header-subtitle {
+      font-size: 1.1rem;
+      font-weight: 800;
+      background: linear-gradient(120deg, #1e3a8a, #3b82f6);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: .02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .btn-logout {
+      background: #ef4444;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      flex-shrink: 0
+    }
+
+    .btn-logout:hover {
+      background: #dc2626
+    }
+
+    @media(max-width:768px) {
+      .glass-header {
+        padding: 1rem;
+        gap: 0.5rem;
+      }
+
+      .logo-area img {
+        height: 40px !important;
+        border-radius: 10px !important;
+      }
+
+      .header-inst {
+        font-size: 0.9rem;
+      }
+
+      .header-subtitle {
+        font-size: 0.85rem;
+      }
+
+      .btn-logout {
+        font-size: 0;
+        padding: 10px;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        justify-content: center;
+      }
+
+      .btn-logout::before {
+        content: "🚪";
+        font-size: 1.1rem;
+      }
     }
 
     /* DASHBOARD */
-    .dashboard{display:grid;grid-template-columns:1fr 1.2fr;gap:1.8rem;align-items:start}
-    @media(max-width:900px){.dashboard{grid-template-columns:1fr}}
-    .dashboard.docente-view{grid-template-columns:1fr}
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 1.8rem;
+      align-items: start
+    }
+
+    @media(max-width:900px) {
+      .dashboard {
+        grid-template-columns: 1fr
+      }
+    }
+
+    .dashboard.docente-view {
+      grid-template-columns: 1fr
+    }
 
     /* FORM CARD */
-    .form-card{background:white;border-radius:1.8rem;padding:1.5rem;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff}
-    .form-title{font-size:1.3rem;font-weight:700;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:3px solid #ffd600;display:inline-block}
-    .section-title{background:#f1f5f9;padding:6px 14px;border-radius:30px;font-size:.8rem;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin:.9rem 0 .7rem;color:#1e293b;display:inline-block}
+    .form-card {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, .1);
+      border: 1px solid #eef2ff
+    }
+
+    .form-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      padding-bottom: .5rem;
+      border-bottom: 3px solid #ffd600;
+      display: inline-block
+    }
+
+    .section-title {
+      background: #f1f5f9;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: .8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin: .9rem 0 .7rem;
+      color: #1e293b;
+      display: inline-block
+    }
 
     /* FOTO + LAYOUT */
-    .photo-name-row{display:flex;gap:16px;align-items:flex-start;margin-bottom:10px}
-    .avatar-col{display:flex;flex-direction:column;align-items:center;gap:8px;flex-shrink:0}
-    .avatar-upload-area{position:relative;cursor:pointer}
-    #previewImg{width:100px;height:100px;border-radius:18px;object-fit:cover;border:3px dashed #cbd5e1;background:#f8fafc;transition:.2s;display:block}
-    .avatar-upload-area:hover #previewImg{border-color:#3b82f6;opacity:.85}
-    .upload-badge{position:absolute;bottom:-5px;right:-5px;background:#3b82f6;color:white;border-radius:50%;width:28px;height:28px;display:flex;justify-content:center;align-items:center;box-shadow:0 4px 6px rgba(0,0,0,.15);font-size:.9rem}
+    .photo-name-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 10px
+    }
+
+    .avatar-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0
+    }
+
+    .avatar-upload-area {
+      position: relative;
+      cursor: pointer
+    }
+
+    #previewImg {
+      width: 100px;
+      height: 100px;
+      border-radius: 18px;
+      object-fit: cover;
+      border: 3px dashed #cbd5e1;
+      background: #f8fafc;
+      transition: .2s;
+      display: block
+    }
+
+    .avatar-upload-area:hover #previewImg {
+      border-color: #3b82f6;
+      opacity: .85
+    }
+
+    .upload-badge {
+      position: absolute;
+      bottom: -5px;
+      right: -5px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, .15);
+      font-size: .9rem
+    }
+
     /* Bloque junto a foto — fila 1: Nombre+Código | fila 2: Grado|Clave|Tel|Cambio */
-    .name-code-col{flex:1;display:flex;flex-direction:column;gap:8px}
-    .name-row1{display:grid;grid-template-columns:1fr 105px;gap:8px;align-items:end}
-    .name-row2{display:flex;gap:7px;align-items:flex-end;flex-wrap:nowrap}
-    .name-row2 .fg-grado select{min-width:82px;max-width:95px}
-    .name-row2 .fg-tel{flex:1;min-width:80px}
-    @media(max-width:600px){.photo-name-row{flex-direction:column;align-items:center}.name-row1{grid-template-columns:1fr}.name-row2{flex-wrap:wrap}}
+    .name-code-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .name-row1 {
+      display: grid;
+      grid-template-columns: 1fr 105px;
+      gap: 8px;
+      align-items: end
+    }
+
+    .name-row2 {
+      display: flex;
+      gap: 7px;
+      align-items: flex-end;
+      flex-wrap: nowrap
+    }
+
+    .name-row2 .fg-grado select {
+      min-width: 82px;
+      max-width: 95px
+    }
+
+    .name-row2 .fg-tel {
+      flex: 1;
+      min-width: 80px
+    }
+
+    @media(max-width:600px) {
+      .photo-name-row {
+        flex-direction: column;
+        align-items: center
+      }
+
+      .name-row1 {
+        grid-template-columns: 1fr
+      }
+
+      .name-row2 {
+        flex-wrap: wrap
+      }
+    }
 
     /* FORM ROWS */
-    .form-row{display:flex;gap:10px;margin-bottom:10px;align-items:flex-end}
-    .form-row.four{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}
+    .form-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: flex-end
+    }
+
+    .form-row.four {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 10px
+    }
+
     /* Línea 3: edad(auto) | fecha(auto) | emergencia(1fr) | genero(auto) */
-    .row-line3{display:grid;grid-template-columns:auto auto 1fr auto;gap:10px;margin-bottom:10px;align-items:end}
+    .row-line3 {
+      display: grid;
+      grid-template-columns: auto auto 1fr auto;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: end
+    }
+
     /* Línea 4: enfermedad(1fr) | detalle(2fr) */
-    .row-line4{display:grid;grid-template-columns:1fr 2fr;gap:10px;margin-bottom:10px;align-items:end}
-    .grid-2cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
-    .form-group{display:flex;flex-direction:column;gap:4px}
-    .form-group label{font-size:.7rem;font-weight:600;color:#334155;text-transform:uppercase;letter-spacing:.03em;white-space:nowrap}
-    .form-group input,.form-group select{padding:8px 10px;border:1px solid #e2e8f0;border-radius:14px;background:#fefefe;font-size:.9rem;transition:all .2s;width:100%}
-    .form-group input:focus,.form-group select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-    .form-group input:disabled,.form-group select:disabled{background:#f1f5f9;border-color:#e2e8f0;color:#64748b;cursor:not-allowed}
+    .row-line4 {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: end
+    }
+
+    .grid-2cols {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 10px
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px
+    }
+
+    .form-group label {
+      font-size: .7rem;
+      font-weight: 600;
+      color: #334155;
+      text-transform: uppercase;
+      letter-spacing: .03em;
+      white-space: nowrap
+    }
+
+    .form-group input,
+    .form-group select {
+      padding: 8px 10px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #fefefe;
+      font-size: .9rem;
+      transition: all .2s;
+      width: 100%
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, .1)
+    }
+
+    .form-group input:disabled,
+    .form-group select:disabled {
+      background: #f1f5f9;
+      border-color: #e2e8f0;
+      color: #64748b;
+      cursor: not-allowed
+    }
+
     /* Campos compactos */
-    .fg-xs input,.fg-xs select{max-width:64px}
-    .fg-sm input,.fg-sm select{max-width:108px}
+    .fg-xs input,
+    .fg-xs select {
+      max-width: 64px
+    }
+
+    .fg-sm input,
+    .fg-sm select {
+      max-width: 108px
+    }
+
     /* fecha compacta */
-    .fg-fecha input{max-width:155px}
+    .fg-fecha input {
+      max-width: 155px
+    }
+
     /* cambio sección compacto */
-    .fg-cambio select{max-width:80px}
+    .fg-cambio select {
+      max-width: 80px
+    }
+
     /* Responsive móvil */
-    @media(max-width:600px){
-      .row-line3{grid-template-columns:1fr 1fr}
-      .row-line4{grid-template-columns:1fr}
-      .form-row.four{grid-template-columns:1fr 1fr}
+    @media(max-width:600px) {
+      .row-line3 {
+        grid-template-columns: 1fr 1fr
+      }
+
+      .row-line4 {
+        grid-template-columns: 1fr
+      }
+
+      .form-row.four {
+        grid-template-columns: 1fr 1fr
+      }
     }
 
     /* BOTONES FORMULARIO */
-    .form-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
-    .btn-primary{background:linear-gradient(95deg,#1e3a8a,#2563eb);color:white;border:none;padding:11px 18px;border-radius:40px;font-weight:bold;cursor:pointer;transition:all .2s;font-size:.9rem}
-    .btn-primary:hover{opacity:.9;transform:translateY(-1px)}
-    .btn-secondary{background:#f1f5f9;color:#1e293b;border:1px solid #cbd5e1;padding:9px 16px;border-radius:40px;cursor:pointer;font-size:.9rem}
-    .btn-danger-soft{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;padding:9px 16px;border-radius:40px;cursor:pointer;font-size:.9rem}
-    .btn-borrado{background:#fff1f2;color:#be123c;border:1px solid #fecdd3;padding:10px 16px;border-radius:60px;cursor:pointer;white-space:nowrap;font-size:.9rem;font-weight:600;transition:background .2s}
-    .btn-borrado:hover{background:#fecdd3}
-    .btn-danger-confirm{background:linear-gradient(95deg,#be123c,#ef4444);color:white;border:none;padding:11px 18px;border-radius:40px;font-weight:bold;cursor:pointer;transition:all .2s;font-size:.9rem}
+    .form-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+      flex-wrap: wrap
+    }
+
+    .btn-primary {
+      background: linear-gradient(95deg, #1e3a8a, #2563eb);
+      color: white;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: .9rem
+    }
+
+    .btn-primary:hover {
+      opacity: .9;
+      transform: translateY(-1px)
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: #1e293b;
+      border: 1px solid #cbd5e1;
+      padding: 9px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: .9rem
+    }
+
+    .btn-danger-soft {
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+      padding: 9px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-size: .9rem
+    }
+
+    .btn-borrado {
+      background: #fff1f2;
+      color: #be123c;
+      border: 1px solid #fecdd3;
+      padding: 10px 16px;
+      border-radius: 60px;
+      cursor: pointer;
+      white-space: nowrap;
+      font-size: .9rem;
+      font-weight: 600;
+      transition: background .2s
+    }
+
+    .btn-borrado:hover {
+      background: #fecdd3
+    }
+
+    .btn-danger-confirm {
+      background: linear-gradient(95deg, #be123c, #ef4444);
+      color: white;
+      border: none;
+      padding: 11px 18px;
+      border-radius: 40px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: .9rem
+    }
 
     /* TABLA */
     /* overflow-x en table-card (no en table-wrapper) para que el menú contextual no quede recortado */
-    .table-card{background:white;border-radius:1.8rem;padding:1.5rem 1.5rem 80px;box-shadow:0 20px 35px -12px rgba(0,0,0,.1);border:1px solid #eef2ff;overflow-x:auto;min-height:420px}
-    .toolbar{display:flex;gap:10px;margin-bottom:1.2rem;flex-wrap:wrap;align-items:center}
-    .toolbar input[type=text]{flex:1;min-width:160px;padding:10px 16px;border-radius:60px;border:1px solid #e2e8f0;background:#f8fafc;font-size:.9rem;transition:border-color .2s}
-    .toolbar input[type=text]:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,.1)}
-    .btn-export{background:#10b981;color:white;border:none;padding:10px 18px;border-radius:60px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .2s}
-    .btn-export:hover{background:#059669}
-    .results-area{display:flex;justify-content:space-between;align-items:center;margin-bottom:.8rem;padding:0 4px}
-    .results-info{font-size:.8rem;color:#64748b;margin:0}
-    .btn-add-inline{background:none;border:none;color:#3b82f6;font-size:0.8rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;padding:4px 8px;border-radius:8px;transition:all 0.2s}
-    .btn-add-inline:hover{background:rgba(59,130,246,0.1);color:#1d4ed8}
+    .table-card {
+      background: white;
+      border-radius: 1.8rem;
+      padding: 1.5rem 1.5rem 80px;
+      box-shadow: 0 20px 35px -12px rgba(0, 0, 0, .1);
+      border: 1px solid #eef2ff;
+      overflow-x: auto;
+      min-height: 420px
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .toolbar input[type=text] {
+      flex: 1;
+      min-width: 160px;
+      padding: 10px 16px;
+      border-radius: 60px;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      font-size: .9rem;
+      transition: border-color .2s
+    }
+
+    .toolbar input[type=text]:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, .1)
+    }
+
+    .btn-export {
+      background: #10b981;
+      color: white;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 60px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .2s
+    }
+
+    .btn-export:hover {
+      background: #059669
+    }
+
+    .results-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: .8rem;
+      padding: 0 4px
+    }
+
+    .results-info {
+      font-size: .8rem;
+      color: #64748b;
+      margin: 0
+    }
+
+    .btn-add-inline {
+      background: none;
+      border: none;
+      color: #3b82f6;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 8px;
+      border-radius: 8px;
+      transition: all 0.2s
+    }
+
+    .btn-add-inline:hover {
+      background: rgba(59, 130, 246, 0.1);
+      color: #1d4ed8
+    }
+
     /* Tabla redondeada */
-    .table-wrapper{border-radius:1.4rem;overflow:visible;border:1px solid #e8edf5;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-    table{width:100%;border-collapse:separate;border-spacing:0}
-    thead tr th:first-child{border-radius:1.3rem 0 0 0}
-    thead tr th:last-child{border-radius:0 1.3rem 0 0}
-    th{text-align:left;padding:8px 10px;background:#f4f7ff;color:#1e3a8a;font-weight:700;font-size:.78rem;white-space:nowrap;border-bottom:2px solid #dde5f9;line-height:1.2}
-    td{padding:10px 10px;border-bottom:1px solid #eef2ff;vertical-align:middle;font-size:.88rem}
-    .col-tel{max-width:95px;overflow:hidden;text-overflow:ellipsis}
-    tbody tr:hover td{background:#fafbff;transition:background .15s}
-    .student-img{width:40px;height:40px;border-radius:12px;object-fit:cover;background:#f1f5f9;border:2px solid #ffd600}
+    .table-wrapper {
+      border-radius: 1.4rem;
+      overflow: visible;
+      border: 1px solid #e8edf5;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .04)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0
+    }
+
+    thead tr th:first-child {
+      border-radius: 1.3rem 0 0 0
+    }
+
+    thead tr th:last-child {
+      border-radius: 0 1.3rem 0 0
+    }
+
+    th {
+      text-align: left;
+      padding: 8px 10px;
+      background: #f4f7ff;
+      color: #1e3a8a;
+      font-weight: 700;
+      font-size: .78rem;
+      white-space: nowrap;
+      border-bottom: 2px solid #dde5f9;
+      line-height: 1.2
+    }
+
+    td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #eef2ff;
+      vertical-align: middle;
+      font-size: .88rem
+    }
+
+    .col-tel {
+      max-width: 95px;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    tbody tr:hover td {
+      background: #fafbff;
+      transition: background .15s
+    }
+
+    .student-img {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      object-fit: cover;
+      background: #f1f5f9;
+      border: 2px solid #ffd600
+    }
 
     /* ACCORDION GRADOS */
-    .grado-header-row td{background:linear-gradient(90deg,#eef2ff,#f4f7ff);color:#1e3a8a;font-weight:700;font-size:.85rem;padding:10px 14px;border-bottom:2px solid #c7d2fe;cursor:pointer;user-select:none;letter-spacing:.02em}
-    .grado-header-row td:hover{background:linear-gradient(90deg,#e0e7ff,#eef2ff)}
-    .grado-arrow{margin-right:8px;font-size:.8rem;display:inline-block;transition:transform .2s}
-    .grado-count{margin-left:8px;background:#c7d2fe;color:#1e3a8a;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600}
+    .grado-header-row td {
+      background: linear-gradient(90deg, #eef2ff, #f4f7ff);
+      color: #1e3a8a;
+      font-weight: 700;
+      font-size: .85rem;
+      padding: 10px 14px;
+      border-bottom: 2px solid #c7d2fe;
+      cursor: pointer;
+      user-select: none;
+      letter-spacing: .02em
+    }
+
+    .grado-header-row td:hover {
+      background: linear-gradient(90deg, #e0e7ff, #eef2ff)
+    }
+
+    .grado-arrow {
+      margin-right: 8px;
+      font-size: .8rem;
+      display: inline-block;
+      transition: transform .2s
+    }
+
+    .grado-count {
+      margin-left: 8px;
+      background: #c7d2fe;
+      color: #1e3a8a;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600
+    }
 
     /* BADGE */
-    .badge-cambio{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.75rem;font-weight:600}
-    .badge-si{background:#fef08a;color:#854d0e}
-    .badge-no{background:#f1f5f9;color:#64748b}
+    .badge-cambio {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 20px;
+      font-size: .75rem;
+      font-weight: 600
+    }
+
+    .badge-si {
+      background: #fef08a;
+      color: #854d0e
+    }
+
+    .badge-no {
+      background: #f1f5f9;
+      color: #64748b
+    }
 
     /* ACCIÓN MENÚ */
-    .action-dropdown{position:relative;display:inline-block}
-    .drop-btn{background:#f1f5f9;border:none;font-size:1.2rem;font-weight:bold;cursor:pointer;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:background .2s;color:#334155;line-height:1}
-    .drop-btn:hover{background:#e2e8f0}
-    .action-content{display:none;position:absolute;right:0;top:36px;background:white;min-width:155px;box-shadow:0 10px 30px rgba(0,0,0,.12);border-radius:14px;z-index:200;overflow:hidden;border:1px solid #e2e8f0}
-    .action-dropdown:hover .action-content,.action-dropdown:focus-within .action-content{display:block}
-    .action-content button{display:flex;align-items:center;gap:8px;padding:10px 14px;border:none;background:white;width:100%;text-align:left;cursor:pointer;font-family:inherit;font-size:.88rem;color:#1e293b;transition:background .15s}
-    .action-content button:hover{background:#f8fafc}
-    .action-content .text-red{color:#ef4444;font-weight:600}
+    .action-dropdown {
+      position: relative;
+      display: inline-block
+    }
+
+    .drop-btn {
+      background: #f1f5f9;
+      border: none;
+      font-size: 1.2rem;
+      font-weight: bold;
+      cursor: pointer;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background .2s;
+      color: #334155;
+      line-height: 1
+    }
+
+    .drop-btn:hover {
+      background: #e2e8f0
+    }
+
+    .action-content {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 36px;
+      background: white;
+      min-width: 155px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, .12);
+      border-radius: 14px;
+      z-index: 200;
+      overflow: hidden;
+      border: 1px solid #e2e8f0
+    }
+
+    .action-dropdown:hover .action-content,
+    .action-dropdown:focus-within .action-content {
+      display: block
+    }
+
+    .action-content button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: none;
+      background: white;
+      width: 100%;
+      text-align: left;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: .88rem;
+      color: #1e293b;
+      transition: background .15s
+    }
+
+    .action-content button:hover {
+      background: #f8fafc
+    }
+
+    .action-content .text-red {
+      color: #ef4444;
+      font-weight: 600
+    }
 
     /* LOADER */
-    .loader-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:2000}
-    .spinner{width:52px;height:52px;border:5px solid white;border-top:5px solid #ffd600;border-radius:50%;animation:spin .8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .loader-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 2000
+    }
+
+    .spinner {
+      width: 52px;
+      height: 52px;
+      border: 5px solid white;
+      border-top: 5px solid #ffd600;
+      border-radius: 50%;
+      animation: spin .8s linear infinite
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg)
+      }
+    }
 
     /* TOAST */
-    .toast{position:fixed;bottom:25px;right:25px;color:white;padding:12px 22px;border-radius:60px;font-weight:500;z-index:2100;animation:fadeOut 3.2s forwards;box-shadow:0 8px 20px rgba(0,0,0,.2);font-size:.92rem}
-    @keyframes fadeOut{0%{opacity:1;transform:translateY(0)}75%{opacity:1}100%{opacity:0;transform:translateY(20px);visibility:hidden}}
+    .toast {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      color: white;
+      padding: 12px 22px;
+      border-radius: 60px;
+      font-weight: 500;
+      z-index: 2100;
+      animation: fadeOut 3.2s forwards;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, .2);
+      font-size: .92rem
+    }
 
-    .required:after{content:" *";color:#ef4444}
+    @keyframes fadeOut {
+      0% {
+        opacity: 1;
+        transform: translateY(0)
+      }
+
+      75% {
+        opacity: 1
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(20px);
+        visibility: hidden
+      }
+    }
+
+    .required:after {
+      content: " *";
+      color: #ef4444
+    }
 
     /* MODALES */
-    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);display:none;justify-content:center;align-items:center;z-index:3000;padding:20px}
-    .modal-card{background:white;border-radius:1.5rem;padding:1.8rem;max-width:480px;width:100%;box-shadow:0 25px 50px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto}
-    .modal-card h3{font-size:1.2rem;font-weight:700;margin-bottom:1.2rem;color:#1e293b;padding-bottom:.6rem;border-bottom:2px solid #ffd600}
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .55);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3000;
+      padding: 20px
+    }
+
+    .modal-card {
+      background: white;
+      border-radius: 1.5rem;
+      padding: 1.8rem;
+      max-width: 480px;
+      width: 100%;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, .2);
+      max-height: 90vh;
+      overflow-y: auto
+    }
+
+    .modal-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 1.2rem;
+      color: #1e293b;
+      padding-bottom: .6rem;
+      border-bottom: 2px solid #ffd600
+    }
 
     /* MODAL EXPORTAR */
-    .export-grade-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:1rem 0}
-    .export-cb-wrap{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;border:2px solid #e2e8f0;cursor:pointer;transition:all .2s;font-size:.9rem;font-weight:600;color:#1e293b}
-    .export-cb-wrap input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:#2563eb}
-    .export-cb-wrap:has(input:checked){border-color:#2563eb;background:#eff6ff}
-    .export-cb-wrap .grade-count{font-size:.74rem;color:#64748b;font-weight:400}
-    .export-select-all{display:flex;align-items:center;gap:8px;font-size:.88rem;font-weight:500;color:#1e293b;cursor:pointer;margin-bottom:.8rem}
-    .export-select-all input{width:16px;height:16px;accent-color:#2563eb}
-    .modal-actions{display:flex;gap:10px;margin-top:1.2rem;flex-wrap:wrap}
+    .export-grade-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 10px;
+      margin: 1rem 0
+    }
+
+    .export-cb-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 14px;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      transition: all .2s;
+      font-size: .9rem;
+      font-weight: 600;
+      color: #1e293b
+    }
+
+    .export-cb-wrap input[type=checkbox] {
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: #2563eb
+    }
+
+    .export-cb-wrap:has(input:checked) {
+      border-color: #2563eb;
+      background: #eff6ff
+    }
+
+    .export-cb-wrap .grade-count {
+      font-size: .74rem;
+      color: #64748b;
+      font-weight: 400
+    }
+
+    .export-select-all {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .88rem;
+      font-weight: 500;
+      color: #1e293b;
+      cursor: pointer;
+      margin-bottom: .8rem
+    }
+
+    .export-select-all input {
+      width: 16px;
+      height: 16px;
+      accent-color: #2563eb
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 1.2rem;
+      flex-wrap: wrap
+    }
 
     /* MODAL VISTA PREVIA */
-    .preview-card{max-width:380px;text-align:center}
-    .preview-photo{width:120px;height:120px;border-radius:24px;object-fit:cover;border:4px solid #ffd600;margin:0 auto 1rem;display:block;background:#f1f5f9}
-    .preview-name{font-size:1.15rem;font-weight:700;color:#1e293b;margin-bottom:.3rem}
-    .preview-badge{display:inline-block;background:linear-gradient(90deg,#1e3a8a,#3b82f6);color:white;padding:4px 14px;border-radius:30px;font-size:.85rem;font-weight:600;margin-bottom:.8rem}
-    .preview-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;text-align:left;margin-top:.8rem}
-    .preview-item{background:#f8fafc;border-radius:12px;padding:8px 12px}
-    .preview-item-label{font-size:.68rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
-    .preview-item-val{font-size:.9rem;font-weight:600;color:#1e293b;margin-top:2px}
+    .preview-card {
+      max-width: 380px;
+      text-align: center
+    }
+
+    .preview-photo {
+      width: 120px;
+      height: 120px;
+      border-radius: 24px;
+      object-fit: cover;
+      border: 4px solid #ffd600;
+      margin: 0 auto 1rem;
+      display: block;
+      background: #f1f5f9
+    }
+
+    .preview-name {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: .3rem
+    }
+
+    .preview-badge {
+      display: inline-block;
+      background: linear-gradient(90deg, #1e3a8a, #3b82f6);
+      color: white;
+      padding: 4px 14px;
+      border-radius: 30px;
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: .8rem
+    }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: left;
+      margin-top: .8rem
+    }
+
+    .preview-item {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 8px 12px
+    }
+
+    .preview-item-label {
+      font-size: .68rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: .05em
+    }
+
+    .preview-item-val {
+      font-size: .9rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-top: 2px
+    }
   </style>
 </head>
+
 <body>
 
-<div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
+  <div class="copyright">© 2025 Desarrollado por José Antonio Ortiz Corzo</div>
 
-<!-- LOGIN -->
-<div id="loginContainer" class="login-container">
-  <div class="login-card">
-    <img class="logo-institucional" src="logo.png" alt="Logo INEB" onerror="this.style.display='none'">
-    <h2>Control Estudiantil</h2>
-    <p>Instituto Nacional Mixto de Educación Básica<br>San Raymundo</p>
-    <form onsubmit="event.preventDefault(); iniciarSesion();">
-      <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off" autofocus>
-      <input type="password" id="loginPass" placeholder="Contraseña">
-      <button type="submit">Ingresar al sistema</button>
-    </form>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="appContainer" class="app-container">
-
-  <!-- HEADER -->
-  <div class="glass-header">
-    <div class="logo-area">
-      <img src="logo.png" alt="Logo" style="height:52px;border-radius:14px;" onerror="this.style.display='none'">
-      <div class="header-texts">
-        <div class="header-inst">Instituto Nacional Mixto de Educación Básica de San Raymundo</div>
-        <div class="header-subtitle">Control Estudiantil</div>
-      </div>
-    </div>
-    <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
-  </div>
-
-  <div class="dashboard" id="dashboardContainer">
-
-    <!-- ===== FORMULARIO ===== -->
-    <div class="form-card" id="formCard">
-      <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
-      <form id="studentForm" autocomplete="off" onsubmit="event.preventDefault(); guardarEstudiante();">
-
-        <div class="section-title">📋 Datos personales</div>
-
-        <!-- FOTO + Fila1(Nombre|Código) + Fila2(Grado|Clave|Tel|Cambio) -->
-        <div class="photo-name-row">
-          <div class="avatar-col">
-            <div class="avatar-upload-area">
-              <label for="fotoInput" title="Clic para cambiar foto">
-                <img id="previewImg" src="https://placehold.co/100x100?text=FOTO" alt="Foto">
-                <div class="upload-badge">📷</div>
-              </label>
-              <input type="file" id="fotoInput" accept="image/*" style="display:none">
-            </div>
-            <button type="button" id="btnEliminarFoto" class="btn-danger-soft" onclick="eliminarFoto()" style="display:none; font-size:0.75rem; padding:4px 8px; margin-top:8px; width: 100%;">🗑️ Quitar foto</button>
-          </div>
-          <div class="name-code-col">
-            <!-- Fila 1: Nombre completo | Código único -->
-            <div class="name-row1">
-              <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
-              <div class="form-group required"><label>Código único</label><input type="text" id="codigo" maxlength="10"></div>
-            </div>
-            <!-- Fila 2: Grado/Sección | Clave | Teléfono | ¿Cambió Sección? -->
-            <div class="name-row2">
-              <div class="form-group fg-grado"><label>Grado / Sección</label><select id="grado"><option>1A</option><option>1B</option><option>1C</option><option>2A</option><option>2B</option><option>2C</option><option>3A</option><option>3B</option></select></div>
-              <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
-              <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
-              <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion"><option>NO</option><option>SI</option></select></div>
-            </div>
-          </div>
-        </div>
-
-        <!-- LÍNEA 3: Edad | Fecha nacimiento | Tel. emergencia | Género -->
-        <div class="row-line3">
-          <div class="form-group fg-xs"><label>Edad</label><input type="number" id="edad" min="10" max="25"></div>
-          <div class="form-group fg-fecha"><label>Fecha Nacimiento</label><input type="date" id="fecha"></div>
-          <div class="form-group"><label>Tel. Emergencia</label><input type="tel" id="emergencia" maxlength="10"></div>
-          <div class="form-group fg-sm"><label>Género</label><select id="genero"><option>Masculino</option><option>Femenino</option></select></div>
-        </div>
-
-        <!-- LÍNEA 4: Adec. Curricular/Enfermedad | Detalle de Adecuación / Enfermedad -->
-        <div class="row-line4">
-          <div class="form-group"><label>Adec. Curricular / Enfermedad</label><select id="enfermedad"><option>NO</option><option>SI</option></select></div>
-          <div class="form-group"><label>Detalle de Adecuación / Enfermedad</label><input type="text" id="detalle_enf"></div>
-        </div>
-
-        <!-- LÍNEA 5: Lateralidad | Etnia | Dirección | Aldea/Comunidad -->
-        <div class="form-row four">
-          <div class="form-group"><label>Lateralidad</label><select id="zurdo"><option>Diestro</option><option>Zurdo</option></select></div>
-          <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
-          <div class="form-group"><label>Dirección</label><input type="text" id="direccion"></div>
-          <div class="form-group"><label>Aldea / Comunidad</label><input type="text" id="aldea"></div>
-        </div>
-
-        <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
-        <div class="grid-2cols" style="margin-bottom:10px">
-          <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
-          <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
-          <div class="form-group"><label>Tel. padre</label><input type="text" id="tel_padre"></div>
-          <div class="form-group"><label>Nombre madre</label><input type="text" id="madre"></div>
-          <div class="form-group"><label>DPI madre</label><input type="text" id="dpi_madre"></div>
-          <div class="form-group"><label>Tel. madre</label><input type="text" id="tel_madre"></div>
-        </div>
-
-        <div class="section-title">👤 Encargado</div>
-        <div class="form-row" style="margin-bottom:10px;gap:12px">
-          <div class="form-group">
-            <label>¿Es el padre?</label>
-            <select id="enc_padre" style="max-width:80px"><option>NO</option><option>SI</option></select>
-          </div>
-          <div class="form-group">
-            <label>¿Es la madre?</label>
-            <select id="enc_madre" style="max-width:80px"><option>NO</option><option>SI</option></select>
-          </div>
-        </div>
-        <div class="grid-2cols" style="margin-bottom:10px">
-          <div class="form-group"><label>Nombre encargado</label><input type="text" id="encargado"></div>
-          <div class="form-group"><label>DPI encargado</label><input type="text" id="dpi_enc"></div>
-          <div class="form-group"><label>Tel. encargado</label><input type="text" id="tel_enc"></div>
-          <div class="form-group"><label>Dirección encargado</label><input type="text" id="dir_enc"></div>
-          <div class="form-group"><label>Aldea encargado</label><input type="text" id="aldea_enc"></div>
-          <div class="form-group"><label>Relación</label><input type="text" id="relacion"></div>
-          <div class="form-group"><label>Tel. extra</label><input type="text" id="tel_extra"></div>
-        </div>
-
-        <div class="form-actions">
-          <button type="submit" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
-          <button type="button" class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">✖ Cancelar</button>
-          <button type="button" class="btn-danger-soft" id="btnLimpiar" onclick="resetFormulario()">🗑️ Limpiar</button>
-          <button type="button" class="btn-secondary" id="btnCerrarVista" onclick="cerrarVistaPrevia()" style="display:none;background:#e2e8f0;font-weight:bold;">🔙 Cerrar vista</button>
-          <button type="button" class="btn-secondary" id="btnImprimir" onclick="imprimirFichaActual()" style="display:none">🖨️ Imprimir ficha</button>
-        </div>
-
+  <!-- LOGIN -->
+  <div id="loginContainer" class="login-container">
+    <div class="login-card">
+      <img class="logo-institucional" src="logo.png" alt="Logo INEB" onerror="this.style.display='none'">
+      <h2>Control Estudiantil</h2>
+      <p>Instituto Nacional Mixto de Educación Básica<br>San Raymundo</p>
+      <form onsubmit="event.preventDefault(); iniciarSesion();">
+        <input type="text" id="loginUser" placeholder="Usuario" autocomplete="off" autofocus>
+        <input type="password" id="loginPass" placeholder="Contraseña">
+        <button type="submit">Ingresar al sistema</button>
       </form>
-    </div><!-- /form-card -->
-
-    <!-- ===== TABLA ===== -->
-    <div class="table-card">
-      <div class="toolbar">
-        <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..." oninput="filtrarEstudiantes()">
-        <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()">📊 Exportar Excel</button>
-        <button class="btn-export" id="btnFotosMasivo" onclick="window.location.href='fotos_masivo.html'" style="background:linear-gradient(90deg,#3b82f6,#2563eb)">📸 Subida Masiva</button>
-        <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()" title="Archivar todos los estudiantes de un grado" style="border-color:#f97316;color:#c2410c;background:#fff7ed">🗑️ Borrado de Grado</button>
-        <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()" title="Archivar todos los estudiantes activos al cerrar el ciclo escolar">🗑️ Borrado de ciclo</button>
-      </div>
-      <div class="results-area">
-        <div id="resultsInfo" class="results-info"></div>
-        <button class="btn-add-inline" onclick="agregarGradoSección()" title="Agregar nueva opción de grado al formulario">➕ Agregar Grado/Sección</button>
-      </div>
-      <div class="table-wrapper">
-        <table>
-          <thead>
-            <tr>
-              <th>Foto</th>
-              <th>Clave</th>
-              <th>Nombre</th>
-              <th>Código</th>
-              <th style="width:100px">Teléfono</th>
-              <th>Cambio<br>Sección</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
-          <tbody id="tablaBody"></tbody>
-        </table>
-      </div>
-    </div><!-- /table-card -->
-
-  </div><!-- /dashboard -->
-</div><!-- /app-container -->
-
-<!-- LOADER -->
-<div id="loaderOverlay" class="loader-overlay"><div class="spinner"></div></div>
-
-<!-- MODAL: EXPORTAR -->
-<div id="exportModal" class="modal-overlay">
-  <div class="modal-card" style="max-width:500px">
-    <h3>📊 Exportar a Excel</h3>
-    <label class="export-select-all">
-      <input type="checkbox" id="chkTodos" onchange="toggleTodosExport(this)" checked>
-      Seleccionar / deseleccionar todos
-    </label>
-    <div id="exportGradoList" class="export-grade-list"></div>
-    <div class="modal-actions">
-      <button class="btn-primary" onclick="confirmarExportar()">📥 Descargar Excel</button>
-      <button class="btn-secondary" onclick="cerrarModalExportar()">Cancelar</button>
     </div>
   </div>
-</div>
 
-<!-- MODAL: BORRADO DE CICLO ESCOLAR -->
-<div id="borradoModal" class="modal-overlay">
-  <div class="modal-card" style="max-width:500px">
-    <h3 style="border-bottom-color:#ef4444">🗑️ Borrado de Ciclo Escolar</h3>
-    <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Archiva <strong>todos los estudiantes activos</strong> de los grados seleccionados. Úsalo al cerrar el ciclo escolar para empezar el siguiente con lista limpia.<br><strong>Se recomienda exportar a Excel antes de borrar.</strong></p>
-    <label class="export-select-all">
-      <input type="checkbox" id="chkTodosBorrado" onchange="toggleTodosBorrado(this)">
-      Seleccionar / deseleccionar todos
-    </label>
-    <div id="borradoGradoList" class="export-grade-list"></div>
-    <div class="modal-actions">
-      <button class="btn-danger-confirm" onclick="confirmarBorradoCiclo()">🗑️ Archivar seleccionados</button>
-      <button class="btn-secondary" onclick="cerrarModalBorrado()">Cancelar</button>
+  <!-- APP -->
+  <div id="appContainer" class="app-container">
+
+    <!-- HEADER -->
+    <div class="glass-header">
+      <div class="logo-area">
+        <img src="logo.png" alt="Logo" style="height:52px;border-radius:14px;" onerror="this.style.display='none'">
+        <div class="header-texts">
+          <div class="header-inst">Instituto Nacional Mixto de Educación Básica de San Raymundo</div>
+          <div class="header-subtitle">Control Estudiantil</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="cerrarSesion()">🚪 Cerrar sesión</button>
+    </div>
+
+    <div class="dashboard" id="dashboardContainer">
+
+      <!-- ===== FORMULARIO ===== -->
+      <div class="form-card" id="formCard">
+        <h3 class="form-title" id="formTitle">➕ Nuevo estudiante</h3>
+        <form id="studentForm" autocomplete="off" onsubmit="event.preventDefault(); guardarEstudiante();">
+
+          <div class="section-title">📋 Datos personales</div>
+
+          <!-- FOTO + Fila1(Nombre|Código) + Fila2(Grado|Clave|Tel|Cambio) -->
+          <div class="photo-name-row">
+            <div class="avatar-col">
+              <div class="avatar-upload-area">
+                <label for="fotoInput" title="Clic para cambiar foto">
+                  <img id="previewImg" src="https://placehold.co/100x100?text=FOTO" alt="Foto">
+                  <div class="upload-badge">📷</div>
+                </label>
+                <input type="file" id="fotoInput" accept="image/*" style="display:none">
+              </div>
+              <button type="button" id="btnEliminarFoto" class="btn-danger-soft" onclick="eliminarFoto()"
+                style="display:none; font-size:0.75rem; padding:4px 8px; margin-top:8px; width: 100%;">🗑️ Quitar
+                foto</button>
+            </div>
+            <div class="name-code-col">
+              <!-- Fila 1: Nombre completo | Código único -->
+              <div class="name-row1">
+                <div class="form-group required"><label>Nombre completo</label><input type="text" id="nombre"></div>
+                <div class="form-group required"><label>Código único</label><input type="text" id="codigo"
+                    maxlength="10"></div>
+              </div>
+              <!-- Fila 2: Grado/Sección | Clave | Teléfono | ¿Cambió Sección? -->
+              <div class="name-row2">
+                <div class="form-group fg-grado"><label>Grado / Sección</label><select id="grado">
+                    <option>1A</option>
+                    <option>1B</option>
+                    <option>1C</option>
+                    <option>2A</option>
+                    <option>2B</option>
+                    <option>2C</option>
+                    <option>3A</option>
+                    <option>3B</option>
+                  </select></div>
+                <div class="form-group fg-xs"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
+                <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10">
+                </div>
+                <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion">
+                    <option>NO</option>
+                    <option>SI</option>
+                  </select></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- LÍNEA 3: Edad | Fecha nacimiento | Tel. emergencia | Género -->
+          <div class="row-line3">
+            <div class="form-group fg-xs"><label>Edad</label><input type="number" id="edad" min="10" max="25"></div>
+            <div class="form-group fg-fecha"><label>Fecha Nacimiento</label><input type="date" id="fecha"></div>
+            <div class="form-group"><label>Tel. Emergencia</label><input type="tel" id="emergencia" maxlength="10">
+            </div>
+            <div class="form-group fg-sm"><label>Género</label><select id="genero">
+                <option>Masculino</option>
+                <option>Femenino</option>
+              </select></div>
+          </div>
+
+          <!-- LÍNEA 4: Adec. Curricular/Enfermedad | Detalle de Adecuación / Enfermedad -->
+          <div class="row-line4">
+            <div class="form-group"><label>Adec. Curricular / Enfermedad</label><select id="enfermedad">
+                <option>NO</option>
+                <option>SI</option>
+              </select></div>
+            <div class="form-group"><label>Detalle de Adecuación / Enfermedad</label><input type="text"
+                id="detalle_enf"></div>
+          </div>
+
+          <!-- LÍNEA 5: Lateralidad | Etnia | Dirección | Aldea/Comunidad -->
+          <div class="form-row four">
+            <div class="form-group"><label>Lateralidad</label><select id="zurdo">
+                <option>Diestro</option>
+                <option>Zurdo</option>
+              </select></div>
+            <div class="form-group"><label>Etnia</label><input type="text" id="etnia"></div>
+            <div class="form-group"><label>Dirección</label><input type="text" id="direccion"></div>
+            <div class="form-group"><label>Aldea / Comunidad</label><input type="text" id="aldea"></div>
+          </div>
+
+          <div class="section-title">👨‍👩‍👧 Padres / Tutores</div>
+          <div class="grid-2cols" style="margin-bottom:10px">
+            <div class="form-group"><label>Nombre padre</label><input type="text" id="padre"></div>
+            <div class="form-group"><label>DPI padre</label><input type="text" id="dpi_padre"></div>
+            <div class="form-group"><label>Tel. padre</label><input type="text" id="tel_padre"></div>
+            <div class="form-group"><label>Nombre madre</label><input type="text" id="madre"></div>
+            <div class="form-group"><label>DPI madre</label><input type="text" id="dpi_madre"></div>
+            <div class="form-group"><label>Tel. madre</label><input type="text" id="tel_madre"></div>
+          </div>
+
+          <div class="section-title">👤 Encargado</div>
+          <div class="form-row" style="margin-bottom:10px;gap:12px">
+            <div class="form-group">
+              <label>¿Es el padre?</label>
+              <select id="enc_padre" style="max-width:80px">
+                <option>NO</option>
+                <option>SI</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>¿Es la madre?</label>
+              <select id="enc_madre" style="max-width:80px">
+                <option>NO</option>
+                <option>SI</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid-2cols" style="margin-bottom:10px">
+            <div class="form-group"><label>Nombre encargado</label><input type="text" id="encargado"></div>
+            <div class="form-group"><label>DPI encargado</label><input type="text" id="dpi_enc"></div>
+            <div class="form-group"><label>Tel. encargado</label><input type="text" id="tel_enc"></div>
+            <div class="form-group"><label>Dirección encargado</label><input type="text" id="dir_enc"></div>
+            <div class="form-group"><label>Aldea encargado</label><input type="text" id="aldea_enc"></div>
+            <div class="form-group"><label>Relación</label><input type="text" id="relacion"></div>
+            <div class="form-group"><label>Tel. extra</label><input type="text" id="tel_extra"></div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary" id="btnGuardar">💾 Guardar estudiante</button>
+            <button type="button" class="btn-secondary" id="btnCancelar" onclick="cancelarEdicion()">✖ Cancelar</button>
+            <button type="button" class="btn-danger-soft" id="btnLimpiar" onclick="resetFormulario()">🗑️
+              Limpiar</button>
+            <button type="button" class="btn-secondary" id="btnCerrarVista" onclick="cerrarVistaPrevia()"
+              style="display:none;background:#e2e8f0;font-weight:bold;">🔙 Cerrar vista</button>
+            <button type="button" class="btn-secondary" id="btnImprimir" onclick="imprimirFichaActual()"
+              style="display:none">🖨️ Imprimir ficha</button>
+          </div>
+
+        </form>
+      </div><!-- /form-card -->
+
+      <!-- ===== TABLA ===== -->
+      <div class="table-card">
+        <div class="toolbar">
+          <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..."
+            oninput="filtrarEstudiantes()">
+          <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()">📊 Exportar Excel</button>
+          <button class="btn-export" id="btnFotosMasivo" onclick="window.location.href='fotos_masivo.html'"
+            style="background:linear-gradient(90deg,#3b82f6,#2563eb)">📸 Subida Masiva</button>
+          <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
+            title="Archivar todos los estudiantes de un grado"
+            style="border-color:#f97316;color:#c2410c;background:#fff7ed">🗑️ Borrado de Grado</button>
+          <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
+            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar">🗑️ Borrado de ciclo</button>
+        </div>
+        <div class="results-area">
+          <div id="resultsInfo" class="results-info"></div>
+          <button class="btn-add-inline" onclick="agregarGradoSección()"
+            title="Agregar nueva opción de grado al formulario">➕ Agregar Grado/Sección</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Clave</th>
+                <th>Nombre</th>
+                <th>Código</th>
+                <th style="width:100px">Teléfono</th>
+                <th>Cambio<br>Sección</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaBody"></tbody>
+          </table>
+        </div>
+      </div><!-- /table-card -->
+
+    </div><!-- /dashboard -->
+  </div><!-- /app-container -->
+
+  <!-- LOADER -->
+  <div id="loaderOverlay" class="loader-overlay">
+    <div class="spinner"></div>
+  </div>
+
+  <!-- MODAL: EXPORTAR -->
+  <div id="exportModal" class="modal-overlay">
+    <div class="modal-card" style="max-width:500px">
+      <h3>📊 Exportar a Excel</h3>
+      <label class="export-select-all">
+        <input type="checkbox" id="chkTodos" onchange="toggleTodosExport(this)" checked>
+        Seleccionar / deseleccionar todos
+      </label>
+      <div id="exportGradoList" class="export-grade-list"></div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="confirmarExportar()">📥 Descargar Excel</button>
+        <button class="btn-secondary" onclick="cerrarModalExportar()">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- MODAL: BORRADO DE GRADO -->
-<div id="borradoGradoModal" class="modal-overlay">
-  <div class="modal-card" style="max-width:500px">
-    <h3 style="border-bottom-color:#f97316">🗑️ Borrado de Grado Específico</h3>
-    <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Esta acción archiva a todos los estudiantes de una sola sección independientemente de si los datos están completos o no. Útil para reestructurar secciones o eliminar grupos de prueba.</p>
-    <div style="margin-bottom: 1rem;">
-      <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:5px;">Selecciona el Grado/Sección a eliminar:</label>
-      <select id="gradoBorradoSelect" style="width:100%;padding:10px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:1rem;"></select>
-    </div>
-    <div class="modal-actions">
-      <button class="btn-danger-confirm" style="background:linear-gradient(95deg,#c2410c,#ea580c);" onclick="confirmarBorradoGradoUnico()">🗑️ Archivar Grado</button>
-      <button class="btn-secondary" onclick="cerrarModalBorradoGrado()">Cancelar</button>
+  <!-- MODAL: BORRADO DE CICLO ESCOLAR -->
+  <div id="borradoModal" class="modal-overlay">
+    <div class="modal-card" style="max-width:500px">
+      <h3 style="border-bottom-color:#ef4444">🗑️ Borrado de Ciclo Escolar</h3>
+      <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Archiva <strong>todos los
+          estudiantes activos</strong> de los grados seleccionados. Úsalo al cerrar el ciclo escolar para empezar el
+        siguiente con lista limpia.<br><strong>Se recomienda exportar a Excel antes de borrar.</strong></p>
+      <label class="export-select-all">
+        <input type="checkbox" id="chkTodosBorrado" onchange="toggleTodosBorrado(this)">
+        Seleccionar / deseleccionar todos
+      </label>
+      <div id="borradoGradoList" class="export-grade-list"></div>
+      <div class="modal-actions">
+        <button class="btn-danger-confirm" onclick="confirmarBorradoCiclo()">🗑️ Archivar seleccionados</button>
+        <button class="btn-secondary" onclick="cerrarModalBorrado()">Cancelar</button>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- El antiguo Modal de VISTA PREVIA se ha eliminado. Se usará el formulario de lectura. -->
+  <!-- MODAL: BORRADO DE GRADO -->
+  <div id="borradoGradoModal" class="modal-overlay">
+    <div class="modal-card" style="max-width:500px">
+      <h3 style="border-bottom-color:#f97316">🗑️ Borrado de Grado Específico</h3>
+      <p style="font-size:.85rem;color:#64748b;margin-bottom:.8rem;line-height:1.5">⚠️ Esta acción archiva a todos los
+        estudiantes de una sola sección independientemente de si los datos están completos o no. Útil para reestructurar
+        secciones o eliminar grupos de prueba.</p>
+      <div style="margin-bottom: 1rem;">
+        <label style="font-weight:600;font-size:0.9rem;display:block;margin-bottom:5px;">Selecciona el Grado/Sección a
+          eliminar:</label>
+        <select id="gradoBorradoSelect"
+          style="width:100%;padding:10px;border-radius:14px;border:1px solid #cbd5e1;background:#f8fafc;font-size:1rem;"></select>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-danger-confirm" style="background:linear-gradient(95deg,#c2410c,#ea580c);"
+          onclick="confirmarBorradoGradoUnico()">🗑️ Archivar Grado</button>
+        <button class="btn-secondary" onclick="cerrarModalBorradoGrado()">Cancelar</button>
+      </div>
+    </div>
+  </div>
 
-<script>
-  const API_URL = "https://script.google.com/macros/s/AKfycby8G8jKyOvttmLUrP0z9vWQ24oKThQFgbWHqbMiu4T6pkYTIWKI5gwu_6fi8f8779C8/exec";
+  <!-- El antiguo Modal de VISTA PREVIA se ha eliminado. Se usará el formulario de lectura. -->
 
-  // MATRIZ DE PERMISOS
-  const CONFIG_ROLES = {
-    "admin": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
-    "director": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
-    "subdirector": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
-    "secretaria": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
-    "docente": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false },
-    "usuario": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false }
-  };
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbyHuYjUl6JX8XKSxIm2EpQbV40lUqEy83eu0lnqY4VsmkI09scJ3KbdKXGwn5_r1PQ3/exec";
 
-  function getRolConfig() {
-    const r = (sessionStorage.getItem('userRole') || 'usuario').toLowerCase();
-    // Administrativos y directivos tienen permisos completos
-    if (r === 'director' || r === 'subdirector' || r === 'secretarias' || r === 'secretaria' || r === 'admin') {
-      return CONFIG_ROLES['admin'];
+    // MATRIZ DE PERMISOS
+    const CONFIG_ROLES = {
+      "admin": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+      "director": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+      "subdirector": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+      "secretaria": { verForm: true, exportar: true, borrarCiclo: true, borradoGrado: true, editar: true, archivar: true },
+      "docente": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false },
+      "usuario": { verForm: false, exportar: false, borrarCiclo: false, borradoGrado: false, editar: false, archivar: false }
+    };
+
+    function getRolConfig() {
+      const r = (sessionStorage.getItem('userRole') || 'usuario').toLowerCase();
+      // Administrativos y directivos tienen permisos completos
+      if (r === 'director' || r === 'subdirector' || r === 'secretarias' || r === 'secretaria' || r === 'admin') {
+        return CONFIG_ROLES['admin'];
+      }
+      // Docentes y usuarios base
+      if (r === 'docente' || r === 'docentes') {
+        return CONFIG_ROLES['docente'];
+      }
+      // Fallback: tratar a desconocidos con pocos permisos
+      return CONFIG_ROLES['usuario'];
     }
-    // Docentes y usuarios base
-    if (r === 'docente' || r === 'docentes') {
-      return CONFIG_ROLES['docente'];
+
+    let estudiantesGlobal = [];
+    let listaFiltradaActual = [];
+    let editMode = false;
+    let editCodigo = null;
+    let currentFotoUrl = "";
+    let fotoBorrada = false;
+    // Estado acordeón: true=abierto, false=cerrado, default cerrado
+    const gradoStates = {};
+
+    function eliminarFoto() {
+      document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
+      document.getElementById('fotoInput').value = '';
+      currentFotoUrl = '';
+      fotoBorrada = true;
+      document.getElementById('btnEliminarFoto').style.display = 'none';
     }
-    // Fallback: tratar a desconocidos con pocos permisos
-    return CONFIG_ROLES['usuario'];
-  }
 
-  let estudiantesGlobal = [];
-  let listaFiltradaActual = [];
-  let editMode = false;
-  let editCodigo = null;
-  let currentFotoUrl = "";
-  let fotoBorrada = false;
-  // Estado acordeón: true=abierto, false=cerrado, default cerrado
-  const gradoStates = {};
-
-  function eliminarFoto() {
-    document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
-    document.getElementById('fotoInput').value = '';
-    currentFotoUrl = '';
-    fotoBorrada = true;
-    document.getElementById('btnEliminarFoto').style.display = 'none';
-  }
-
-  // ==================== UTILIDADES ====================
-  function showMessage(text, isError = false) {
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = text;
-    t.style.background = isError ? '#dc2626' : '#10b981';
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3200);
-  }
-  function showLoader(v) { document.getElementById('loaderOverlay').style.display = v ? 'flex' : 'none'; }
-
-  function getDriveThumbnail(url) {
-    if (!url || !url.trim()) return '';
-    const m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
-    if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w120`;
-    const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
-    if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w120`;
-    return url;
-  }
-
-  // ==================== API ====================
-  async function callApi(action, data = {}, timeoutMs = 22000) {
-    const ctrl = new AbortController();
-    const tid = setTimeout(() => ctrl.abort(), timeoutMs);
-    try {
-      const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }), signal: ctrl.signal });
-      clearTimeout(tid);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      return await res.json();
-    } catch (err) {
-      clearTimeout(tid);
-      if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado.');
-      throw err;
+    // ==================== UTILIDADES ====================
+    function showMessage(text, isError = false) {
+      const t = document.createElement('div');
+      t.className = 'toast';
+      t.textContent = text;
+      t.style.background = isError ? '#dc2626' : '#10b981';
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 3200);
     }
-  }
+    function showLoader(v) { document.getElementById('loaderOverlay').style.display = v ? 'flex' : 'none'; }
 
-  // ==================== LOGIN ====================
-  window.iniciarSesion = async () => {
-    const u = document.getElementById('loginUser').value.trim();
-    const p = document.getElementById('loginPass').value;
-    if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
-    showLoader(true);
-    try {
-      const res = await callApi('login', { u, p });
-      if (res.success) {
-        sessionStorage.setItem('logged', 'true');
-        sessionStorage.setItem('userRole', res.role || 'usuario');
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
-        aplicarPermisos();
-        cargarListaEstudiantes();
-      } else showMessage(res.msg || "Credenciales incorrectas", true);
-    } catch (err) { showMessage("Error de conexión: " + err.message, true); }
-    showLoader(false);
-  };
+    function getDriveThumbnail(url) {
+      if (!url || !url.trim()) return '';
+      const m = url.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+      if (m) return `https://drive.google.com/thumbnail?id=${m[1]}&sz=w120`;
+      const m2 = url.match(/[?&]id=([a-zA-Z0-9_-]{20,})/);
+      if (m2) return `https://drive.google.com/thumbnail?id=${m2[1]}&sz=w120`;
+      return url;
+    }
 
-  function cerrarSesion() {
-    sessionStorage.clear();
-    document.getElementById('appContainer').style.display = 'none';
-    document.getElementById('loginContainer').style.display = 'flex';
-    estudiantesGlobal = [];
-    resetFormulario();
-  }
+    // ==================== API ====================
+    async function callApi(action, data = {}, timeoutMs = 22000) {
+      const ctrl = new AbortController();
+      const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }), signal: ctrl.signal });
+        clearTimeout(tid);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return await res.json();
+      } catch (err) {
+        clearTimeout(tid);
+        if (err.name === 'AbortError') throw new Error('Tiempo de espera agotado.');
+        throw err;
+      }
+    }
 
-  // ==================== PERMISOS ====================
-  function aplicarPermisos() {
-    const config = getRolConfig();
-    document.getElementById('formCard').style.display = config.verForm ? 'block' : 'none';
-    document.getElementById('dashboardContainer').classList.toggle('docente-view', !config.verForm);
-    document.getElementById('btnExportarGeneral').style.display = config.exportar ? 'inline-block' : 'none';
-    document.getElementById('btnBorradoCiclo').style.display = config.borrarCiclo ? 'inline-block' : 'none';
-    document.getElementById('btnBorradoGrado').style.display = config.borradoGrado ? 'inline-block' : 'none';
-  }
+    // ==================== LOGIN ====================
+    window.iniciarSesion = async () => {
+      const u = document.getElementById('loginUser').value.trim();
+      const p = document.getElementById('loginPass').value;
+      if (!u || !p) return showMessage("Usuario y contraseña requeridos", true);
+      showLoader(true);
+      try {
+        const res = await callApi('login', { u, p });
+        if (res.success) {
+          sessionStorage.setItem('logged', 'true');
+          sessionStorage.setItem('userRole', res.role || 'usuario');
+          document.getElementById('loginContainer').style.display = 'none';
+          document.getElementById('appContainer').style.display = 'block';
+          aplicarPermisos();
+          cargarListaEstudiantes();
+        } else showMessage(res.msg || "Credenciales incorrectas", true);
+      } catch (err) { showMessage("Error de conexión: " + err.message, true); }
+      showLoader(false);
+    };
 
-  // ==================== CARGAR LISTA ====================
-  async function cargarListaEstudiantes() {
-    showLoader(true);
-    try {
-      const res = await callApi('listarTodos');
-      if (res.success && res.data) {
-        window.rawDebugData = res.data[0] || "No hay datos";
-        // Diagnóstico técnico en consola
-        if (res.data.length > 0) console.log("🔍 DIAGNÓSTICO: Formato primer estudiante:", res.data[0]);
+    function cerrarSesion() {
+      sessionStorage.clear();
+      document.getElementById('appContainer').style.display = 'none';
+      document.getElementById('loginContainer').style.display = 'flex';
+      estudiantesGlobal = [];
+      resetFormulario();
+    }
 
-        const extraerValor = (e, propBuscada, indiceFijo) => {
-          if (!e) return "";
-          // 1. Si es un array (respuesta cruda), usar el índice
-          if (Array.isArray(e)) return (e[indiceFijo] !== undefined && e[indiceFijo] !== null) ? e[indiceFijo] : "";
-          
-          // 2. Buscar por coincidencia exacta de propiedad
-          if (e[propBuscada] !== undefined && e[propBuscada] !== null && e[propBuscada] !== "") return e[propBuscada];
+    // ==================== PERMISOS ====================
+    function aplicarPermisos() {
+      const config = getRolConfig();
+      document.getElementById('formCard').style.display = config.verForm ? 'block' : 'none';
+      document.getElementById('dashboardContainer').classList.toggle('docente-view', !config.verForm);
+      document.getElementById('btnExportarGeneral').style.display = config.exportar ? 'inline-block' : 'none';
+      document.getElementById('btnBorradoCiclo').style.display = config.borrarCiclo ? 'inline-block' : 'none';
+      document.getElementById('btnBorradoGrado').style.display = config.borradoGrado ? 'inline-block' : 'none';
+    }
 
-          // 3. Búsqueda exhaustiva (insensible a mayúsculas, espacios y acentos básicos)
-          const target = propBuscada.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-          const keys = Object.keys(e);
-          
-          for (const k of keys) {
-            const normalizedK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-            if (normalizedK === target || normalizedK.includes(target)) {
-              return e[k];
+    // ==================== CARGAR LISTA ====================
+    async function cargarListaEstudiantes() {
+      showLoader(true);
+      try {
+        const res = await callApi('listarTodos');
+        if (res.success && res.data) {
+          window.rawDebugData = res.data[0] || "No hay datos";
+          // Diagnóstico técnico en consola
+          if (res.data.length > 0) console.log("🔍 DIAGNÓSTICO: Formato primer estudiante:", res.data[0]);
+
+          const extraerValor = (e, propBuscada, indiceFijo) => {
+            if (!e) return "";
+            // 1. Si es un array (respuesta cruda), usar el índice
+            if (Array.isArray(e)) return (e[indiceFijo] !== undefined && e[indiceFijo] !== null) ? e[indiceFijo] : "";
+
+            // 2. Buscar por coincidencia exacta de propiedad
+            if (e[propBuscada] !== undefined && e[propBuscada] !== null && e[propBuscada] !== "") return e[propBuscada];
+
+            // 3. Búsqueda exhaustiva (insensible a mayúsculas, espacios y acentos básicos)
+            const target = propBuscada.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+            const keys = Object.keys(e);
+
+            for (const k of keys) {
+              const normalizedK = k.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+              if (normalizedK === target || normalizedK.includes(target)) {
+                return e[k];
+              }
             }
+            return "";
+          };
+
+          estudiantesGlobal = res.data.map(e => ({
+            ...e,
+            nombre: String(extraerValor(e, 'nombre', 1) || extraerValor(e, 'NOMBRES Y APELLIDOS', 1) || ""),
+            codigo: String(extraerValor(e, 'codigo', 2) || extraerValor(e, 'CODIGO PERSONAL', 2) || ""),
+            clave: String(extraerValor(e, 'clave', 33) || extraerValor(e, 'CLAVE', 33) || ""),
+            grado: String(extraerValor(e, 'grado', 11) || extraerValor(e, 'GRADO A CURSAR', 11) || ""),
+            telefono: String(extraerValor(e, 'telefono', 5) || extraerValor(e, 'TELEFONO', 5) || ""),
+            cambio_seccion: String(extraerValor(e, 'cambio_seccion', 34) || extraerValor(e, 'CAMBIO DE SECCION', 34) || "NO"),
+            foto: String(extraerValor(e, 'foto', 32) || extraerValor(e, 'FOTO', 32) || ""),
+            edad: String(extraerValor(e, 'edad', 3) || ""),
+            genero: String(extraerValor(e, 'genero', 7) || ""),
+            etnia: String(extraerValor(e, 'etnia', 12) || "")
+          }));
+          filtrarEstudiantes();
+        } else showMessage("Error al cargar: " + (res.msg || ""), true);
+      } catch (err) { showMessage("Error de red: " + err.message, true); }
+      showLoader(false);
+    }
+
+    // ==================== FILTRAR ====================
+    function filtrarEstudiantes() {
+      const s = document.getElementById('searchInput').value.toLowerCase().trim();
+      listaFiltradaActual = estudiantesGlobal.filter(e =>
+        e.nombre.toLowerCase().includes(s) || e.codigo.toLowerCase().includes(s)
+      );
+      renderizarTabla(listaFiltradaActual);
+    }
+
+    // ==================== RENDERIZAR TABLA (ACORDEÓN) ====================
+    function renderizarTabla(lista) {
+      const tbody = document.getElementById('tablaBody');
+      tbody.innerHTML = '';
+
+      const GRADOS_INVALIDOS = ['', 'grado a cursar', 'sin asignar'];
+
+      // Agrupar por grado (filtrar grados vacíos/placeholder)
+      const grupos = {};
+      lista
+        .filter(e => !GRADOS_INVALIDOS.includes(e.grado.toLowerCase().trim()))
+        .sort((a, b) => {
+          const g = (a.grado || "").localeCompare(b.grado || "");
+          if (g !== 0) return g;
+          const claveA = (a.clave || "").trim();
+          const claveB = (b.clave || "").trim();
+          if (claveA !== '' && claveB !== '') {
+            const cmp = claveA.localeCompare(claveB, undefined, { numeric: true, sensitivity: 'base' });
+            if (cmp !== 0) return cmp;
+          } else if (claveA !== '' && claveB === '') {
+            return -1;
+          } else if (claveA === '' && claveB !== '') {
+            return 1;
           }
-          return "";
-        };
+          return a.nombre.localeCompare(b.nombre);
+        })
+        .forEach(est => {
+          if (!grupos[est.grado]) grupos[est.grado] = [];
+          grupos[est.grado].push(est);
+        });
 
-        estudiantesGlobal = res.data.map(e => ({
-          ...e,
-          nombre:         String(extraerValor(e, 'nombre', 1) || extraerValor(e, 'NOMBRES Y APELLIDOS', 1) || ""),
-          codigo:         String(extraerValor(e, 'codigo', 2) || extraerValor(e, 'CODIGO PERSONAL', 2) || ""),
-          clave:          String(extraerValor(e, 'clave', 33) || extraerValor(e, 'CLAVE', 33) || ""),
-          grado:          String(extraerValor(e, 'grado', 11) || extraerValor(e, 'GRADO A CURSAR', 11) || ""),
-          telefono:       String(extraerValor(e, 'telefono', 5) || extraerValor(e, 'TELEFONO', 5) || ""),
-          cambio_seccion: String(extraerValor(e, 'cambio_seccion', 34) || extraerValor(e, 'CAMBIO DE SECCION', 34) || "NO"),
-          foto:           String(extraerValor(e, 'foto', 32) || extraerValor(e, 'FOTO', 32) || ""),
-          edad:           String(extraerValor(e, 'edad', 3) || ""),
-          genero:         String(extraerValor(e, 'genero', 7) || ""),
-          etnia:          String(extraerValor(e, 'etnia', 12) || "")
-        }));
-        filtrarEstudiantes();
-      } else showMessage("Error al cargar: " + (res.msg || ""), true);
-    } catch (err) { showMessage("Error de red: " + err.message, true); }
-    showLoader(false);
-  }
+      const total = lista.length;
+      document.getElementById('resultsInfo').textContent =
+        `${total} estudiante${total !== 1 ? 's' : ''} activos en ${Object.keys(grupos).length} grado${Object.keys(grupos).length !== 1 ? 's' : ''}`;
 
-  // ==================== FILTRAR ====================
-  function filtrarEstudiantes() {
-    const s = document.getElementById('searchInput').value.toLowerCase().trim();
-    listaFiltradaActual = estudiantesGlobal.filter(e =>
-      e.nombre.toLowerCase().includes(s) || e.codigo.toLowerCase().includes(s)
-    );
-    renderizarTabla(listaFiltradaActual);
-  }
+      Object.entries(grupos).forEach(([grado, students]) => {
+        const isOpen = gradoStates[grado] === true; // default CERRADO
 
-  // ==================== RENDERIZAR TABLA (ACORDEÓN) ====================
-  function renderizarTabla(lista) {
-    const tbody = document.getElementById('tablaBody');
-    tbody.innerHTML = '';
+        // Fila cabecera del grado (clickable)
+        const headerRow = tbody.insertRow();
+        headerRow.className = 'grado-header-row';
+        const hCell = headerRow.insertCell(0);
+        hCell.colSpan = 7;
+        hCell.innerHTML = `<span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 📚 Grado y Sección: ${grado} <span class="grado-count">${students.length} alumnos</span>`;
+        headerRow.onclick = () => toggleGrado(grado);
 
-    const GRADOS_INVALIDOS = ['', 'grado a cursar', 'sin asignar'];
+        // Filas de estudiantes
+        students.forEach(est => {
+          const row = tbody.insertRow();
+          row.classList.add('student-row', `gr-${grado.replace(/\//g, '_')}`);
+          row.style.display = isOpen ? '' : 'none';
 
-    // Agrupar por grado (filtrar grados vacíos/placeholder)
-    const grupos = {};
-    lista
-      .filter(e => !GRADOS_INVALIDOS.includes(e.grado.toLowerCase().trim()))
-      .sort((a, b) => {
-        const g = (a.grado || "").localeCompare(b.grado || "");
-        if (g !== 0) return g;
-        const claveA = (a.clave || "").trim();
-        const claveB = (b.clave || "").trim();
-        if (claveA !== '' && claveB !== '') {
-          const cmp = claveA.localeCompare(claveB, undefined, { numeric: true, sensitivity: 'base' });
-          if (cmp !== 0) return cmp;
-        } else if (claveA !== '' && claveB === '') {
-          return -1;
-        } else if (claveA === '' && claveB !== '') {
-          return 1;
-        }
-        return a.nombre.localeCompare(b.nombre);
-      })
-      .forEach(est => {
-        if (!grupos[est.grado]) grupos[est.grado] = [];
-        grupos[est.grado].push(est);
-      });
+          // Foto
+          const tdFoto = row.insertCell(0);
+          const img = document.createElement('img');
+          const thumb = getDriveThumbnail(est.foto);
+          img.src = thumb || 'https://placehold.co/40x40?text=👤';
+          img.className = 'student-img';
+          img.alt = est.nombre;
+          img.onerror = function () { this.onerror = null; this.src = 'https://placehold.co/40x40?text=👤'; };
+          tdFoto.appendChild(img);
 
-    const total = lista.length;
-    document.getElementById('resultsInfo').textContent =
-      `${total} estudiante${total !== 1 ? 's' : ''} activos en ${Object.keys(grupos).length} grado${Object.keys(grupos).length !== 1 ? 's' : ''}`;
+          row.insertCell(1).textContent = est.clave || '—';
 
-    Object.entries(grupos).forEach(([grado, students]) => {
-      const isOpen = gradoStates[grado] === true; // default CERRADO
+          const tdNombre = row.insertCell(2);
+          tdNombre.textContent = est.nombre || '—';
+          tdNombre.style.fontWeight = '600';
+          tdNombre.style.cursor = 'pointer';
+          tdNombre.title = "Doble clic (Windows) o mantén presionado (Android) para vista previa";
 
-      // Fila cabecera del grado (clickable)
-      const headerRow = tbody.insertRow();
-      headerRow.className = 'grado-header-row';
-      const hCell = headerRow.insertCell(0);
-      hCell.colSpan = 7;
-      hCell.innerHTML = `<span class="grado-arrow" id="arr-${grado}">${isOpen ? '▼' : '▶'}</span> 📚 Grado y Sección: ${grado} <span class="grado-count">${students.length} alumnos</span>`;
-      headerRow.onclick = () => toggleGrado(grado);
+          // --- INTERACCIONES: DOBLE CLIC Y LONG PRESS ---
+          tdNombre.ondblclick = () => vistaPrevia(codigoSafe);
 
-      // Filas de estudiantes
-      students.forEach(est => {
-        const row = tbody.insertRow();
-        row.classList.add('student-row', `gr-${grado.replace(/\//g, '_')}`);
-        row.style.display = isOpen ? '' : 'none';
+          let touchTimer;
+          tdNombre.ontouchstart = () => {
+            touchTimer = setTimeout(() => {
+              vistaPrevia(codigoSafe);
+              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+            }, 700);
+          };
+          tdNombre.ontouchend = () => clearTimeout(touchTimer);
+          tdNombre.ontouchmove = () => clearTimeout(touchTimer);
+          // ----------------------------------------------
 
-        // Foto
-        const tdFoto = row.insertCell(0);
-        const img = document.createElement('img');
-        const thumb = getDriveThumbnail(est.foto);
-        img.src = thumb || 'https://placehold.co/40x40?text=👤';
-        img.className = 'student-img';
-        img.alt = est.nombre;
-        img.onerror = function() { this.onerror = null; this.src = 'https://placehold.co/40x40?text=👤'; };
-        tdFoto.appendChild(img);
+          const tdCodigo = row.insertCell(3).textContent = est.codigo || '—';
+          const tdTel = row.insertCell(4);
+          tdTel.textContent = est.telefono || '—';
+          tdTel.className = 'col-tel';
 
-        row.insertCell(1).textContent = est.clave || '—';
-        
-        const tdNombre = row.insertCell(2);
-        tdNombre.textContent = est.nombre || '—';
-        tdNombre.style.fontWeight = '600';
-        tdNombre.style.cursor = 'pointer';
-        tdNombre.title = "Doble clic (Windows) o mantén presionado (Android) para vista previa";
-        
-        // --- INTERACCIONES: DOBLE CLIC Y LONG PRESS ---
-        tdNombre.ondblclick = () => vistaPrevia(codigoSafe);
-        
-        let touchTimer;
-        tdNombre.ontouchstart = () => {
-          touchTimer = setTimeout(() => {
-            vistaPrevia(codigoSafe);
-            if(window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-          }, 700);
-        };
-        tdNombre.ontouchend = () => clearTimeout(touchTimer);
-        tdNombre.ontouchmove = () => clearTimeout(touchTimer);
-        // ----------------------------------------------
+          const tdCS = row.insertCell(5);
+          const esSI = est.cambio_seccion.toUpperCase() === 'SI';
+          tdCS.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀' : '—'}</span>`;
 
-        const tdCodigo = row.insertCell(3).textContent = est.codigo || '—';
-        const tdTel = row.insertCell(4);
-        tdTel.textContent = est.telefono || '—';
-        tdTel.className = 'col-tel';
+          const tdAcc = row.insertCell(6);
+          const codigoSafe = est.codigo.replace(/'/g, "\\'");
+          const config = getRolConfig();
 
-        const tdCS = row.insertCell(5);
-        const esSI = est.cambio_seccion.toUpperCase() === 'SI';
-        tdCS.innerHTML = `<span class="badge-cambio ${esSI ? 'badge-si' : 'badge-no'}">${esSI ? '🔀' : '—'}</span>`;
-
-        const tdAcc = row.insertCell(6);
-        const codigoSafe = est.codigo.replace(/'/g, "\\'");
-        const config = getRolConfig();
-        
-        let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
+          let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
                            <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>`;
-                           
-        if(config.editar) {
-          actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
-        }
-        if(config.archivar) {
-          actionsHtml += `<button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>`;
-        }
 
-        tdAcc.innerHTML = `
+          if (config.editar) {
+            actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
+          }
+          if (config.archivar) {
+            actionsHtml += `<button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>`;
+          }
+
+          tdAcc.innerHTML = `
           <div class="action-dropdown">
             <button class="drop-btn">⋮</button>
             <div class="action-content">
               ${actionsHtml}
             </div>
           </div>`;
+        });
       });
-    });
-  }
-
-  function toggleGrado(grado) {
-    gradoStates[grado] = !gradoStates[grado];
-    const rows = document.querySelectorAll(`.gr-${grado.replace(/\//g, '_')}`);
-    rows.forEach(r => r.style.display = gradoStates[grado] ? '' : 'none');
-    const arr = document.getElementById(`arr-${grado}`);
-    if (arr) arr.textContent = gradoStates[grado] ? '▼' : '▶';
-  }
-
-  // ==================== VISTA PREVIA (MODO LECTURA) ====================
-  function habilitarLecturaForm(readonly) {
-    const elementos = document.querySelectorAll('#studentForm input, #studentForm select');
-    elementos.forEach(el => el.disabled = readonly);
-    
-    // Opcionalmente deshabilitar el área visual de la foto
-    const avatarArea = document.querySelector('.avatar-upload-area');
-    if (avatarArea) {
-      avatarArea.style.pointerEvents = readonly ? 'none' : 'auto';
-      const badge = avatarArea.querySelector('.upload-badge');
-      if (badge) badge.style.display = readonly ? 'none' : 'flex';
     }
-  }
 
-  function vistaPrevia(codigo) {
-    // Forzar visualización de formulario, incluso si es docente
-    document.getElementById('formCard').style.display = 'block';
-    document.getElementById('dashboardContainer').classList.remove('docente-view');
-    
-    // Cargar datos a través de la misma rutina de edición
-    showLoader(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    // Usar datos locales si están en cache por rapidez
-    const dLocal = estudiantesGlobal.find(e => e.codigo === codigo);
-    
-    callApi('buscar', { codigo }).then(res => {
-      if (res.success && res.data) {
-        const d = res.data;
-        const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
-        sv('nombre', d[1]); sv('codigo', d[2]); sv('edad', d[3]);
-        try {
-          if (d[4]) {
-            const fd = new Date(d[4]);
-            document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
-          }
-        } catch (_) {}
-        sv('telefono', d[5]); sv('emergencia', d[6]);
-        sv('genero', d[7] || 'Masculino'); sv('enfermedad', d[8] || 'NO'); sv('detalle_enf', d[9]);
-        sv('zurdo', d[10] || 'Diestro'); sv('grado', d[11] || '1A');
-        sv('etnia', d[12]); sv('direccion', d[13]); sv('aldea', d[14]);
-        sv('padre', d[15]); sv('dpi_padre', d[16]); sv('tel_padre', d[17]);
-        sv('madre', d[18]); sv('dpi_madre', d[19]); sv('tel_madre', d[20]);
-        sv('enc_padre', d[21] || 'NO'); sv('enc_madre', d[22] || 'NO');
-        sv('encargado', d[23]); sv('dpi_enc', d[24]); sv('tel_enc', d[25]);
-        sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
-        sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
-        currentFotoUrl = d[32] || "";
-        
-        const preview = document.getElementById('previewImg');
-        const thumb = getDriveThumbnail(currentFotoUrl);
-        preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
-        document.getElementById('btnEliminarFoto').style.display = 'none';
-        
-        // Configurar estado de Solo Lectura
-        editCodigo = codigo;
-        document.getElementById('formTitle').textContent = '👁️ Detalles del estudiante';
-        
-        // Bloquear todos los campos
-        habilitarLecturaForm(true);
-        
-        // Ajustar botones
-        document.getElementById('btnGuardar').style.display = 'none';
-        document.getElementById('btnLimpiar').style.display = 'none';
-        document.getElementById('btnCancelar').style.display = 'none';
-        
-        document.getElementById('btnCerrarVista').style.display = 'inline-flex';
-        document.getElementById('btnImprimir').style.display = 'inline-flex';
-        
-      } else showMessage("Estudiante no encontrado", true);
-      showLoader(false);
-    }).catch(err => {
-      showMessage("Error: " + err.message, true);
-      showLoader(false);
-    });
-  }
-  
-  function cerrarVistaPrevia() {
-    resetFormulario();
-    aplicarPermisos(); // Restaura la UI original (ej. ocultará el form si eres docente)
-  }
+    function toggleGrado(grado) {
+      gradoStates[grado] = !gradoStates[grado];
+      const rows = document.querySelectorAll(`.gr-${grado.replace(/\//g, '_')}`);
+      rows.forEach(r => r.style.display = gradoStates[grado] ? '' : 'none');
+      const arr = document.getElementById(`arr-${grado}`);
+      if (arr) arr.textContent = gradoStates[grado] ? '▼' : '▶';
+    }
 
-  // ==================== NUEVO GRADO / SECCIÓN ====================
-  function agregarGradoSección() {
-    const nuevo = prompt("Escribe el nombre del nuevo Grado y Sección:\n(Ejemplo: 4A, 1X, Bachillerato A)");
-    if (!nuevo || !nuevo.trim()) return;
-    
-    const val = nuevo.trim().toUpperCase();
-    const select = document.getElementById('grado');
-    
-    // Verificar si ya existe
-    const existe = Array.from(select.options).some(opt => opt.value === val);
-    if (existe) {
+    // ==================== VISTA PREVIA (MODO LECTURA) ====================
+    function habilitarLecturaForm(readonly) {
+      const elementos = document.querySelectorAll('#studentForm input, #studentForm select');
+      elementos.forEach(el => el.disabled = readonly);
+
+      // Opcionalmente deshabilitar el área visual de la foto
+      const avatarArea = document.querySelector('.avatar-upload-area');
+      if (avatarArea) {
+        avatarArea.style.pointerEvents = readonly ? 'none' : 'auto';
+        const badge = avatarArea.querySelector('.upload-badge');
+        if (badge) badge.style.display = readonly ? 'none' : 'flex';
+      }
+    }
+
+    function vistaPrevia(codigo) {
+      // Forzar visualización de formulario, incluso si es docente
+      document.getElementById('formCard').style.display = 'block';
+      document.getElementById('dashboardContainer').classList.remove('docente-view');
+
+      // Cargar datos a través de la misma rutina de edición
+      showLoader(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Usar datos locales si están en cache por rapidez
+      const dLocal = estudiantesGlobal.find(e => e.codigo === codigo);
+
+      callApi('buscar', { codigo }).then(res => {
+        if (res.success && res.data) {
+          const d = res.data;
+          const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
+          sv('nombre', d[1]); sv('codigo', d[2]); sv('edad', d[3]);
+          try {
+            if (d[4]) {
+              const fd = new Date(d[4]);
+              document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
+            }
+          } catch (_) { }
+          sv('telefono', d[5]); sv('emergencia', d[6]);
+          sv('genero', d[7] || 'Masculino'); sv('enfermedad', d[8] || 'NO'); sv('detalle_enf', d[9]);
+          sv('zurdo', d[10] || 'Diestro'); sv('grado', d[11] || '1A');
+          sv('etnia', d[12]); sv('direccion', d[13]); sv('aldea', d[14]);
+          sv('padre', d[15]); sv('dpi_padre', d[16]); sv('tel_padre', d[17]);
+          sv('madre', d[18]); sv('dpi_madre', d[19]); sv('tel_madre', d[20]);
+          sv('enc_padre', d[21] || 'NO'); sv('enc_madre', d[22] || 'NO');
+          sv('encargado', d[23]); sv('dpi_enc', d[24]); sv('tel_enc', d[25]);
+          sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
+          sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
+          currentFotoUrl = d[32] || "";
+
+          const preview = document.getElementById('previewImg');
+          const thumb = getDriveThumbnail(currentFotoUrl);
+          preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
+          document.getElementById('btnEliminarFoto').style.display = 'none';
+
+          // Configurar estado de Solo Lectura
+          editCodigo = codigo;
+          document.getElementById('formTitle').textContent = '👁️ Detalles del estudiante';
+
+          // Bloquear todos los campos
+          habilitarLecturaForm(true);
+
+          // Ajustar botones
+          document.getElementById('btnGuardar').style.display = 'none';
+          document.getElementById('btnLimpiar').style.display = 'none';
+          document.getElementById('btnCancelar').style.display = 'none';
+
+          document.getElementById('btnCerrarVista').style.display = 'inline-flex';
+          document.getElementById('btnImprimir').style.display = 'inline-flex';
+
+        } else showMessage("Estudiante no encontrado", true);
+        showLoader(false);
+      }).catch(err => {
+        showMessage("Error: " + err.message, true);
+        showLoader(false);
+      });
+    }
+
+    function cerrarVistaPrevia() {
+      resetFormulario();
+      aplicarPermisos(); // Restaura la UI original (ej. ocultará el form si eres docente)
+    }
+
+    // ==================== NUEVO GRADO / SECCIÓN ====================
+    function agregarGradoSección() {
+      const nuevo = prompt("Escribe el nombre del nuevo Grado y Sección:\n(Ejemplo: 4A, 1X, Bachillerato A)");
+      if (!nuevo || !nuevo.trim()) return;
+
+      const val = nuevo.trim().toUpperCase();
+      const select = document.getElementById('grado');
+
+      // Verificar si ya existe
+      const existe = Array.from(select.options).some(opt => opt.value === val);
+      if (existe) {
+        select.value = val;
+        return showMessage("Ese grado ya existe en la lista");
+      }
+
+      // Agregar opción
+      const opt = document.createElement('option');
+      opt.value = val;
+      opt.textContent = val;
+      select.appendChild(opt);
+
+      // Seleccionarlo de una vez
       select.value = val;
-      return showMessage("Ese grado ya existe en la lista");
-    }
-    
-    // Agregar opción
-    const opt = document.createElement('option');
-    opt.value = val;
-    opt.textContent = val;
-    select.appendChild(opt);
-    
-    // Seleccionarlo de una vez
-    select.value = val;
-    
-    // Asegurarse que el formulario sea visible para empezar a trabajar
-    document.getElementById('formCard').style.display = 'block';
-    document.getElementById('dashboardContainer').classList.remove('docente-view');
-    
-    showMessage("✅ Grado " + val + " agregado al listado");
-  }
 
-  // ==================== IMPRIMIR FICHA ====================
-  async function imprimirFichaEstudiante(codigo) {
-    showLoader(true);
-    let d;
-    try {
-      const res = await callApi('buscar', { codigo });
-      if (!res.success || !res.data) { showMessage('No se encontraron datos', true); showLoader(false); return; }
-      d = res.data;
-    } catch (err) { showMessage('Error: ' + err.message, true); showLoader(false); return; }
-    showLoader(false);
-    const nombre  = d[1] || '—';
-    const fotoUrl = getDriveThumbnail(d[32] || '');
-    const campo = (v) => `<div class="pf-val">${v || '—'}</div>`;
-    const bloque = (label, val) => `<div class="pf-item"><div class="pf-label">${label}</div>${campo(val)}</div>`;
-    const htmlContent = `<!DOCTYPE html><html lang="es"><head>
+      // Asegurarse que el formulario sea visible para empezar a trabajar
+      document.getElementById('formCard').style.display = 'block';
+      document.getElementById('dashboardContainer').classList.remove('docente-view');
+
+      showMessage("✅ Grado " + val + " agregado al listado");
+    }
+
+    // ==================== IMPRIMIR FICHA ====================
+    async function imprimirFichaEstudiante(codigo) {
+      showLoader(true);
+      let d;
+      try {
+        const res = await callApi('buscar', { codigo });
+        if (!res.success || !res.data) { showMessage('No se encontraron datos', true); showLoader(false); return; }
+        d = res.data;
+      } catch (err) { showMessage('Error: ' + err.message, true); showLoader(false); return; }
+      showLoader(false);
+      const nombre = d[1] || '—';
+      const fotoUrl = getDriveThumbnail(d[32] || '');
+      const campo = (v) => `<div class="pf-val">${v || '—'}</div>`;
+      const bloque = (label, val) => `<div class="pf-item"><div class="pf-label">${label}</div>${campo(val)}</div>`;
+      const htmlContent = `<!DOCTYPE html><html lang="es"><head>
       <meta charset="UTF-8"><title>Ficha: ${nombre}</title>
       <style>
         *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',system-ui,sans-serif}
@@ -914,480 +1843,481 @@
       <div class="pf-footer">Ficha generada el ${new Date().toLocaleDateString('es-GT')} &nbsp;|&nbsp; INEB San Raymundo &nbsp;|&nbsp; Sistema de Control Estudiantil</div>
       <script>window.onload=function(){window.print()}<\/script>
     </body></html>`;
-    const win = window.open('', '_blank', 'width=900,height=700');
-    if (win) { win.document.write(htmlContent); win.document.close(); }
-    else showMessage('Permite ventanas emergentes para imprimir', true);
-  }
+      const win = window.open('', '_blank', 'width=900,height=700');
+      if (win) { win.document.write(htmlContent); win.document.close(); }
+      else showMessage('Permite ventanas emergentes para imprimir', true);
+    }
 
-  // Imprimir estudiante actualmente en edición
-  function imprimirFichaActual() {
-    if (editCodigo) imprimirFichaEstudiante(editCodigo);
-    else showMessage('Primero carga un estudiante para editar', true);
-  }
+    // Imprimir estudiante actualmente en edición
+    function imprimirFichaActual() {
+      if (editCodigo) imprimirFichaEstudiante(editCodigo);
+      else showMessage('Primero carga un estudiante para editar', true);
+    }
 
-  // ==================== FOTO COMPRIMIR ====================
-  function comprimirFoto(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onerror = reject;
-      reader.onload = e => {
-        const imgEl = new Image();
-        imgEl.onerror = reject;
-        imgEl.onload = () => {
-          const canvas = document.createElement('canvas');
-          let w = imgEl.width, h = imgEl.height;
-          const MAX = 600;
-          if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
-          canvas.width = w; canvas.height = h;
-          canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
-          resolve(canvas.toDataURL('image/jpeg', 0.62));
+    // ==================== FOTO COMPRIMIR ====================
+    function comprimirFoto(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onerror = reject;
+        reader.onload = e => {
+          const imgEl = new Image();
+          imgEl.onerror = reject;
+          imgEl.onload = () => {
+            const canvas = document.createElement('canvas');
+            let w = imgEl.width, h = imgEl.height;
+            const MAX = 600;
+            if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(imgEl, 0, 0, w, h);
+            resolve(canvas.toDataURL('image/jpeg', 0.62));
+          };
+          imgEl.src = e.target.result;
         };
-        imgEl.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function subirFotoSiNecesaria() {
+      const fi = document.getElementById('fotoInput');
+      if (!fi.files.length) return fotoBorrada ? "" : currentFotoUrl;
+      const file = fi.files[0];
+      if (file.size > 3 * 1024 * 1024) throw new Error("La foto no debe superar 3 MB");
+      const nombre = document.getElementById('nombre').value.trim();
+      const grado = document.getElementById('grado').value;
+      if (!nombre) throw new Error("Escribe el nombre antes de subir la foto");
+      const b64Full = await comprimirFoto(file);
+      const b64 = b64Full.split(',')[1];
+      const res = await callApi('subirFoto', { base64: b64, nombre: nombre.replace(/[\\/:*?"<>|]/g, '_'), grado }, 35000);
+      if (!res.success) throw new Error(res.msg || "Error al subir foto");
+      return res.url;
+    }
+
+    // ==================== GUARDAR ====================
+    async function guardarEstudiante() {
+      const nombre = document.getElementById('nombre').value.trim();
+      const codigo = document.getElementById('codigo').value.trim();
+      const grado = document.getElementById('grado').value;
+      if (!nombre || !codigo || !grado) return showMessage("Nombre, código y grado son obligatorios", true);
+      showLoader(true);
+      try {
+        const fotoUrl = await subirFotoSiNecesaria();
+        const data = {
+          nombre, codigo, grado,
+          clave: document.getElementById('clave').value.trim(),
+          cambio_seccion: document.getElementById('cambio_seccion').value,
+          edad: document.getElementById('edad').value,
+          fecha: document.getElementById('fecha').value,
+          telefono: document.getElementById('telefono').value,
+          emergencia: document.getElementById('emergencia').value,
+          genero: document.getElementById('genero').value,
+          enfermedad: document.getElementById('enfermedad').value,
+          detalle_enf: document.getElementById('detalle_enf').value,
+          zurdo: document.getElementById('zurdo').value,
+          etnia: document.getElementById('etnia').value,
+          direccion: document.getElementById('direccion').value,
+          aldea: document.getElementById('aldea').value,
+          padre: document.getElementById('padre').value,
+          dpi_padre: document.getElementById('dpi_padre').value,
+          tel_padre: document.getElementById('tel_padre').value,
+          madre: document.getElementById('madre').value,
+          dpi_madre: document.getElementById('dpi_madre').value,
+          tel_madre: document.getElementById('tel_madre').value,
+          enc_padre: document.getElementById('enc_padre').value,
+          enc_madre: document.getElementById('enc_madre').value,
+          encargado: document.getElementById('encargado').value,
+          dpi_enc: document.getElementById('dpi_enc').value,
+          tel_enc: document.getElementById('tel_enc').value,
+          dir_enc: document.getElementById('dir_enc').value,
+          aldea_enc: document.getElementById('aldea_enc').value,
+          relacion: document.getElementById('relacion').value,
+          tel_extra: document.getElementById('tel_extra').value,
+          foto: fotoUrl
+        };
+        if (editMode) data.codigo = editCodigo;
+        const res = await callApi(editMode ? 'actualizar' : 'guardar', data);
+        if (res.success) {
+          showMessage(editMode ? "Actualizado ✅" : "Estudiante guardado ✅");
+          resetFormulario();
+          cargarListaEstudiantes();
+        } else showMessage(res.msg || "Error al guardar", true);
+      } catch (err) { showMessage(err.message, true); }
+      showLoader(false);
+    }
+
+    // ==================== EDITAR ====================
+    async function editarEstudiante(codigo) {
+      showLoader(true);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      try {
+        const res = await callApi('buscar', { codigo });
+        if (res.success && res.data) {
+          const d = res.data;
+          const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
+          sv('nombre', d[1]); sv('codigo', d[2]); sv('edad', d[3]);
+          try {
+            if (d[4]) {
+              const fd = new Date(d[4]);
+              document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
+            }
+          } catch (_) { }
+          sv('telefono', d[5]); sv('emergencia', d[6]);
+          sv('genero', d[7] || 'Masculino'); sv('enfermedad', d[8] || 'NO'); sv('detalle_enf', d[9]);
+          sv('zurdo', d[10] || 'Diestro'); sv('grado', d[11] || '1A');
+          sv('etnia', d[12]); sv('direccion', d[13]); sv('aldea', d[14]);
+          sv('padre', d[15]); sv('dpi_padre', d[16]); sv('tel_padre', d[17]);
+          sv('madre', d[18]); sv('dpi_madre', d[19]); sv('tel_madre', d[20]);
+          sv('enc_padre', d[21] || 'NO'); sv('enc_madre', d[22] || 'NO');
+          sv('encargado', d[23]); sv('dpi_enc', d[24]); sv('tel_enc', d[25]);
+          sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
+          sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
+          currentFotoUrl = d[32] || "";
+          fotoBorrada = false;
+          const preview = document.getElementById('previewImg');
+          const thumb = getDriveThumbnail(currentFotoUrl);
+          preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
+          document.getElementById('btnEliminarFoto').style.display = currentFotoUrl ? 'inline-block' : 'none';
+          editMode = true; editCodigo = codigo;
+          document.getElementById('codigo').disabled = true;
+          document.getElementById('formTitle').textContent = '✏️ Editando estudiante';
+          document.getElementById('btnGuardar').textContent = '🔄 Actualizar';
+          document.getElementById('btnImprimir').style.display = 'inline-flex';
+        } else showMessage("Estudiante no encontrado", true);
+      } catch (err) { showMessage("Error: " + err.message, true); }
+      showLoader(false);
+    }
+
+    // ==================== ARCHIVAR ====================
+    async function archivarEstudiante(codigo) {
+      if (!confirm(`¿Archivar al estudiante "${codigo}"?\nNo aparecerá en la lista activa.`)) return;
+      showLoader(true);
+      try {
+        const res = await callApi('borrar', { codigo });
+        if (res.success) { showMessage("Estudiante archivado"); cargarListaEstudiantes(); }
+        else showMessage(res.msg || "Error al archivar", true);
+      } catch (err) { showMessage("Error: " + err.message, true); }
+      showLoader(false);
+    }
+
+    // ==================== RESET / CANCELAR ====================
+    function resetFormulario() {
+      document.getElementById('studentForm').reset();
+      document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
+      document.getElementById('fotoInput').value = '';
+      currentFotoUrl = '';
+      fotoBorrada = false;
+      document.getElementById('btnEliminarFoto').style.display = 'none';
+      editMode = false;
+      editCodigo = null;
+
+      habilitarLecturaForm(false);
+
+      document.getElementById('codigo').disabled = false;
+      document.getElementById('formTitle').textContent = '➕ Nuevo estudiante';
+
+      const config = getRolConfig();
+      document.getElementById('btnGuardar').textContent = '💾 Guardar estudiante';
+      document.getElementById('btnGuardar').style.display = 'inline-flex';
+      document.getElementById('btnLimpiar').style.display = 'inline-flex';
+      document.getElementById('btnCancelar').style.display = 'inline-flex';
+
+      document.getElementById('btnCerrarVista').style.display = 'none';
+      document.getElementById('btnImprimir').style.display = 'none';
+    }
+    function cancelarEdicion() {
+      if (editMode && !confirm("¿Cancelar la edición? Los cambios no se guardarán.")) return;
+      resetFormulario();
+      showMessage("Acción cancelada");
+    }
+
+    // ==================== AUTO-FILL ENCARGADO ====================
+    document.getElementById('enc_padre').addEventListener('change', function () {
+      if (this.value === 'SI') {
+        document.getElementById('enc_madre').value = 'NO';
+        document.getElementById('encargado').value = document.getElementById('padre').value;
+        document.getElementById('dpi_enc').value = document.getElementById('dpi_padre').value;
+        document.getElementById('tel_enc').value = document.getElementById('tel_padre').value;
+        document.getElementById('relacion').value = 'Padre';
+      }
     });
-  }
+    document.getElementById('enc_madre').addEventListener('change', function () {
+      if (this.value === 'SI') {
+        document.getElementById('enc_padre').value = 'NO';
+        document.getElementById('encargado').value = document.getElementById('madre').value;
+        document.getElementById('dpi_enc').value = document.getElementById('dpi_madre').value;
+        document.getElementById('tel_enc').value = document.getElementById('tel_madre').value;
+        document.getElementById('relacion').value = 'Madre';
+      }
+    });
 
-  async function subirFotoSiNecesaria() {
-    const fi = document.getElementById('fotoInput');
-    if (!fi.files.length) return fotoBorrada ? "" : currentFotoUrl;
-    const file = fi.files[0];
-    if (file.size > 3 * 1024 * 1024) throw new Error("La foto no debe superar 3 MB");
-    const nombre = document.getElementById('nombre').value.trim();
-    const grado  = document.getElementById('grado').value;
-    if (!nombre) throw new Error("Escribe el nombre antes de subir la foto");
-    const b64Full = await comprimirFoto(file);
-    const b64 = b64Full.split(',')[1];
-    const res = await callApi('subirFoto', { base64: b64, nombre: nombre.replace(/[\\/:*?"<>|]/g, '_'), grado }, 35000);
-    if (!res.success) throw new Error(res.msg || "Error al subir foto");
-    return res.url;
-  }
-
-  // ==================== GUARDAR ====================
-  async function guardarEstudiante() {
-    const nombre = document.getElementById('nombre').value.trim();
-    const codigo = document.getElementById('codigo').value.trim();
-    const grado  = document.getElementById('grado').value;
-    if (!nombre || !codigo || !grado) return showMessage("Nombre, código y grado son obligatorios", true);
-    showLoader(true);
-    try {
-      const fotoUrl = await subirFotoSiNecesaria();
-      const data = {
-        nombre, codigo, grado,
-        clave:          document.getElementById('clave').value.trim(),
-        cambio_seccion: document.getElementById('cambio_seccion').value,
-        edad:           document.getElementById('edad').value,
-        fecha:          document.getElementById('fecha').value,
-        telefono:       document.getElementById('telefono').value,
-        emergencia:     document.getElementById('emergencia').value,
-        genero:         document.getElementById('genero').value,
-        enfermedad:     document.getElementById('enfermedad').value,
-        detalle_enf:    document.getElementById('detalle_enf').value,
-        zurdo:          document.getElementById('zurdo').value,
-        etnia:          document.getElementById('etnia').value,
-        direccion:      document.getElementById('direccion').value,
-        aldea:          document.getElementById('aldea').value,
-        padre:          document.getElementById('padre').value,
-        dpi_padre:      document.getElementById('dpi_padre').value,
-        tel_padre:      document.getElementById('tel_padre').value,
-        madre:          document.getElementById('madre').value,
-        dpi_madre:      document.getElementById('dpi_madre').value,
-        tel_madre:      document.getElementById('tel_madre').value,
-        enc_padre:      document.getElementById('enc_padre').value,
-        enc_madre:      document.getElementById('enc_madre').value,
-        encargado:      document.getElementById('encargado').value,
-        dpi_enc:        document.getElementById('dpi_enc').value,
-        tel_enc:        document.getElementById('tel_enc').value,
-        dir_enc:        document.getElementById('dir_enc').value,
-        aldea_enc:      document.getElementById('aldea_enc').value,
-        relacion:       document.getElementById('relacion').value,
-        tel_extra:      document.getElementById('tel_extra').value,
-        foto:           fotoUrl
-      };
-      if (editMode) data.codigo = editCodigo;
-      const res = await callApi(editMode ? 'actualizar' : 'guardar', data);
-      if (res.success) {
-        showMessage(editMode ? "Actualizado ✅" : "Estudiante guardado ✅");
-        resetFormulario();
-        cargarListaEstudiantes();
-      } else showMessage(res.msg || "Error al guardar", true);
-    } catch (err) { showMessage(err.message, true); }
-    showLoader(false);
-  }
-
-  // ==================== EDITAR ====================
-  async function editarEstudiante(codigo) {
-    showLoader(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    try {
-      const res = await callApi('buscar', { codigo });
-      if (res.success && res.data) {
-        const d = res.data;
-        const sv = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ""; };
-        sv('nombre', d[1]); sv('codigo', d[2]); sv('edad', d[3]);
-        try {
-          if (d[4]) {
-            const fd = new Date(d[4]);
-            document.getElementById('fecha').value = isNaN(fd.getTime()) ? "" : fd.toISOString().split('T')[0];
-          }
-        } catch (_) {}
-        sv('telefono', d[5]); sv('emergencia', d[6]);
-        sv('genero', d[7] || 'Masculino'); sv('enfermedad', d[8] || 'NO'); sv('detalle_enf', d[9]);
-        sv('zurdo', d[10] || 'Diestro'); sv('grado', d[11] || '1A');
-        sv('etnia', d[12]); sv('direccion', d[13]); sv('aldea', d[14]);
-        sv('padre', d[15]); sv('dpi_padre', d[16]); sv('tel_padre', d[17]);
-        sv('madre', d[18]); sv('dpi_madre', d[19]); sv('tel_madre', d[20]);
-        sv('enc_padre', d[21] || 'NO'); sv('enc_madre', d[22] || 'NO');
-        sv('encargado', d[23]); sv('dpi_enc', d[24]); sv('tel_enc', d[25]);
-        sv('dir_enc', d[26]); sv('aldea_enc', d[27]); sv('relacion', d[28]); sv('tel_extra', d[29]);
-        sv('clave', d[33]); sv('cambio_seccion', d[34] || 'NO');
-        currentFotoUrl = d[32] || "";
-        fotoBorrada = false;
-        const preview = document.getElementById('previewImg');
-        const thumb = getDriveThumbnail(currentFotoUrl);
-        preview.src = thumb || 'https://placehold.co/100x100?text=FOTO';
-        document.getElementById('btnEliminarFoto').style.display = currentFotoUrl ? 'inline-block' : 'none';
-        editMode = true; editCodigo = codigo;
-        document.getElementById('codigo').disabled = true;
-        document.getElementById('formTitle').textContent = '✏️ Editando estudiante';
-        document.getElementById('btnGuardar').textContent = '🔄 Actualizar';
-        document.getElementById('btnImprimir').style.display = 'inline-flex';
-      } else showMessage("Estudiante no encontrado", true);
-    } catch (err) { showMessage("Error: " + err.message, true); }
-    showLoader(false);
-  }
-
-  // ==================== ARCHIVAR ====================
-  async function archivarEstudiante(codigo) {
-    if (!confirm(`¿Archivar al estudiante "${codigo}"?\nNo aparecerá en la lista activa.`)) return;
-    showLoader(true);
-    try {
-      const res = await callApi('borrar', { codigo });
-      if (res.success) { showMessage("Estudiante archivado"); cargarListaEstudiantes(); }
-      else showMessage(res.msg || "Error al archivar", true);
-    } catch (err) { showMessage("Error: " + err.message, true); }
-    showLoader(false);
-  }
-
-  // ==================== RESET / CANCELAR ====================
-  function resetFormulario() {
-    document.getElementById('studentForm').reset();
-    document.getElementById('previewImg').src = 'https://placehold.co/100x100?text=FOTO';
-    document.getElementById('fotoInput').value = '';
-    currentFotoUrl = '';
-    fotoBorrada = false;
-    document.getElementById('btnEliminarFoto').style.display = 'none';
-    editMode = false; 
-    editCodigo = null;
-    
-    habilitarLecturaForm(false);
-    
-    document.getElementById('codigo').disabled = false;
-    document.getElementById('formTitle').textContent = '➕ Nuevo estudiante';
-    
-    const config = getRolConfig();
-    document.getElementById('btnGuardar').textContent = '💾 Guardar estudiante';
-    document.getElementById('btnGuardar').style.display = 'inline-flex';
-    document.getElementById('btnLimpiar').style.display = 'inline-flex';
-    document.getElementById('btnCancelar').style.display = 'inline-flex';
-    
-    document.getElementById('btnCerrarVista').style.display = 'none';
-    document.getElementById('btnImprimir').style.display = 'none';
-  }
-  function cancelarEdicion() {
-    if (editMode && !confirm("¿Cancelar la edición? Los cambios no se guardarán.")) return;
-    resetFormulario();
-    showMessage("Acción cancelada");
-  }
-
-  // ==================== AUTO-FILL ENCARGADO ====================
-  document.getElementById('enc_padre').addEventListener('change', function () {
-    if (this.value === 'SI') {
-      document.getElementById('enc_madre').value = 'NO';
-      document.getElementById('encargado').value = document.getElementById('padre').value;
-      document.getElementById('dpi_enc').value    = document.getElementById('dpi_padre').value;
-      document.getElementById('tel_enc').value    = document.getElementById('tel_padre').value;
-      document.getElementById('relacion').value   = 'Padre';
-    }
-  });
-  document.getElementById('enc_madre').addEventListener('change', function () {
-    if (this.value === 'SI') {
-      document.getElementById('enc_padre').value  = 'NO';
-      document.getElementById('encargado').value = document.getElementById('madre').value;
-      document.getElementById('dpi_enc').value    = document.getElementById('dpi_madre').value;
-      document.getElementById('tel_enc').value    = document.getElementById('tel_madre').value;
-      document.getElementById('relacion').value   = 'Madre';
-    }
-  });
-
-  // ==================== MODAL: EXPORTAR ====================
-  function abrirModalExportar() {
-    const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
-    const container = document.getElementById('exportGradoList');
-    container.innerHTML = grades.map(g => {
-      const count = estudiantesGlobal.filter(e => e.grado === g).length;
-      return `<label class="export-cb-wrap">
+    // ==================== MODAL: EXPORTAR ====================
+    function abrirModalExportar() {
+      const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
+      const container = document.getElementById('exportGradoList');
+      container.innerHTML = grades.map(g => {
+        const count = estudiantesGlobal.filter(e => e.grado === g).length;
+        return `<label class="export-cb-wrap">
         <input type="checkbox" class="grade-export-cb" value="${g}" checked>
         <span>${g} <span class="grade-count">${count} alumnos</span></span>
       </label>`;
-    }).join('');
-    document.getElementById('chkTodos').checked = true;
-    document.getElementById('exportModal').style.display = 'flex';
-  }
-  function cerrarModalExportar() { document.getElementById('exportModal').style.display = 'none'; }
-  function toggleTodosExport(master) {
-    document.querySelectorAll('.grade-export-cb').forEach(cb => cb.checked = master.checked);
-  }
+      }).join('');
+      document.getElementById('chkTodos').checked = true;
+      document.getElementById('exportModal').style.display = 'flex';
+    }
+    function cerrarModalExportar() { document.getElementById('exportModal').style.display = 'none'; }
+    function toggleTodosExport(master) {
+      document.querySelectorAll('.grade-export-cb').forEach(cb => cb.checked = master.checked);
+    }
 
-  async function confirmarExportar() {
-    const selected = [...document.querySelectorAll('.grade-export-cb:checked')].map(cb => cb.value);
-    if (selected.length === 0) return showMessage("Selecciona al menos un grado", true);
-    cerrarModalExportar();
-    showLoader(true);
-    try {
-      const res = await callApi('exportar', {}, 28000);
-      if (!res.success || !res.data) throw new Error(res.msg || "Error al obtener datos");
+    async function confirmarExportar() {
+      const selected = [...document.querySelectorAll('.grade-export-cb:checked')].map(cb => cb.value);
+      if (selected.length === 0) return showMessage("Selecciona al menos un grado", true);
+      cerrarModalExportar();
+      showLoader(true);
+      try {
+        const res = await callApi('exportar', {}, 28000);
+        if (!res.success || !res.data) throw new Error(res.msg || "Error al obtener datos");
 
-      // Ignoramos la fila de encabezados originales del Excel general
-      const rawRows = res.data.slice(1);
+        // Ignoramos la fila de encabezados originales del Excel general
+        const rawRows = res.data.slice(1);
 
-      // Encabezados solicitados expresamente
-      const customHeaders = [
-        "NOMBRES Y APELLIDOS",
-        "CÓDIGO PERSONAL",
-        "EDAD ACTUAL",
-        "FECHA DE NACIMIENTO",
-        "PADECE ALGUNA ENFERMEDAD CRÓNICA",
-        "INDIQUE CUAL",
-        "GRADO A CURSAR",
-        "DIRECCIÓN",
-        "ALDEA O CASERÍO",
-        "NOMBRE DEL ENCARGADO",
-        "NÚMERO DEL DPI",
-        "TEL ENCARGADO",
-        "DIRECCIÓN",
-        "ALDEA O CASERIO",
-        "RELACIÓN",
-        "TELEFONO ADICIONAL",
-        "CLAVE"
-      ];
+        // Encabezados solicitados expresamente
+        const customHeaders = [
+          "NOMBRES Y APELLIDOS",
+          "CÓDIGO PERSONAL",
+          "EDAD ACTUAL",
+          "FECHA DE NACIMIENTO",
+          "PADECE ALGUNA ENFERMEDAD CRÓNICA",
+          "INDIQUE CUAL",
+          "GRADO A CURSAR",
+          "DIRECCIÓN",
+          "ALDEA O CASERÍO",
+          "NOMBRE DEL ENCARGADO",
+          "NÚMERO DEL DPI",
+          "TEL ENCARGADO",
+          "DIRECCIÓN",
+          "ALDEA O CASERIO",
+          "RELACIÓN",
+          "TELEFONO ADICIONAL",
+          "CLAVE"
+        ];
 
-      if (typeof XLSX === 'undefined') throw new Error("SheetJS no cargó. Verifica conexión a internet.");
+        if (typeof XLSX === 'undefined') throw new Error("SheetJS no cargó. Verifica conexión a internet.");
 
-      const wb = XLSX.utils.book_new();
-      selected.forEach(grado => {
-        // Filtrar filas por grado y mapear a nuestra estructura
-        let gradeRows = rawRows
-          .filter(r => String(r[11] || '').trim().toUpperCase() === grado.toUpperCase())
-          .map(r => {
-            // Intentamos formatear la fecha
-            let parsedDate = r[4] || '';
-            if (parsedDate) {
-              try {
-                const fd = new Date(parsedDate);
-                if (!isNaN(fd.getTime())) {
-                  // DD/MM/YYYY
-                  parsedDate = fd.toLocaleDateString('es-GT');
-                }
-              } catch(e) {}
-            }
+        const wb = XLSX.utils.book_new();
+        selected.forEach(grado => {
+          // Filtrar filas por grado y mapear a nuestra estructura
+          let gradeRows = rawRows
+            .filter(r => String(r[11] || '').trim().toUpperCase() === grado.toUpperCase())
+            .map(r => {
+              // Intentamos formatear la fecha
+              let parsedDate = r[4] || '';
+              if (parsedDate) {
+                try {
+                  const fd = new Date(parsedDate);
+                  if (!isNaN(fd.getTime())) {
+                    // DD/MM/YYYY
+                    parsedDate = fd.toLocaleDateString('es-GT');
+                  }
+                } catch (e) { }
+              }
 
-            return [
-              r[1] || "", // NOMBRES Y APELLIDOS
-              r[2] || "", // CÓDIGO PERSONAL
-              r[3] || "", // EDAD ACTUAL
-              parsedDate, // FECHA DE NACIMIENTO
-              r[8] || "", // PADECE ALGUNA ENFERMEDAD CRÓNICA
-              r[9] || "", // INDIQUE CUAL
-              r[11] || "", // GRADO A CURSAR
-              r[13] || "", // DIRECCIÓN (estudiante)
-              r[14] || "", // ALDEA O CASERÍO (estudiante)
-              r[23] || "", // NOMBRE DEL ENCARGADO
-              r[24] || "", // NÚMERO DEL DPI
-              r[25] || "", // TEL ENCARGADO
-              r[26] || "", // DIRECCIÓN (encargado)
-              r[27] || "", // ALDEA O CASERIO (encargado)
-              r[28] || "", // RELACIÓN
-              r[29] || "", // TELEFONO ADICIONAL
-              r[33] || ""  // CLAVE
-            ];
+              return [
+                r[1] || "", // NOMBRES Y APELLIDOS
+                r[2] || "", // CÓDIGO PERSONAL
+                r[3] || "", // EDAD ACTUAL
+                parsedDate, // FECHA DE NACIMIENTO
+                r[8] || "", // PADECE ALGUNA ENFERMEDAD CRÓNICA
+                r[9] || "", // INDIQUE CUAL
+                r[11] || "", // GRADO A CURSAR
+                r[13] || "", // DIRECCIÓN (estudiante)
+                r[14] || "", // ALDEA O CASERÍO (estudiante)
+                r[23] || "", // NOMBRE DEL ENCARGADO
+                r[24] || "", // NÚMERO DEL DPI
+                r[25] || "", // TEL ENCARGADO
+                r[26] || "", // DIRECCIÓN (encargado)
+                r[27] || "", // ALDEA O CASERIO (encargado)
+                r[28] || "", // RELACIÓN
+                r[29] || "", // TELEFONO ADICIONAL
+                r[33] || ""  // CLAVE
+              ];
+            });
+
+          // Ordenar por clave (numéricamente) y luego por nombre
+          gradeRows.sort((a, b) => {
+            const claveA = parseInt(a[16]) || 9999;
+            const claveB = parseInt(b[16]) || 9999;
+            if (claveA !== claveB) return claveA - claveB;
+            return String(a[0]).localeCompare(String(b[0]));
           });
 
-        // Ordenar por clave (numéricamente) y luego por nombre
-        gradeRows.sort((a, b) => {
-          const claveA = parseInt(a[16]) || 9999;
-          const claveB = parseInt(b[16]) || 9999;
-          if (claveA !== claveB) return claveA - claveB;
-          return String(a[0]).localeCompare(String(b[0]));
+          const ws = XLSX.utils.aoa_to_sheet([customHeaders, ...gradeRows]);
+
+          // Ajustar ancho de columnas automáticamente dejando un margen
+          ws['!cols'] = customHeaders.map((h, i) => ({
+            wch: Math.max(String(h).length, ...gradeRows.map(r => String(r[i] || '').length), 8) + 2
+          }));
+
+          XLSX.utils.book_append_sheet(wb, ws, grado.substring(0, 31));
         });
 
-        const ws = XLSX.utils.aoa_to_sheet([customHeaders, ...gradeRows]);
-        
-        // Ajustar ancho de columnas automáticamente dejando un margen
-        ws['!cols'] = customHeaders.map((h, i) => ({
-          wch: Math.max(String(h).length, ...gradeRows.map(r => String(r[i] || '').length), 8) + 2
-        }));
-        
-        XLSX.utils.book_append_sheet(wb, ws, grado.substring(0, 31));
-      });
+        const fecha = new Date().toLocaleDateString('es-GT').replace(/\//g, '-');
+        const fileName = `Estudiantes_INEB_${fecha}.xlsx`;
+        const xlsxMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 
-      const fecha = new Date().toLocaleDateString('es-GT').replace(/\//g, '-');
-      const fileName = `Estudiantes_INEB_${fecha}.xlsx`;
-      const xlsxMime = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-
-      // WINDOWS: diálogo "Guardar como" nativo (Chrome/Edge)
-      if (window.showSaveFilePicker) {
-        try {
-          const handle = await window.showSaveFilePicker({
-            suggestedName: fileName,
-            types: [{ description: 'Libro de Excel', accept: { [xlsxMime]: ['.xlsx'] } }]
-          });
-          const wbBytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-          const writable = await handle.createWritable();
-          await writable.write(new Blob([wbBytes], { type: xlsxMime }));
-          await writable.close();
-          showMessage(`✅ Excel guardado (${selected.join(', ')})`);
-          showLoader(false);
-          return;
-        } catch (e) {
-          if (e.name === 'AbortError') { showLoader(false); return; }
-          // Si falla por otro motivo, continuar al siguiente método
-        }
-      }
-
-      // Generar el blob Excel
-      const wbBytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-      const blob = new Blob([wbBytes], { type: xlsxMime });
-
-      // ANDROID/IOS: menú nativo de compartir
-      if (navigator.share && navigator.canShare) {
-        const file = new File([blob], fileName, { type: xlsxMime });
-        if (navigator.canShare({ files: [file] })) {
+        // WINDOWS: diálogo "Guardar como" nativo (Chrome/Edge)
+        if (window.showSaveFilePicker) {
           try {
-            await navigator.share({ files: [file], title: 'Listado Estudiantil INEB' });
+            const handle = await window.showSaveFilePicker({
+              suggestedName: fileName,
+              types: [{ description: 'Libro de Excel', accept: { [xlsxMime]: ['.xlsx'] } }]
+            });
+            const wbBytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            const writable = await handle.createWritable();
+            await writable.write(new Blob([wbBytes], { type: xlsxMime }));
+            await writable.close();
+            showMessage(`✅ Excel guardado (${selected.join(', ')})`);
             showLoader(false);
             return;
           } catch (e) {
             if (e.name === 'AbortError') { showLoader(false); return; }
+            // Si falla por otro motivo, continuar al siguiente método
           }
         }
+
+        // Generar el blob Excel
+        const wbBytes = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const blob = new Blob([wbBytes], { type: xlsxMime });
+
+        // ANDROID/IOS: menú nativo de compartir
+        if (navigator.share && navigator.canShare) {
+          const file = new File([blob], fileName, { type: xlsxMime });
+          if (navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ files: [file], title: 'Listado Estudiantil INEB' });
+              showLoader(false);
+              return;
+            } catch (e) {
+              if (e.name === 'AbortError') { showLoader(false); return; }
+            }
+          }
+        }
+
+        // Descarga directa (fallback universal)
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = fileName;
+        document.body.appendChild(a); a.click(); a.remove();
+        URL.revokeObjectURL(url);
+        showMessage(`✅ Excel exportado (${selected.join(', ')})`);
+
+      } catch (err) { showMessage("Error al exportar: " + err.message, true); }
+      showLoader(false);
+    }
+
+    // ==================== MODAL: BORRADO DE GRADO INDIVIDUAL ====================
+    function abrirModalBorradoGrado() {
+      const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
+      if (grades.length === 0) return showMessage('No hay grados activos para borrar', true);
+
+      const select = document.getElementById('gradoBorradoSelect');
+      select.innerHTML = grades.map(g => `<option value="${g}">${g}</option>`).join('');
+
+      document.getElementById('borradoGradoModal').style.display = 'flex';
+    }
+
+    function cerrarModalBorradoGrado() { document.getElementById('borradoGradoModal').style.display = 'none'; }
+
+    async function confirmarBorradoGradoUnico() {
+      const gradoSelect = document.getElementById('gradoBorradoSelect').value;
+      if (!gradoSelect) return showMessage('Selecciona un grado', true);
+
+      const lista = estudiantesGlobal.filter(e => e.grado === gradoSelect);
+      const totalEst = lista.length;
+
+      if (!confirm(`⚠️ ALERTA DE BORRADO\n\n¿Estás seguro que deseas archivar a TODOS los ${totalEst} estudiantes de la sección "${gradoSelect}"?\n\nLa información se marcará como ARCHIVADA en la base de datos.`)) return;
+
+      cerrarModalBorradoGrado();
+      showLoader(true);
+
+      let ok = 0, err = 0;
+      // Se procesa cada estudiante del grado sin importar si sus datos están completos o no.
+      for (const est of lista) {
+        if (!est.codigo) { err++; continue; } // Protección contra filas completamente en blanco
+        try {
+          const res = await callApi('borrar', { codigo: est.codigo });
+          if (res.success) ok++; else err++;
+        } catch (_) { err++; }
       }
 
-      // Descarga directa (fallback universal)
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = fileName;
-      document.body.appendChild(a); a.click(); a.remove();
-      URL.revokeObjectURL(url);
-      showMessage(`✅ Excel exportado (${selected.join(', ')})`);
-
-    } catch (err) { showMessage("Error al exportar: " + err.message, true); }
-    showLoader(false);
-  }
-
-  // ==================== MODAL: BORRADO DE GRADO INDIVIDUAL ====================
-  function abrirModalBorradoGrado() {
-    const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
-    if(grades.length === 0) return showMessage('No hay grados activos para borrar', true);
-    
-    const select = document.getElementById('gradoBorradoSelect');
-    select.innerHTML = grades.map(g => `<option value="${g}">${g}</option>`).join('');
-    
-    document.getElementById('borradoGradoModal').style.display = 'flex';
-  }
-  
-  function cerrarModalBorradoGrado() { document.getElementById('borradoGradoModal').style.display = 'none'; }
-  
-  async function confirmarBorradoGradoUnico() {
-    const gradoSelect = document.getElementById('gradoBorradoSelect').value;
-    if (!gradoSelect) return showMessage('Selecciona un grado', true);
-    
-    const lista = estudiantesGlobal.filter(e => e.grado === gradoSelect);
-    const totalEst = lista.length;
-    
-    if (!confirm(`⚠️ ALERTA DE BORRADO\n\n¿Estás seguro que deseas archivar a TODOS los ${totalEst} estudiantes de la sección "${gradoSelect}"?\n\nLa información se marcará como ARCHIVADA en la base de datos.`)) return;
-    
-    cerrarModalBorradoGrado();
-    showLoader(true);
-    
-    let ok = 0, err = 0;
-    // Se procesa cada estudiante del grado sin importar si sus datos están completos o no.
-    for (const est of lista) {
-      if(!est.codigo) { err++; continue; } // Protección contra filas completamente en blanco
-      try {
-        const res = await callApi('borrar', { codigo: est.codigo });
-        if (res.success) ok++; else err++;
-      } catch (_) { err++; }
+      showLoader(false);
+      showMessage(err === 0 ? `✅ Sección ${gradoSelect} archivada (${ok} alumnos)` : `⚠️ ${ok} archivados, ${err} con error`, err > 0);
+      cargarListaEstudiantes();
     }
-    
-    showLoader(false);
-    showMessage(err === 0 ? `✅ Sección ${gradoSelect} archivada (${ok} alumnos)` : `⚠️ ${ok} archivados, ${err} con error`, err > 0);
-    cargarListaEstudiantes();
-  }
 
-  // ==================== MODAL: BORRADO DE CICLO ====================
-  function abrirModalBorrado() {
-    const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
-    const container = document.getElementById('borradoGradoList');
-    container.innerHTML = grades.map(g => {
-      const count = estudiantesGlobal.filter(e => e.grado === g).length;
-      return `<label class="export-cb-wrap" style="border-color:#fecdd3">
+    // ==================== MODAL: BORRADO DE CICLO ====================
+    function abrirModalBorrado() {
+      const grades = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g.trim()))].sort();
+      const container = document.getElementById('borradoGradoList');
+      container.innerHTML = grades.map(g => {
+        const count = estudiantesGlobal.filter(e => e.grado === g).length;
+        return `<label class="export-cb-wrap" style="border-color:#fecdd3">
         <input type="checkbox" class="grade-borrado-cb" value="${g}">
         <span>${g} <span class="grade-count">${count} alumnos</span></span>
       </label>`;
-    }).join('');
-    document.getElementById('chkTodosBorrado').checked = false;
-    document.getElementById('borradoModal').style.display = 'flex';
-  }
-  function cerrarModalBorrado() { document.getElementById('borradoModal').style.display = 'none'; }
-  function toggleTodosBorrado(master) {
-    document.querySelectorAll('.grade-borrado-cb').forEach(cb => cb.checked = master.checked);
-  }
-  async function confirmarBorradoCiclo() {
-    const selected = [...document.querySelectorAll('.grade-borrado-cb:checked')].map(cb => cb.value);
-    if (selected.length === 0) return showMessage('Selecciona al menos un grado', true);
-    const totalEst = estudiantesGlobal.filter(e => selected.includes(e.grado)).length;
-    if (!confirm(`⚠️ ATENCIÓN\n\nSe archivarán ${totalEst} estudiante(s) de:\n  ${selected.join(', ')}\n\n¿Confirmas? Esta acción no se puede deshacer fácilmente.`)) return;
-    cerrarModalBorrado();
-    showLoader(true);
-    const lista = estudiantesGlobal.filter(e => selected.includes(e.grado));
-    let ok = 0, err = 0;
-    for (const est of lista) {
-      if(!est.codigo) continue;
-      try {
-        const res = await callApi('borrar', { codigo: est.codigo });
-        if (res.success) ok++; else err++;
-      } catch (_) { err++; }
+      }).join('');
+      document.getElementById('chkTodosBorrado').checked = false;
+      document.getElementById('borradoModal').style.display = 'flex';
     }
-    showLoader(false);
-    showMessage(err === 0 ? `✅ ${ok} estudiantes archivados correctamente` : `⚠️ ${ok} archivados, ${err} con error`, err > 0);
-    cargarListaEstudiantes();
-  }
-
-  // ==================== PREVIEW FOTO LOCAL ====================
-  document.getElementById('fotoInput').addEventListener('change', e => {
-    if (e.target.files && e.target.files[0]) {
-      const reader = new FileReader();
-      reader.onload = ev => { 
-        document.getElementById('previewImg').src = ev.target.result; 
-        document.getElementById('btnEliminarFoto').style.display = 'inline-block';
-        fotoBorrada = false;
-      };
-      reader.readAsDataURL(e.target.files[0]);
+    function cerrarModalBorrado() { document.getElementById('borradoModal').style.display = 'none'; }
+    function toggleTodosBorrado(master) {
+      document.querySelectorAll('.grade-borrado-cb').forEach(cb => cb.checked = master.checked);
     }
-  });
-
-  // ==================== INIT ====================
-  // Ya no asignamos onclick aquí para btnGuardar porque usamos el evento submit del formulario
-
-  window.onload = () => {
-    if (sessionStorage.getItem('logged') === 'true') {
-      document.getElementById('loginContainer').style.display = 'none';
-      document.getElementById('appContainer').style.display = 'block';
-      aplicarPermisos();
+    async function confirmarBorradoCiclo() {
+      const selected = [...document.querySelectorAll('.grade-borrado-cb:checked')].map(cb => cb.value);
+      if (selected.length === 0) return showMessage('Selecciona al menos un grado', true);
+      const totalEst = estudiantesGlobal.filter(e => selected.includes(e.grado)).length;
+      if (!confirm(`⚠️ ATENCIÓN\n\nSe archivarán ${totalEst} estudiante(s) de:\n  ${selected.join(', ')}\n\n¿Confirmas? Esta acción no se puede deshacer fácilmente.`)) return;
+      cerrarModalBorrado();
+      showLoader(true);
+      const lista = estudiantesGlobal.filter(e => selected.includes(e.grado));
+      let ok = 0, err = 0;
+      for (const est of lista) {
+        if (!est.codigo) continue;
+        try {
+          const res = await callApi('borrar', { codigo: est.codigo });
+          if (res.success) ok++; else err++;
+        } catch (_) { err++; }
+      }
+      showLoader(false);
+      showMessage(err === 0 ? `✅ ${ok} estudiantes archivados correctamente` : `⚠️ ${ok} archivados, ${err} con error`, err > 0);
       cargarListaEstudiantes();
     }
-  };
-</script>
+
+    // ==================== PREVIEW FOTO LOCAL ====================
+    document.getElementById('fotoInput').addEventListener('change', e => {
+      if (e.target.files && e.target.files[0]) {
+        const reader = new FileReader();
+        reader.onload = ev => {
+          document.getElementById('previewImg').src = ev.target.result;
+          document.getElementById('btnEliminarFoto').style.display = 'inline-block';
+          fotoBorrada = false;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+      }
+    });
+
+    // ==================== INIT ====================
+    // Ya no asignamos onclick aquí para btnGuardar porque usamos el evento submit del formulario
+
+    window.onload = () => {
+      if (sessionStorage.getItem('logged') === 'true') {
+        document.getElementById('loginContainer').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        aplicarPermisos();
+        cargarListaEstudiantes();
+      }
+    };
+  </script>
 </body>
+
 </html>
