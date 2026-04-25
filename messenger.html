@@ -276,6 +276,54 @@
     .nudge-flash {
       background-color: #ff000022 !important;
     }
+
+    /* Estilos Galería de Avatares */
+    .avatar-gallery {
+      display: none;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border: 2px solid var(--msn-blue);
+      padding: 15px;
+      z-index: 1000;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      border-radius: 8px;
+      width: 210px;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .avatar-option {
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      border: 1px solid #ddd;
+      padding: 2px;
+      object-fit: contain;
+    }
+
+    .avatar-option:hover {
+      border-color: var(--msn-blue);
+      background: #eee;
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 999;
+    }
   </style>
 </head>
 
@@ -288,12 +336,14 @@
         <span style="font-size: 11px; font-weight: bold;">Messenger - Control Estudiantil</span>
       </span>
       <div style="display:flex; gap:5px; align-items:center;">
-        <button id="btnInstall" onclick="installApp()" style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥 Instalar App</button>
-        <!-- BOTÓN PROBAR SONIDO COMENTADO
-        <button id="btnSoundAuth" onclick="testSound()" style="background:#f97316; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">🔊 Probar Sonido</button>
-        -->
-        <button onclick="vaciarChat()" style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;" title="Limpiar chat activo">🗑️ Limpiar</button>
-        <button onclick="window.close()" style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
+        <button id="btnInstall" onclick="installApp()"
+          style="display:none; background:#10b981; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;">📥
+          Instalar App</button>
+        <button onclick="vaciarChat()"
+          style="background:#ef4444; color:white; border:none; padding:2px 8px; font-size:9px; border-radius:10px; cursor:pointer;"
+          title="Limpiar chat activo">🗑️ Limpiar</button>
+        <button onclick="window.close()"
+          style="background:none; border:none; color:white; cursor:pointer; font-weight:bold; font-size:14px;">×</button>
       </div>
     </div>
 
@@ -306,7 +356,9 @@
     </div>
 
     <div class="user-info">
-      <div class="avatar-frame"><img src="msn_icon.png" alt="MSN"></div>
+      <div class="avatar-frame" onclick="openGallery()" title="Cambiar mi imagen" style="cursor:pointer;">
+        <img id="myAvatarImg" src="msn_icon.png" alt="MSN">
+      </div>
       <div>
         <div id="selfName" class="user-name">Cargando...</div>
         <div style="font-size: 10px; color: #10b981;">● Disponible</div>
@@ -328,24 +380,46 @@
 
     <div class="footer-actions">
       <input type="file" id="fileInput" style="display:none" onchange="manejarArchivo(this)">
-      <button class="btn-nudge" onclick="document.getElementById('fileInput').click()" title="Enviar un archivo">📎 Archivo</button>
+      <button class="btn-nudge" onclick="document.getElementById('fileInput').click()" title="Enviar un archivo">📎
+        Archivo</button>
       <button class="btn-nudge" onclick="sendNudge()">🔔 Zumbido</button>
       <button class="btn-send" onclick="sendMsg()">Enviar</button>
     </div>
   </div>
 
+  <!-- Galería de Avatares -->
+  <div id="overlay" class="overlay" onclick="closeGallery()"></div>
+  <div id="avatarGallery" class="avatar-gallery">
+    <div style="font-size:12px; font-weight:bold; color:var(--msn-blue); border-bottom:1px solid #eee; padding-bottom:5px;">
+      Elige tu imagen:</div>
+    <div class="avatar-grid" id="avatarGrid"></div>
+    <button onclick="closeGallery()" style="width:100%; margin-top:10px; font-size:10px; cursor:pointer;">Cancelar</button>
+  </div>
+
   <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
-    
+
+    // --- ICONOS CLÁSICOS (URLs directas) ---
+    const AVATARS = [
+      "msn_icon.png",
+      "https://cdn-icons-png.flaticon.com/512/3306/3306613.png", // Balon
+      "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", // Persona azul
+      "https://cdn-icons-png.flaticon.com/128/2928/2928158.png", // Guitarra
+      "https://cdn-icons-png.flaticon.com/128/1040/1040230.png", // Sol
+      "https://cdn-icons-png.flaticon.com/128/1164/1164620.png", // Flor
+      "https://cdn-icons-png.flaticon.com/128/3069/3069172.png", // Pato
+      "https://cdn-icons-png.flaticon.com/128/806/806542.png"    // Mariposa
+    ];
+
     // --- SONIDOS ORIGINALES ---
     const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
     const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
-    
+
     function playNudgeSound() {
       sndNudge.currentTime = 0;
       sndNudge.play().catch(e => console.log('Audio blocked', e));
     }
-    
+
     function playMsgSound() {
       sndMsg.currentTime = 0;
       sndMsg.play().catch(e => console.log('Audio blocked', e));
@@ -358,9 +432,35 @@
     let unreadUsers = new Set();
     let deferredInstallPrompt = null;
 
+    // --- LÓGICA GALERÍA ---
+    function openGallery() {
+      const grid = document.getElementById('avatarGrid');
+      grid.innerHTML = '';
+      AVATARS.forEach(url => {
+        const img = document.createElement('img');
+        img.src = url;
+        img.className = 'avatar-option';
+        img.onclick = () => selectAvatar(url);
+        grid.appendChild(img);
+      });
+      document.getElementById('avatarGallery').style.display = 'block';
+      document.getElementById('overlay').style.display = 'block';
+    }
+
+    function closeGallery() {
+      document.getElementById('avatarGallery').style.display = 'none';
+      document.getElementById('overlay').style.display = 'none';
+    }
+
+    function selectAvatar(url) {
+      localStorage.setItem('msn_avatar_' + myUsername, url);
+      document.getElementById('myAvatarImg').src = url;
+      closeGallery();
+    }
+
     // --- REGISTRO PWA ---
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').catch(() => { });
     }
     window.addEventListener('beforeinstallprompt', (e) => {
       e.preventDefault();
@@ -379,10 +479,14 @@
       myUsername = sessionStorage.getItem('userName') || "Invitado";
       document.getElementById('selfName').innerText = myUsername;
 
+      // Cargar avatar guardado
+      const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
+      if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
+
       // Desbloquear audio al primer click
-      document.body.addEventListener('click', () => { 
-        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(()=>{});
-        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(()=>{});
+      document.body.addEventListener('click', () => {
+        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(() => { });
+        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(() => { });
       }, { once: true });
 
       loadMessages();
@@ -416,7 +520,7 @@
               if (receptor === 'TODOS' || receptor === myUsername) hayMsgNuevo = true;
             }
           });
-          
+
           if (hayMsgNuevo) playMsgSound();
 
           const lastMsg = res.data[res.data.length - 1];
@@ -447,17 +551,17 @@
       const TRES_MINUTOS = 180000;
       const usuariosActivos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS).map(m => m[1]);
       const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
-      
+
       let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
       users.forEach(u => {
         const isUnread = unreadUsers.has(u);
-        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
+        html += `<div class="contact-item ${isUnread ? 'has-new-msg' : ''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
       });
       list.innerHTML = html;
     }
 
     // Colores para avatares de usuarios
-    const USER_COLORS = ['#004b91','#10b981','#f97316','#8b5cf6','#ef4444','#0ea5e9','#d97706'];
+    const USER_COLORS = ['#004b91', '#10b981', '#f97316', '#8b5cf6', '#ef4444', '#0ea5e9', '#d97706'];
     function getUserColor(name) {
       let hash = 0;
       for (let c of (name || '?')) hash = (hash * 31 + c.charCodeAt(0)) & 0xFFFFFF;
@@ -482,8 +586,8 @@
           const inicial = (m[1] || '?')[0].toUpperCase();
           const color = getUserColor(m[1]);
           let fileData = { nombre: 'Archivo', url: m[2] };
-          try { if(m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch(e){}
-          
+          try { if (m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch (e) { }
+
           d.innerHTML = `
             <div class="msg-avatar" style="background:${color}">${inicial}</div>
             <div class="msg-text">
@@ -492,7 +596,7 @@
                 <span style="font-size:18px;">📄</span>
                 <div style="flex:1; overflow:hidden">
                   <div style="font-weight:bold; font-size:10px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${fileData.nombre}</div>
-                  <a href="${fileData.url}" target="_blank" style="font-size:9px; color:#2563eb; text-decoration:none;">📥 Descargar</a>
+                  <button onclick="descargarArchivo('${fileData.url}')" style="background:none; border:none; color:#2563eb; cursor:pointer; font-size:9px; padding:0; text-decoration:underline;">📥 Descargar</button>
                 </div>
               </div>
             </div>`;
@@ -505,6 +609,14 @@
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
+    }
+
+    // FUNCIÓN PARA FORZAR DESCARGA FUERA DE LA PWA
+    function descargarArchivo(url) {
+      if (!url) return;
+      // Usamos window.open con noopener para que el navegador del sistema tome el control
+      const win = window.open(url, '_blank', 'noopener,noreferrer');
+      if (win) win.focus();
     }
 
     async function manejarArchivo(input) {
@@ -520,10 +632,10 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         const base64 = e.target.result.split(',')[1];
-        const res = await callApi('enviarMensaje', { 
-          usuario: myUsername, 
-          texto: JSON.stringify({ nombre: file.name, url: "" }), 
-          tipo: 'file', 
+        const res = await callApi('enviarMensaje', {
+          usuario: myUsername,
+          texto: JSON.stringify({ nombre: file.name, url: "" }),
+          tipo: 'file',
           receptor: currentChat,
           archivo: {
             nombre: file.name,
@@ -531,7 +643,7 @@
             mimeType: file.type
           }
         });
-        
+
         btn.innerHTML = originalText;
         btn.disabled = false;
         input.value = "";
