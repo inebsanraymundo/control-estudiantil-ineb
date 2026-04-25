@@ -2773,6 +2773,7 @@
         if (appCont) appCont.style.display = 'block';
         aplicarPermisos();
         cargarListaEstudiantes();
+        updateGreeting();
         
         // Cargar horarios del config si existen
         if (appConfig.horarios && typeof appConfig.horarios === 'string') {
