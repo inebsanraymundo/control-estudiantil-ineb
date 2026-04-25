@@ -16,7 +16,7 @@
     }
 
     body {
-      background: linear-gradient(145deg, #f0f4fa, #e6edf4);
+      background: linear-gradient(145deg, #e8eef7, #dce5f0);
       min-height: 100vh
     }
 
@@ -571,11 +571,11 @@
     /* TABLA */
     /* overflow-x en table-card (no en table-wrapper) para que el menú contextual no quede recortado */
     .table-card {
-      background: white;
+      background: #f5f8fc;
       border-radius: 1.8rem;
       padding: 1.5rem 1.5rem 80px;
       box-shadow: 0 20px 35px -12px rgba(0, 0, 0, .1);
-      border: 1px solid #eef2ff;
+      border: 1px solid #e4eaf4;
       overflow-x: auto;
       min-height: 420px
     }
@@ -593,8 +593,8 @@
       min-width: 160px;
       padding: 10px 16px;
       border-radius: 60px;
-      border: 1px solid #e2e8f0;
-      background: #f8fafc;
+      border: 1px solid #d9e3ef;
+      background: #edf2f9;
       font-size: .9rem;
       transition: border-color .2s
     }
@@ -2667,19 +2667,52 @@
     }
 
     function showMsnToast(user) {
+      // Eliminar toast anterior si aún existe
+      const prev = document.getElementById('msn-login-toast');
+      if (prev) prev.remove();
+
       const toast = document.createElement('div');
-      toast.style.cssText = "position:fixed; bottom:-80px; right:20px; background:linear-gradient(135deg, #f8fafc, #cbd5e1); border:1px solid #94a3b8; padding:10px 15px; border-radius:8px; box-shadow:0 10px 20px rgba(0,0,0,0.3); display:flex; align-items:center; gap:10px; z-index:9999; transition:bottom 0.5s ease; font-family:Tahoma, sans-serif;";
-      toast.innerHTML = `<img src="msn_icon.png" style="width:24px; height:24px; object-fit:contain;">
-                         <div style="font-size:13px; color:#1e293b;">
-                            <b style="color:#0284c7">${user}</b><br>acaba de iniciar sesión.
-                         </div>`;
+      toast.id = 'msn-login-toast';
+      toast.style.cssText = [
+        'position:fixed',
+        'bottom:-130px',
+        'right:24px',
+        'background:linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%)',
+        'border:2px solid rgba(255,255,255,0.25)',
+        'padding:16px 20px',
+        'border-radius:16px',
+        'box-shadow:0 20px 40px rgba(30,58,138,0.45), 0 0 0 1px rgba(255,255,255,0.1) inset',
+        'display:flex',
+        'align-items:center',
+        'gap:14px',
+        'z-index:99999',
+        'transition:bottom 0.5s cubic-bezier(0.34,1.56,0.64,1)',
+        'font-family:Inter,system-ui,sans-serif',
+        'min-width:260px',
+        'max-width:320px',
+        'cursor:pointer'
+      ].join(';');
+
+      toast.innerHTML = `
+        <div style="position:relative;flex-shrink:0;">
+          <img src="msn_icon.png" style="width:42px;height:42px;object-fit:contain;border-radius:10px;border:2px solid rgba(255,255,255,0.4);">
+          <span style="position:absolute;bottom:-3px;right:-3px;width:13px;height:13px;background:#22c55e;border-radius:50%;border:2px solid white;"></span>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,0.65);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:3px;">Sistema de Control</div>
+          <div style="font-size:15px;font-weight:700;color:white;line-height:1.2;">${user}</div>
+          <div style="font-size:11px;color:rgba(255,255,255,0.75);margin-top:2px;">acaba de iniciar sesi\u00f3n ✓</div>
+        </div>
+        <button onclick="this.closest('#msn-login-toast').remove()" style="background:rgba(255,255,255,0.15);border:none;border-radius:6px;color:white;cursor:pointer;font-size:14px;padding:2px 7px;line-height:1;flex-shrink:0;">×</button>
+      `;
       document.body.appendChild(toast);
-      
-      setTimeout(() => { toast.style.bottom = '20px'; }, 100);
-      setTimeout(() => { 
-        toast.style.bottom = '-80px'; 
-        setTimeout(() => toast.remove(), 600);
-      }, 5000);
+
+      setTimeout(() => { toast.style.bottom = '24px'; }, 50);
+      setTimeout(() => {
+        toast.style.transition = 'bottom 0.4s ease';
+        toast.style.bottom = '-130px';
+        setTimeout(() => toast.remove(), 450);
+      }, 7000);
     }
 
     // Comprobar conexiones silenciosamente cada 15 segundos
