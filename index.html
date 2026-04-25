@@ -1406,25 +1406,28 @@
 
       <!-- ===== TABLA ===== -->
       <div class="table-card">
-        <div class="toolbar">
+        <div class="toolbar" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
           <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..."
-            oninput="filtrarEstudiantes()">
-          <button class="btn-primary" id="btnImprimirSeleccion" onclick="imprimirSeleccionados()" style="background:linear-gradient(90deg,#8b5cf6,#6d28d9); display:none; border-radius:60px;">🖨️ Imprimir Seleccionados (<span id="countSeleccion">0</span>)</button>
+            oninput="filtrarEstudiantes()" style="grid-column: span 3; width:100%; margin-bottom:5px; border-radius:12px; padding:12px 20px;">
+          
           <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📊 Exportar<br>Excel</div></button>
+          
           <button class="btn-export" id="btnFotosMasivo" onclick="window.location.href='fotos_masivo.html'"
             style="background:linear-gradient(90deg,#3b82f6,#2563eb); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📸 Subida<br>Masiva</div></button>
+          
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
             style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
+            
+          <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
+            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
+
           <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
-            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">⏰ Agregar<br>Horario</div></button>
+            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">⏰ Agregar<br>Horario (aSc)</div></button>
           <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
           
           <button class="btn-export" onclick="agregarGradoSección()"
             title="Agregar nueva opción de grado al formulario" style="background:linear-gradient(90deg,#10b981,#059669); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">➕ Agregar<br>Grado/Secc</div></button>
-
-          <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
-            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
         </div>
         <div class="results-area">
           <div id="resultsInfo" class="results-info"></div>
