@@ -1565,10 +1565,8 @@
     };
 
     function cerrarSesion() {
-      sessionStorage.removeItem('logged');
-      sessionStorage.removeItem('userRole');
-      sessionStorage.removeItem('userName'); 
-      window.location.reload();
+      sessionStorage.clear();
+      window.location.href = window.location.pathname;
     }
 
     function updateGreeting() {
@@ -2658,11 +2656,18 @@
     // Ya no asignamos onclick aquí para btnGuardar porque usamos el evento submit del formulario
 
     window.onload = () => {
-      if (sessionStorage.getItem('logged') === 'true') {
-        document.getElementById('loginContainer').style.display = 'none';
-        document.getElementById('appContainer').style.display = 'block';
+      const isLogged = sessionStorage.getItem('logged') === 'true';
+      const loginCont = document.getElementById('loginContainer');
+      const appCont = document.getElementById('appContainer');
+
+      if (isLogged) {
+        if (loginCont) loginCont.style.display = 'none';
+        if (appCont) appCont.style.display = 'block';
         aplicarPermisos();
         cargarListaEstudiantes();
+      } else {
+        if (loginCont) loginCont.style.setProperty('display', 'flex', 'important');
+        if (appCont) appCont.style.setProperty('display', 'none', 'important');
       }
     };
     // ==================== CONFIGURACIÓN DE DOCENTES GUÍAS Y COORDINADORES ====================
