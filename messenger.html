@@ -303,6 +303,8 @@
     </div>
 
     <div class="footer-actions">
+      <input type="file" id="fileInput" style="display:none" onchange="manejarArchivo(this)">
+      <button class="btn-nudge" onclick="document.getElementById('fileInput').click()" title="Enviar un archivo">📎 Archivo</button>
       <button class="btn-nudge" onclick="sendNudge()">🔔 Zumbido</button>
       <button class="btn-send" onclick="sendMsg()">Enviar</button>
     </div>
@@ -520,6 +522,26 @@
         if (m[3] === 'zumbido') {
           d.className = 'msg-nudge';
           d.innerHTML = `⚠️ Zumbido de <strong>${m[1]}</strong>`;
+        } else if (m[3] === 'file') {
+          d.className = 'msg-entry';
+          const inicial = (m[1] || '?')[0].toUpperCase();
+          const color = getUserColor(m[1]);
+          // Intentar parsear si el texto es JSON (contiene nombre y url)
+          let fileData = { nombre: 'Archivo', url: m[2] };
+          try { if(m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch(e){}
+          
+          d.innerHTML = `
+            <div class="msg-avatar" style="background:${color}">${inicial}</div>
+            <div class="msg-text">
+              <strong>${m[1]}:</strong> ha enviado un archivo:
+              <div style="background:#f1f5f9; border:1px solid #cbd5e1; padding:8px; border-radius:8px; margin-top:5px; display:flex; align-items:center; gap:10px;">
+                <span style="font-size:18px;">📄</span>
+                <div style="flex:1; overflow:hidden">
+                  <div style="font-weight:bold; font-size:10px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${fileData.nombre}</div>
+                  <a href="${fileData.url}" target="_blank" style="font-size:9px; color:#2563eb; text-decoration:none;">📥 Descargar</a>
+                </div>
+              </div>
+            </div>`;
         } else {
           d.className = 'msg-entry';
           const inicial = (m[1] || '?')[0].toUpperCase();
@@ -529,6 +551,39 @@
         h.appendChild(d);
       });
       h.scrollTop = h.scrollHeight;
+    }
+
+    async function manejarArchivo(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) { alert("El archivo es muy grande (máx 10MB)"); return; }
+
+      const btn = event.target.parentElement.querySelector('button[onclick*="fileInput"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "⏳ Subiendo...";
+      btn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result.split(',')[1];
+        const res = await callApi('enviarMensaje', { 
+          usuario: myUsername, 
+          texto: JSON.stringify({ nombre: file.name, url: "" }), // El backend pondrá la URL real
+          tipo: 'file', 
+          receptor: currentChat,
+          archivo: {
+            nombre: file.name,
+            base64: base64,
+            mimeType: file.type
+          }
+        });
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        input.value = "";
+        loadMessages();
+      };
+      reader.readAsDataURL(file);
     }
 
     async function sendMsg() {
