@@ -1,0 +1,21 @@
+{
+  "name": "Messenger Control Estudiantil",
+  "short_name": "MSN INEB",
+  "description": "Sistema de Messenger para Control Docente",
+  "start_url": "messenger.html",
+  "display": "standalone",
+  "background_color": "#004b91",
+  "theme_color": "#004b91",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
