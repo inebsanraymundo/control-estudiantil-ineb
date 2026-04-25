@@ -2752,8 +2752,12 @@
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
+          // Usamos windows-1252 para leer correctamente acentos y eñes de aSc Horarios
+          const decoder = new TextDecoder('windows-1252');
+          const decodedText = decoder.decode(e.target.result);
+          
           const parser = new DOMParser();
-          const xmlDoc = parser.parseFromString(e.target.result, "text/xml");
+          const xmlDoc = parser.parseFromString(decodedText, "text/xml");
           
           const data = { subjects: {}, teachers: {}, classrooms: {}, periods: [], cards: [] };
 
@@ -2814,7 +2818,7 @@
         }
         showLoader(false);
       };
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
     }
 
     function verHorarioGrado(grado) {
