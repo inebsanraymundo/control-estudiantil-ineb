@@ -676,7 +676,8 @@
     }
     function cleanStr(s) {
       if (!s) return "";
-      return String(s).trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      // Quitamos acentos, pasamos a minúscula y eliminamos CUALQUIER espacio para la comparación técnica
+      return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "");
     }
     function processEmoticons(text) {
       let t = text;
@@ -868,7 +869,14 @@
     }
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
-      const ahora = Date.now();
+      
+      // SOLUCIÓN AL RELOJ: Usamos el tiempo del servidor (último mensaje) como referencia "ahora"
+      let ahora = Date.now();
+      if (msgs && msgs.length > 0) {
+        const timestamps = msgs.map(m => new Date(m[0]).getTime()).filter(t => !isNaN(t));
+        if (timestamps.length > 0) ahora = Math.max(...timestamps);
+      }
+
       const CINCO_MIN = 300000;
       const activos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < CINCO_MIN);
       const uniqueUsers = {};
