@@ -464,11 +464,11 @@
         <img id="myAvatarImg" src="msn_icon.png" alt="MSN">
       </div>
       <div class="user-name-area">
-        <div class="user-name">
+        <div class="user-name" id="headerNameArea">
           <div id="statusDot" class="contact-status"></div>
           <span id="selfName">Cargando...</span>
         </div>
-        <div class="personal-msg-area">
+        <div class="personal-msg-area" id="personalInfoArea">
           <input type="text" id="personalMsg" class="personal-msg-input" placeholder="Mensaje personal..."
             onblur="updatePresence()">
           <button id="btnMusic" class="music-btn" style="display:none !important;" onclick="toggleMusic()"
@@ -489,7 +489,7 @@
           <textarea id="msgInput" placeholder="Escribe aquí..."></textarea>
         </div>
       </div>
-      <div class="contacts-side">
+      <div class="contacts-side" id="contactsSide">
         <div class="contacts-title">Contactos</div>
         <div id="onlineList"></div>
       </div>
@@ -593,6 +593,12 @@
     const seenNudges = new Set(); // Para no re-reproducir zumbidos ya vistos
     let isFetchingMsgs = false;
     let msgPollingTimer = null;
+
+    // --- DETECCIÓN DE MODO VENTANA DE CHAT (MSN STYLE) ---
+    const urlParams = new URLSearchParams(window.location.search);
+    const chatPartnerUrl = urlParams.get('chat');
+    const isDedicatedChat = !!chatPartnerUrl;
+    if (isDedicatedChat) currentChat = chatPartnerUrl;
 
     function parseUser(raw) {
       if (!raw) return { name: '?', avatar: 'msn_icon.png', status: 'online', msg: '', music: '' };
@@ -717,6 +723,15 @@
       document.getElementById('selfName').innerText = myUsername;
       const savedAvatar = localStorage.getItem('msn_avatar_' + myUsername);
       if (savedAvatar) document.getElementById('myAvatarImg').src = savedAvatar;
+
+      // SI ES VENTANA DEDICADA: Configurar entorno
+      if (isDedicatedChat) {
+        document.body.classList.add('chat-mode');
+        document.getElementById('contactsSide').style.display = 'none';
+        document.getElementById('selfName').innerText = `${myUsername} — Conversando con: ${currentChat}`;
+        document.title = `Conversación con ${currentChat}`;
+        // En modo ventana, el chat general de esa ventana se ignora, solo priv
+      }
 
       // CARGA INSTANTÁNEA: Rescatar estado de caché para no ver pantalla vacía
       try {
@@ -856,16 +871,22 @@
       msgPollingTimer = setTimeout(loadMessages, 2500);
     }
     function selectChat(user) {
-      currentChat = user;
+      if (user !== 'TODOS') {
+        abrirChatPrivado(user);
+        return;
+      }
+      currentChat = 'TODOS';
       unreadUsers.delete(user);
-      const lbl = user === 'TODOS' ? '' : ` — Conversando con: ${user}`;
-      document.getElementById('selfName').innerText = myUsername + lbl;
-      // Forzar limpieza inmediata de la notificación al entrar al chat
-      unreadUsers.delete(user); 
-      
-      // Disparar ciclo sincronizado para no causar empalme de peticiones
+      document.getElementById('selfName').innerText = myUsername;
       if (msgPollingTimer) clearTimeout(msgPollingTimer);
       loadMessages();
+    }
+    function abrirChatPrivado(user) {
+      const w = 500, h = 550;
+      const left = (screen.width/2)-(w/2) + (Math.random()*50);
+      const top = (screen.height/2)-(h/2) + (Math.random()*50);
+      window.open(`messenger.html?chat=${encodeURIComponent(user)}`, `chat_${cleanStr(user)}`, `width=${w},height=${h},top=${top},left=${left},location=no,toolbar=no,menubar=no,status=no`);
+      unreadUsers.delete(user);
     }
     function updateOnlineList(msgs) {
       const list = document.getElementById('onlineList');
