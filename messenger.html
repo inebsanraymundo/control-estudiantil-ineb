@@ -683,7 +683,7 @@
     function cleanStr(s) {
       if (!s) return "";
       // Quitamos acentos, pasamos a minúscula y eliminamos CUALQUIER espacio para la comparación técnica
-      return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, "");
+      return String(s).normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim().replace(/\s+/g, "");
     }
     function processEmoticons(text) {
       let t = text;
@@ -865,9 +865,8 @@
           updateOnlineList(res.data);
           lastMsgCount = res.data.length;
         } else {
-          // Si no hay mensajes "nuevos" numéricamente, pero estamos en modo dedicado,
-          // forzamos el render para limpiar opacidades de mensajes recién enviados.
-          if (isDedicatedChat) renderMessages(res.data);
+          // Re-renderizado preventivo para asegurar sincronización en todas las ventanas
+          renderMessages(res.data);
           updateOnlineList(res.data);
         }
       }
@@ -946,7 +945,12 @@
         const r = cleanStr(m[4] || 'todos');
         
         if (chatPartnerClean === 'todos') return r === 'todos';
-        return (e === myNameClean && r === chatPartnerClean) || (e === chatPartnerClean && r === myNameClean);
+        
+        // Conversación privada bidireccional (Modo Tolerante):
+        // caso A: yo envié → emisor=yo, receptor=ellos
+        // caso B: ellos enviaron → emisor=ellos, receptor=yo (o vacío como fallback)
+        return (e === myNameClean && r === chatPartnerClean) || 
+               (e === chatPartnerClean && (r === myNameClean || r === ''));
       });
       filtrados.forEach(m => {
         const ui = parseUser(m[1]);
