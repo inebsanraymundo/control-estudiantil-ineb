@@ -827,23 +827,31 @@
           let hayZumbidoNuevo = false;
 
           nuevos.forEach(m => {
-            if (m[3] === 'status_update' || m[3] === 'login_ping' || String(m[2] || '').includes('[LOGIN_PING]')) return;
             const ui = parseUser(m[1]);
-            const senderName = String(ui.name || '').trim().toUpperCase();
-            const myName = String(myUsername || '').trim().toUpperCase();
-            const chatPartner = String(currentChat || '').trim().toUpperCase();
+            const senderClean = cleanStr(ui.name);
+            const myNameClean = cleanStr(myUsername);
+            const chatPartnerClean = cleanStr(currentChat);
 
-            // Solo procesar sonidos si no es la primera carga (lastMsgCount > 0)
+            // Solo procesar sonidos/alertas si no es la primera carga (lastMsgCount > 0)
             if (lastMsgCount > 0) {
-              if (senderName !== myName && senderName !== chatPartner && (m[4] || 'TODOS').trim().toUpperCase() === myName) {
+              const receptorClean = cleanStr(m[4] || 'todos');
+              
+              // REGLA DE NOTIFICACIÓN: Solo avisar si el emisor es quien pertenece a ESTA ventana
+              // O si estamos en General y el mensaje es para TODOS.
+              const esParaEstaVentana = isDedicatedChat ? (senderClean === chatPartnerClean) : (receptorClean === 'todos');
+
+              if (senderClean !== myNameClean && esParaEstaVentana) {
+                if (m[3] === 'zumbido') {
+                  const nudgeId = m[0] + ui.name;
+                  if (!seenNudges.has(nudgeId)) { seenNudges.add(nudgeId); hayZumbidoNuevo = true; }
+                } else if (m[3] !== 'status_update' && m[3] !== 'login_ping') {
+                  hayMsgNuevo = true;
+                }
+              }
+
+              // Marcar como no leído si es para mí pero no estoy en ese chat
+              if (senderClean !== myNameClean && senderClean !== chatPartnerClean && receptorClean === myNameClean) {
                 unreadUsers.add(ui.name);
-              }
-              if (senderName !== myName && m[3] !== 'zumbido' && ((m[4] || 'TODOS').trim().toUpperCase() === 'TODOS' || (m[4] || '').trim().toUpperCase() === myName)) {
-                hayMsgNuevo = true;
-              }
-              if (m[3] === 'zumbido' && senderName !== myName && ((m[4] || 'TODOS').trim().toUpperCase() === 'TODOS' || (m[4] || '').trim().toUpperCase() === myName)) {
-                const nudgeId = m[0] + ui.name;
-                if (!seenNudges.has(nudgeId)) { seenNudges.add(nudgeId); hayZumbidoNuevo = true; }
               }
             }
           });
@@ -853,15 +861,14 @@
           if (hayMsgNuevo) playMsgSound();
           if (hayZumbidoNuevo) triggerVisualNudge();
 
-          // SOLO RENDERIZAR SI HAY MENSAJES NUEVOS PARA EVITAR "TEMBLORES"
           renderMessages(res.data);
           updateOnlineList(res.data);
           lastMsgCount = res.data.length;
-        } else if (res.data.length < lastMsgCount) {
-          // Si el chat se vació, también renderizar
-          renderMessages(res.data);
+        } else {
+          // Si no hay mensajes "nuevos" numéricamente, pero estamos en modo dedicado,
+          // forzamos el render para limpiar opacidades de mensajes recién enviados.
+          if (isDedicatedChat) renderMessages(res.data);
           updateOnlineList(res.data);
-          lastMsgCount = res.data.length;
         }
       }
       
@@ -1012,6 +1019,7 @@
       h.appendChild(d);
       h.scrollTop = h.scrollHeight;
 
+      // Normalizar receptor al enviar para evitar fallos de mapeo en BD
       await callApi('enviarMensaje', { usuario: getMyIdent(), texto: t, tipo: 'msg', receptor: currentChat });
       if (msgPollingTimer) clearTimeout(msgPollingTimer);
       loadMessages(); 
