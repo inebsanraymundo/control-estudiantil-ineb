@@ -199,26 +199,31 @@
       display: flex;
       align-items: center;
       gap: 10px;
-      background: rgba(255,255,255,0.4);
-      padding: 0 12px 0 0; /* Sin padding izquierdo para que la foto pegue al borde */
+      background: rgba(255, 255, 255, 0.4);
+      padding: 0 12px;
       border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.6);
-      height: 44px; /* Aumentado */
-      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      height: 38px;
+      /* Altura idéntica al botón Messenger */
+      justify-content: center;
     }
+
     .user-avatar-header {
-      width: 44px;
-      height: 44px;
-      border-radius: 8px; /* Todas las esquinas redondeadas */
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      /* Estilo MSN Retro */
       object-fit: cover;
-      border: none;
-      border-right: 1px solid rgba(148,163,184,0.3);
+      border: 1px solid #94a3b8;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
+
     .user-info-stack {
       display: flex;
       flex-direction: column;
       line-height: 1.1;
     }
+
     .btn-logout-small {
       background: none;
       border: none;
@@ -231,11 +236,15 @@
       width: fit-content;
       text-decoration: underline;
     }
-    .btn-logout-small:hover { color: #dc2626; }
+
+    .btn-logout-small:hover {
+      color: #dc2626;
+    }
+
     .msn-icon-btn {
-      width: 18px !important; 
-      height: 18px !important; 
-      object-fit: contain; 
+      width: 18px !important;
+      height: 18px !important;
+      object-fit: contain;
       border-radius: 4px;
       margin-right: 2px;
     }
@@ -273,10 +282,12 @@
         display: block;
       }
 
-      .header-subtitle { display: none; }
+      .header-subtitle {
+        display: none;
+      }
 
       /* Logout button on top right */
-      .glass-header > div:last-child {
+      .glass-header>div:last-child {
         grid-column: 3;
         grid-row: 1;
         align-self: start;
@@ -284,7 +295,7 @@
         justify-content: flex-end;
       }
 
-      .glass-header > div:last-child > div {
+      .glass-header>div:last-child>div {
         display: flex !important;
         flex-direction: row;
         align-items: center;
@@ -313,9 +324,15 @@
         border-radius: 50% !important;
         background: #ef4444 !important;
       }
-      button[onclick="cerrarSesion()"]::after { content: "🔒"; font-size: 1rem; }
 
-      #lblUserGreeting { display: none !important; }
+      button[onclick="cerrarSesion()"]::after {
+        content: "🔒";
+        font-size: 1rem;
+      }
+
+      #lblUserGreeting {
+        display: none !important;
+      }
 
       /* Toolbar Mobile */
       .toolbar {
@@ -323,16 +340,19 @@
         gap: 12px !important;
         padding: 1rem !important;
       }
+
       .toolbar input[type=text] {
         width: 100% !important;
       }
+
       /* Toolbar buttons in 2x2 grid */
-      .toolbar > div:last-child {
+      .toolbar>div:last-child {
         width: 100%;
         display: grid !important;
         grid-template-columns: 1fr 1fr;
         gap: 6px !important;
       }
+
       .toolbar button {
         width: 100%;
         padding: 8px 4px !important;
@@ -363,17 +383,21 @@
     }
 
     @media (max-width: 600px) {
-      .desktop-only { display: none !important; }
-      
+      .desktop-only {
+        display: none !important;
+      }
+
       .nivel-header-content {
         flex-direction: column;
         align-items: flex-start;
         gap: 5px;
       }
+
       .nivel-title {
         font-size: 0.85rem !important;
         white-space: pre-wrap !important;
       }
+
       .coordinador-info {
         font-size: 0.75rem !important;
         margin-left: 0 !important;
@@ -382,22 +406,25 @@
         justify-content: space-between;
         align-items: center;
       }
+
       .coord-name-inline {
         display: block;
         margin-left: 22px;
         margin-top: 2px;
       }
-      
+
       .grado-header-content {
         flex-direction: column;
         align-items: flex-start !important;
       }
+
       .grado-title-main {
         width: 100%;
         margin-bottom: 4px;
         display: flex;
         align-items: center;
       }
+
       .grado-docente-info {
         margin-left: 0 !important;
         border-left: none !important;
@@ -405,6 +432,7 @@
         font-size: 0.7rem !important;
         width: 100%;
       }
+
       .grado-actions-mobile {
         width: 100%;
         justify-content: flex-end !important;
@@ -413,7 +441,12 @@
     }
 
     /* MODAL HORARIO */
-    .schedule-modal { max-width: none !important; width: 1000px; padding: 1.2rem !important; }
+    .schedule-modal {
+      max-width: none !important;
+      width: 1000px;
+      padding: 1.2rem !important;
+    }
+
     .schedule-grid {
       display: grid;
       grid-template-columns: 100px repeat(5, 1fr);
@@ -424,33 +457,124 @@
       border-radius: 8px;
       overflow: hidden;
     }
-    .schedule-header { background: #1e3a8a; color: white; padding: 12px; font-weight: 600; text-align: center; font-size: 0.85rem; }
-    .schedule-time { background: #f8fafc; padding: 10px; font-weight: 600; font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border-bottom: 2px solid #cbd5e1; }
-    .schedule-cell { background: white; padding: 10px; min-height: 85px; font-size: 0.75rem; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; transition: background 0.2s; }
-    .schedule-cell:hover { background: #f1f5f9; }
-    .sch-subject { font-weight: 700; color: #0f172a; margin-bottom: 4px; line-height: 1.2; }
-    .sch-teacher { font-weight: 400; color: #64748b; font-size: 0.65rem; }
-    
-    @media (max-width: 900px) {
-      .schedule-modal { width: 98vw; padding: 0.5rem !important; }
-      .schedule-grid { 
-        grid-template-columns: 70px repeat(5, 120px); 
-        min-width: 670px; 
-        gap: 1px; 
-      }
-      .schedule-header { font-size: 0.7rem; padding: 8px; }
-      .schedule-time { font-size: 0.7rem; padding: 8px; }
-      .schedule-cell { font-size: 0.65rem; padding: 6px; min-height: 80px; }
+
+    .schedule-header {
+      background: #1e3a8a;
+      color: white;
+      padding: 12px;
+      font-weight: 600;
+      text-align: center;
+      font-size: 0.85rem;
     }
-    
-    .btn-horario { background: #0891b2; color: white; border: none; padding: 4px 8px; border-radius: 4px; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .btn-horario:hover { background: #0e7490; }
+
+    .schedule-time {
+      background: #f8fafc;
+      padding: 10px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      border-bottom: 2px solid #cbd5e1;
+    }
+
+    .schedule-cell {
+      background: white;
+      padding: 10px;
+      min-height: 85px;
+      font-size: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      transition: background 0.2s;
+    }
+
+    .schedule-cell:hover {
+      background: #f1f5f9;
+    }
+
+    .sch-subject {
+      font-weight: 700;
+      color: #0f172a;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+
+    .sch-teacher {
+      font-weight: 400;
+      color: #64748b;
+      font-size: 0.65rem;
+    }
+
+    @media (max-width: 900px) {
+      .schedule-modal {
+        width: 98vw;
+        padding: 0.5rem !important;
+      }
+
+      .schedule-grid {
+        grid-template-columns: 70px repeat(5, 120px);
+        min-width: 670px;
+        gap: 1px;
+      }
+
+      .schedule-header {
+        font-size: 0.7rem;
+        padding: 8px;
+      }
+
+      .schedule-time {
+        font-size: 0.7rem;
+        padding: 8px;
+      }
+
+      .schedule-cell {
+        font-size: 0.65rem;
+        padding: 6px;
+        min-height: 80px;
+      }
+    }
+
+    .btn-horario {
+      background: #0891b2;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-horario:hover {
+      background: #0e7490;
+    }
 
     /* Estilo para botón Imprimir en dos líneas */
-    .btn-imprimir-wrap { 
-      background: #1e3a8a; color: white; border: none; padding: 4px 6px; border-radius: 4px; font-size: 9px; cursor: pointer; 
-      white-space: normal; line-height: 1.1; width: 60px; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    .btn-imprimir-wrap {
+      background: #1e3a8a;
+      color: white;
+      border: none;
+      padding: 4px 6px;
+      border-radius: 4px;
+      font-size: 9px;
+      cursor: pointer;
+      white-space: normal;
+      line-height: 1.1;
+      width: 60px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
     }
+
     .form-card {
       background: white;
       border-radius: 1.8rem;
@@ -1308,17 +1432,22 @@
       <div style="display:flex; align-items:center;">
         <div style="display:flex; align-items:center; gap:12px;">
           <!-- BOTON MESSENGER -->
-          <button class="btn-primary" onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')" style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:0 20px; font-size: 0.9rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:44px; font-weight:700;">
-            <img src="msn_icon.png" style="width:22px !important; height:22px !important; object-fit:contain; border-radius:4px;" alt="MSN">
+          <button class="btn-primary"
+            onclick="window.open('messenger.html', 'messenger', 'width=520,height=550,location=no,toolbar=no,menubar=no,status=no')"
+            style="display:flex; align-items:center; gap:8px; background:linear-gradient(135deg, #0ea5e9, #0284c7); border-radius:40px; padding:6px 14px; font-size: 0.8rem; border:none; cursor:pointer; color:white; white-space:nowrap; height:38px;">
+            <img src="msn_icon.png"
+              style="width:20px !important; height:20px !important; object-fit:contain; border-radius:4px;" alt="MSN">
             <span>Messenger</span>
           </button>
 
           <!-- AREA PERFIL USUARIO (OPCION A) -->
           <div id="userProfileArea" class="user-profile-header" style="display:none; align-items:center;">
-            <img id="userAvatarHeader" src="" class="user-avatar-header" onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
-            <div class="user-info-stack" style="margin-left:8px;">
-              <span id="lblUserGreeting" style="font-weight:700; color:#1e293b; font-size:0.8rem; white-space:nowrap;"></span>
-              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:0px; font-size:0.75rem;">Cerrar sesión</button>
+            <img id="userAvatarHeader" src="" class="user-avatar-header"
+              onerror="this.src='https://ui-avatars.com/api/?name=User&background=random'">
+            <div class="user-info-stack" style="margin-left:2px;">
+              <span id="lblUserGreeting"
+                style="font-weight:700; color:#1e293b; font-size:0.75rem; white-space:nowrap;"></span>
+              <button class="btn-logout-small" onclick="cerrarSesion()" style="margin-top:-2px;">Cerrar sesión</button>
             </div>
           </div>
         </div>
@@ -1368,7 +1497,8 @@
                     <option>3B</option>
                   </select></div>
                 <div class="form-group fg-clave"><label>Clave</label><input type="text" id="clave" maxlength="3"></div>
-                <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10"></div>
+                <div class="form-group fg-tel"><label>Teléfono</label><input type="tel" id="telefono" maxlength="10">
+                </div>
                 <!-- CAMPO CAMBIÓ COMENTADO - NO SE USA ACTUALMENTE
                 <div class="form-group fg-cambio"><label>¿Cambió?</label><select id="cambio_seccion">
                     <option>NO</option>
@@ -1467,26 +1597,43 @@
       <div class="table-card">
         <div class="toolbar" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px;">
           <input type="text" id="searchInput" placeholder="🔍 Buscar por nombre o código..."
-            oninput="filtrarEstudiantes()" style="grid-column: span 3; width:100%; margin-bottom:5px; border-radius:12px; padding:12px 20px;">
-          
-          <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📊 Exportar<br>Excel</div></button>
-          
+            oninput="filtrarEstudiantes()"
+            style="grid-column: span 3; width:100%; margin-bottom:5px; border-radius:12px; padding:12px 20px;">
+
+          <button class="btn-export" id="btnExportarGeneral" onclick="abrirModalExportar()"
+            style="text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">📊 Exportar<br>Excel</div>
+          </button>
+
           <button class="btn-export" id="btnFotosMasivo" onclick="window.location.href='fotos_masivo.html'"
-            style="background:linear-gradient(90deg,#3b82f6,#2563eb); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">📸 Subida<br>Masiva</div></button>
-          
+            style="background:linear-gradient(90deg,#3b82f6,#2563eb); text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">📸 Subida<br>Masiva</div>
+          </button>
+
           <button class="btn-borrado" id="btnBorradoGrado" onclick="abrirModalBorradoGrado()"
             title="Archivar todos los estudiantes de un grado"
-            style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div></button>
-            
-          <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
-            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar" style="text-align:center; padding:10px 15px;"><div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div></button>
+            style="border-color:#f97316;color:#c2410c;background:#fff7ed; text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">🗑️ Borrado<br>de Grado</div>
+          </button>
 
-          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()" 
-            title="Importar archivo XML de aSc Horarios" style="background:#0891b2; text-align:center; padding:10px 15px;"><div style="line-height:1.2;">⏰ Agregar<br>Horario</div></button>
-          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none" onchange="importarHorarioXML(this)">
-          
-          <button class="btn-export" onclick="agregarGradoSección()"
-            title="Agregar nueva opción de grado al formulario" style="background:linear-gradient(90deg,#10b981,#059669); text-align:center; padding:10px 15px;"><div style="line-height:1.2;">➕ Agregar<br>Grado/Secc</div></button>
+          <button class="btn-borrado" id="btnBorradoCiclo" onclick="abrirModalBorrado()"
+            title="Archivar todos los estudiantes activos al cerrar el ciclo escolar"
+            style="text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">🗑️ Borrado<br>de ciclo</div>
+          </button>
+
+          <button class="btn-primary" onclick="document.getElementById('xmlHorarioInput').click()"
+            title="Importar archivo XML de aSc Horarios"
+            style="background:#0891b2; text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">⏰ Agregar<br>Horario</div>
+          </button>
+          <input type="file" id="xmlHorarioInput" accept=".xml" style="display:none"
+            onchange="importarHorarioXML(this)">
+
+          <button class="btn-export" onclick="agregarGradoSección()" title="Agregar nueva opción de grado al formulario"
+            style="background:linear-gradient(90deg,#10b981,#059669); text-align:center; padding:10px 15px;">
+            <div style="line-height:1.2;">➕ Agregar<br>Grado/Secc</div>
+          </button>
         </div>
         <div class="results-area">
           <div id="resultsInfo" class="results-info"></div>
@@ -1568,9 +1715,11 @@
   <!-- MODAL: HORARIO -->
   <div id="horarioModal" class="modal-overlay" style="display:none;">
     <div class="modal-card schedule-modal">
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
+      <div
+        style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #e2e8f0; padding-bottom:10px;">
         <h3 id="horarioModalTitle" style="margin:0;">📅 Horario de Clases</h3>
-        <button onclick="cerrarModalHorario()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
+        <button onclick="cerrarModalHorario()"
+          style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#64748b;">&times;</button>
       </div>
       <div id="horarioContainer" style="overflow-x:auto;"></div>
       <div class="modal-actions">
@@ -1580,7 +1729,7 @@
   </div>
 
   <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
+    const API_URL = "https://script.google.com/macros/s/AKfycbxZAMMNT2iFSHbwTt4ngeNDGhKBx2cn_BQ8agXMs2tU_6WW8mA-gnlAuICPGwPf23S8/exec";
 
     // MATRIZ DE PERMISOS
     const CONFIG_ROLES = {
@@ -1701,17 +1850,17 @@
 
     async function updateGreeting() {
       const username = sessionStorage.getItem('userName');
-      if(username) {
+      if (username) {
         const hour = new Date().getHours();
         let greeting = 'Buenos días';
-        if (hour >= 12 && hour < 18) greeting = 'Hola'; 
+        if (hour >= 12 && hour < 18) greeting = 'Hola';
         else if (hour >= 18) greeting = 'Noches';
-        
+
         const lbl = document.getElementById('lblUserGreeting');
         lbl.textContent = `${greeting}, ${username}`;
-        
+
         document.getElementById('userProfileArea').style.display = 'flex';
-        
+
         // 1. Intentar cargar desde memoria local (Carga instantánea)
         const localAvatar = localStorage.getItem('msn_avatar_' + username);
         if (localAvatar) {
@@ -1727,7 +1876,7 @@
           } else if (!localAvatar) {
             document.getElementById('userAvatarHeader').src = `https://ui-avatars.com/api/?name=${username}&background=random&color=fff`;
           }
-        } catch(e) {
+        } catch (e) {
           if (!localAvatar) document.getElementById('userAvatarHeader').src = `https://ui-avatars.com/api/?name=${username}&background=random&color=fff`;
         }
       }
@@ -1782,21 +1931,13 @@
           const configItem = todosLosRegistros.find(e => e.codigo === 'CONFIG_APP_DATA');
           if (configItem && configItem.nombre) {
             configExists = true;
-            try { appConfig = JSON.parse(configItem.nombre); } catch(e) {}
+            try { appConfig = JSON.parse(configItem.nombre); } catch (e) { }
           }
           if (!appConfig.docentes) appConfig.docentes = {};
 
-          // 3. Establecer array de estudiantes REALES (Guardando rawData para impresión)
-          estudiantesGlobal = todosLosRegistros
-            .filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true')
-            .map(e => {
-              // Asegurar que rawData exista para las funciones de impresión clásicas
-              if (!e.rawData) {
-                e.rawData = Object.keys(e).filter(k => !isNaN(k)).sort((a,b) => a-b).map(k => e[k]);
-              }
-              return e;
-            });
-          
+          // 3. Establecer array de estudiantes REALES
+          estudiantesGlobal = todosLosRegistros.filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true');
+
           filtrarEstudiantes();
         } else showMessage("Error al cargar: " + (res.msg || ""), true);
       } catch (err) { showMessage("Error de red: " + err.message, true); }
@@ -1809,7 +1950,7 @@
       listaFiltradaActual = estudiantesGlobal.filter(e =>
         e.nombre.toLowerCase().includes(s) || e.codigo.toLowerCase().includes(s)
       );
-      
+
       // AUTO-EXPANDIR GRADOS SI HAY BÚSQUEDA
       if (s.length > 0) {
         const gradosResultados = [...new Set(listaFiltradaActual.map(e => e.grado))];
@@ -1839,8 +1980,8 @@
         if (str.match(/^6/i) || str.includes('sext')) return '6';
         return '0'; // Nivel base "Otros"
       }
-      
-      const lbls = {'1':'Primeros', '2':'Segundos', '3':'Terceros', '4':'Cuartos', '5':'Quintos', '6':'Sextos', '0':'Otros'};
+
+      const lbls = { '1': 'Primeros', '2': 'Segundos', '3': 'Terceros', '4': 'Cuartos', '5': 'Quintos', '6': 'Sextos', '0': 'Otros' };
 
       // Agrupar por NIVEL y luego GRADO
       const gruposNivel = {};
@@ -1874,7 +2015,7 @@
 
       Object.keys(gruposNivel).sort().forEach(nId => {
         const nLabel = lbls[nId] || 'Nivel';
-        
+
         // Fila Súper-Cabecera de Nivel
         const rowNivel = tbody.insertRow();
         rowNivel.className = 'nivel-header-row';
@@ -1923,86 +2064,86 @@
               </div>
             </div>`;
 
-        students.forEach(est => {
-          const row = tbody.insertRow();
-          row.classList.add('student-row', `gr-${grado.replace(/\//g, '_')}`);
-          row.style.display = isOpen ? '' : 'none';
+          students.forEach(est => {
+            const row = tbody.insertRow();
+            row.classList.add('student-row', `gr-${grado.replace(/\//g, '_')}`);
+            row.style.display = isOpen ? '' : 'none';
 
-          const codigoSafe = est.codigo ? String(est.codigo).replace(/'/g, "\\'") : '';
+            const codigoSafe = est.codigo ? String(est.codigo).replace(/'/g, "\\'") : '';
 
-          // Celda 0: Checkbox Selección
-          const tdChk = row.insertCell(0);
-          tdChk.style.textAlign = 'center';
-          tdChk.innerHTML = `<input type="checkbox" class="chk-estudiante" value="${est.codigo}" onchange="actualizarContadorSeleccion()">`;
+            // Celda 0: Checkbox Selección
+            const tdChk = row.insertCell(0);
+            tdChk.style.textAlign = 'center';
+            tdChk.innerHTML = `<input type="checkbox" class="chk-estudiante" value="${est.codigo}" onchange="actualizarContadorSeleccion()">`;
 
-          // Celda 1: Foto
-          const tdFoto = row.insertCell(1);
-          const img = document.createElement('img');
-          const thumb = getDriveThumbnail(est.foto);
-          img.src = thumb || 'https://placehold.co/40x40?text=👤';
-          img.className = 'student-img';
-          img.alt = est.nombre;
-          img.onerror = function () { this.onerror = null; this.src = 'https://placehold.co/40x40?text=👤'; };
-          tdFoto.appendChild(img);
+            // Celda 1: Foto
+            const tdFoto = row.insertCell(1);
+            const img = document.createElement('img');
+            const thumb = getDriveThumbnail(est.foto);
+            img.src = thumb || 'https://placehold.co/40x40?text=👤';
+            img.className = 'student-img';
+            img.alt = est.nombre;
+            img.onerror = function () { this.onerror = null; this.src = 'https://placehold.co/40x40?text=👤'; };
+            tdFoto.appendChild(img);
 
-          // Celda 2: Clave
-          row.insertCell(2).textContent = est.clave || '—';
+            // Celda 2: Clave
+            row.insertCell(2).textContent = est.clave || '—';
 
-          // Celda 3: Nombre
-          const tdNombre = row.insertCell(3);
-          tdNombre.textContent = est.nombre || '—';
-          tdNombre.style.fontWeight = '600';
-          tdNombre.style.cursor = 'pointer';
-          tdNombre.title = "Doble clic (Windows) o mantén presionado (Android) para vista previa";
+            // Celda 3: Nombre
+            const tdNombre = row.insertCell(3);
+            tdNombre.textContent = est.nombre || '—';
+            tdNombre.style.fontWeight = '600';
+            tdNombre.style.cursor = 'pointer';
+            tdNombre.title = "Doble clic (Windows) o mantén presionado (Android) para vista previa";
 
-          // Doble clic y long-press para vista previa
-          tdNombre.ondblclick = () => vistaPrevia(codigoSafe);
-          let touchTimer;
-          tdNombre.ontouchstart = () => {
-            touchTimer = setTimeout(() => {
-              vistaPrevia(codigoSafe);
-              if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
-            }, 700);
-          };
-          tdNombre.ontouchend = () => clearTimeout(touchTimer);
-          tdNombre.ontouchmove = () => clearTimeout(touchTimer);
+            // Doble clic y long-press para vista previa
+            tdNombre.ondblclick = () => vistaPrevia(codigoSafe);
+            let touchTimer;
+            tdNombre.ontouchstart = () => {
+              touchTimer = setTimeout(() => {
+                vistaPrevia(codigoSafe);
+                if (window.navigator && window.navigator.vibrate) window.navigator.vibrate(50);
+              }, 700);
+            };
+            tdNombre.ontouchend = () => clearTimeout(touchTimer);
+            tdNombre.ontouchmove = () => clearTimeout(touchTimer);
 
-          // Celda 4: Código
-          row.insertCell(4).textContent = est.codigo || '—';
+            // Celda 4: Código
+            row.insertCell(4).textContent = est.codigo || '—';
 
-          // Celda 5: Teléfono
-          const tdTel = row.insertCell(5);
-          tdTel.textContent = est.telefono || '—';
-          tdTel.className = 'col-tel';
+            // Celda 5: Teléfono
+            const tdTel = row.insertCell(5);
+            tdTel.textContent = est.telefono || '—';
+            tdTel.className = 'col-tel';
 
-          // Cambio Sección — comentado a petición del usuario
-          // const tdCS = row.insertCell(6);
-          // tdCS.innerHTML = `<span class="badge-cambio">${est.cambio_seccion}</span>`;
+            // Cambio Sección — comentado a petición del usuario
+            // const tdCS = row.insertCell(6);
+            // tdCS.innerHTML = `<span class="badge-cambio">${est.cambio_seccion}</span>`;
 
-          // Celda 6: Acciones
-          const tdAcc = row.insertCell(6);
-          const config = getRolConfig();
+            // Celda 6: Acciones
+            const tdAcc = row.insertCell(6);
+            const config = getRolConfig();
 
-          let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
+            let actionsHtml = `<button onclick="vistaPrevia('${codigoSafe}')">👁️ Vista previa</button>
                              <button onclick="imprimirFichaEstudiante('${codigoSafe}')">🖨️ Imprimir ficha</button>`;
-          if (config.editar) {
-            actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
-          }
-          if (config.archivar) {
-            actionsHtml += `<button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>`;
-          }
+            if (config.editar) {
+              actionsHtml += `<button onclick="editarEstudiante('${codigoSafe}')">✏️ Editar</button>`;
+            }
+            if (config.archivar) {
+              actionsHtml += `<button class="text-red" onclick="archivarEstudiante('${codigoSafe}')">🗑️ Archivar</button>`;
+            }
 
-          tdAcc.innerHTML = `
+            tdAcc.innerHTML = `
           <div class="action-dropdown">
             <button class="drop-btn">⋮</button>
             <div class="action-content">
               ${actionsHtml}
             </div>
           </div>`;
+          });
         });
       });
-    });
-  }
+    }
 
     function toggleGrado(grado) {
       gradoStates[grado] = !gradoStates[grado];
@@ -2142,7 +2283,7 @@
       const fotoUrl = getDriveThumbnail(d[32] || '');
       const campo = (v) => `<div class="pf-val">${v || '—'}</div>`;
       const bloque = (label, val) => `<div class="pf-item"><div class="pf-label">${label}</div>${campo(val)}</div>`;
-      
+
       return `
       <div class="pf-page">
         <div class="pf-header">
@@ -2224,97 +2365,49 @@
         @media print{ .pf-page { padding: 15px 20px; } .pf-photo{width:90px;height:90px}}
       </style>
       </head><body>${htmlCuerpo}<script>window.onload=function(){ setTimeout(function(){ window.print(); }, 500); }<\/script></body></html>`;
-      
+
       const win = window.open('', '_blank', 'width=900,height=700');
       if (win) { win.document.write(htmlFull); win.document.close(); }
       else showMessage('Permite ventanas emergentes para imprimir', true);
     }
 
-    // Convierte el objeto mapeado de estudiantesGlobal al array indexado que espera generarHTMLFicha
-    function estudianteAArray(e) {
-      const d = [];
-      d[1]  = e.nombre       || '';
-      d[2]  = e.codigo       || '';
-      d[3]  = e.edad         || '';
-      d[4]  = e[4]           || e['fecha_nacimiento'] || '';
-      d[5]  = e.telefono     || '';
-      d[6]  = e[6]           || e['tel_emergencia']   || '';
-      d[7]  = e.genero       || '';
-      d[8]  = e[8]           || e['adec_curricular']  || '';
-      d[9]  = e[9]           || e['detalle_adec']     || '';
-      d[10] = e[10]          || e['lateralidad']      || '';
-      d[11] = e.grado        || '';
-      d[12] = e.etnia        || '';
-      d[13] = e[13]          || e['municipio']        || '';
-      d[14] = e[14]          || e['departamento']     || '';
-      d[15] = e[15]          || e['pais']             || '';
-      d[16] = e[16]          || e['nacionalidad']     || '';
-      d[17] = e[17]          || e['pueblo']           || '';
-      d[18] = e[18]          || e['idioma']           || '';
-      d[19] = e[19]          || e['religion']         || '';
-      d[20] = e[20]          || e['discapacidad']     || '';
-      d[21] = e[21]          || e['trabajo']          || '';
-      d[22] = e[22]          || e['beca']             || '';
-      d[23] = e[23]          || e['nombre_encargado'] || '';
-      d[24] = e[24]          || e['dpi_encargado']    || '';
-      d[25] = e[25]          || e['tel_encargado']    || '';
-      d[26] = e[26]          || e['direccion']        || '';
-      d[27] = e[27]          || e['aldea']            || '';
-      d[28] = e[28]          || e['relacion']         || '';
-      d[29] = e[29]          || e['tel_extra']        || '';
-      d[32] = e.foto         || '';
-      d[33] = e.clave        || '';
-      d[34] = e.cambio_seccion || '';
-      return d;
+    function imprimirSeleccionados() {
+      const chks = document.querySelectorAll('.chk-estudiante:checked');
+      if (chks.length === 0) return showMessage('Selecciona al menos un estudiante', true);
+
+      const codigos = Array.from(chks).map(c => c.value);
+      const seleccion = estudiantesGlobal.filter(e => codigos.includes(e.codigo));
+
+      let finalHtml = "";
+      seleccion.forEach(est => {
+        finalHtml += generarHTMLFichaMapeada(est);
+      });
+
+      abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
     }
 
-    // ==================== IMPRESIÓN DE GRUPO ====================
+    // ==================== IMPRESIÓN ====================
     function imprimirFichasPorGrado(grado) {
       if (!estudiantesGlobal || estudiantesGlobal.length === 0) return showMessage('No hay datos cargados', true);
       const seleccion = estudiantesGlobal.filter(e => e.grado === grado);
       if (seleccion.length === 0) return showMessage('No hay estudiantes en este grado', true);
-      
-      let finalHtml = seleccion.map(est => generarHTMLFicha(estudianteAArray(est))).join('');
-      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
-    }
 
-    function imprimirSeleccionados() {
-      const chks = document.querySelectorAll('.chk-estudiante:checked');
-      if (chks.length === 0) return showMessage('Selecciona al menos un estudiante', true);
-      const codigos = Array.from(chks).map(c => c.value);
-      const seleccion = estudiantesGlobal.filter(e => codigos.includes(e.codigo));
-      let finalHtml = seleccion.map(est => generarHTMLFicha(estudianteAArray(est))).join('');
-      if (!finalHtml) return showMessage('Error al generar las fichas.', true);
-      abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
-    }
-
-    function imprimirSeleccionados() {
-      const chks = document.querySelectorAll('.chk-estudiante:checked');
-      if (chks.length === 0) return showMessage('Selecciona al menos un estudiante', true);
-      
-      const codigos = Array.from(chks).map(c => c.value);
-      const seleccion = estudiantesGlobal.filter(e => codigos.includes(e.codigo));
-      
       let finalHtml = "";
       seleccion.forEach(est => {
-        if (est.rawData) {
-          finalHtml += generarHTMLFicha(est.rawData);
-        }
+        finalHtml += generarHTMLFichaMapeada(est);
       });
-      
-      if (!finalHtml) return showMessage('Error al generar las fichas.', true);
-      abrirImpresionMultiple(finalHtml, "Impresión Masiva - " + seleccion.length + " estudiantes");
+      abrirImpresionMultiple(finalHtml, "Grado " + grado + " - " + seleccion.length + " estudiantes");
     }
 
     function generarHTMLFichaMapeada(e) {
       // Usamos el objeto e que ya tiene las propiedades mapeadas y el spread de res.data
       // Si res.data era un array, e[0], e[1], etc. existen.
-      const d = e; 
+      const d = e;
       const nombre = d[1] || '—';
       const fotoUrl = getDriveThumbnail(d[32] || '');
       const campo = (v) => `<div class="pf-val">${v || '—'}</div>`;
       const bloque = (label, val) => `<div class="pf-item"><div class="pf-label">${label}</div>${campo(val)}</div>`;
-      
+
       return `
       <div class="pf-page">
         <div class="pf-header">
@@ -2869,7 +2962,7 @@
         aplicarPermisos();
         cargarListaEstudiantes();
         updateGreeting();
-        
+
         // Sincronización en tiempo real con Messenger (si cambia la foto allá, se actualiza acá)
         window.addEventListener('storage', (e) => {
           const username = sessionStorage.getItem('userName');
@@ -2877,10 +2970,10 @@
             document.getElementById('userAvatarHeader').src = e.newValue;
           }
         });
-        
+
         // Cargar horarios del config si existen
         if (appConfig.horarios && typeof appConfig.horarios === 'string') {
-          try { appConfig.horariosData = JSON.parse(appConfig.horarios); } catch(e){}
+          try { appConfig.horariosData = JSON.parse(appConfig.horarios); } catch (e) { }
         }
       } else {
         if (loginCont) loginCont.style.setProperty('display', 'flex', 'important');
@@ -2901,14 +2994,14 @@
           try {
             const decoder = new TextDecoder('windows-1252', { fatal: true });
             decodedText = decoder.decode(e.target.result);
-          } catch(err) {
+          } catch (err) {
             const decoder = new TextDecoder('utf-8');
             decodedText = decoder.decode(e.target.result);
           }
-          
+
           const parser = new DOMParser();
           const xmlDoc = parser.parseFromString(decodedText, "text/xml");
-          
+
           const data = { subjects: {}, teachers: {}, classrooms: {}, periods: [], cards: [] };
 
           // 1. Periodos
@@ -2973,7 +3066,7 @@
 
     function verHorarioGrado(grado) {
       if (!appConfig.horariosData) return showMessage("⚠️ No hay horarios sincronizados. Usa el botón 'Sincronizar Horarios' arriba.", true);
-      
+
       const data = appConfig.horariosData;
       // Buscar el ID del aula que coincida con el nombre del grado
       let targetClsId = null;
@@ -2982,7 +3075,7 @@
           targetClsId = id; break;
         }
       }
-      
+
       if (!targetClsId) return showMessage(`⚠️ No se encontró horario específico para '${grado}' en el archivo XML.`, true);
 
       const cards = data.cards.filter(c => c[0] === targetClsId);
@@ -2993,13 +3086,13 @@
       document.getElementById('horarioModalTitle').textContent = `📅 Horario: ${grado}`;
       const container = document.getElementById('horarioContainer');
       const periods = data.periods;
-      
+
       const days = ["LUNES", "MARTES", "MIÉRCOLES", "JUEVES", "VIERNES"];
       let html = `<div class="schedule-grid">
                     <div class="schedule-header">Hora</div>`;
       days.forEach(d => html += `<div class="schedule-header">${d}</div>`);
 
-      periods.sort((a,b) => parseInt(a.id) - parseInt(b.id)).forEach(p => {
+      periods.sort((a, b) => parseInt(a.id) - parseInt(b.id)).forEach(p => {
         html += `<div class="schedule-time"><b>${p.name}</b><br>${p.start}-${p.end}</div>`;
         for (let d = 0; d < 5; d++) {
           const card = cards.find(c => c[1] == d && c[2] == p.id);
@@ -3014,7 +3107,7 @@
         }
       });
       html += `</div>`;
-      
+
       container.innerHTML = html;
       document.getElementById('horarioModal').style.display = 'flex';
     }
@@ -3034,7 +3127,7 @@
     }
 
     function editarCoordinador(e, nId, nLabel) {
-      if(e) e.stopPropagation();
+      if (e) e.stopPropagation();
       const actualCoord = (appConfig.coordinadores && appConfig.coordinadores[nId]) || '';
       const nuevoCoord = prompt(`Ingresa el Coordinador para todos los "${nLabel}"\\n(Ejemplo: Licda. Ana Morales):`, actualCoord);
       if (nuevoCoord === null) return;
@@ -3046,10 +3139,10 @@
     function getDocentesHtml(grado) {
       const gu = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || 'Sin asignar';
       const cnf = puedeEditarConfig();
-      
+
       let html = `<div style="font-size:0.85rem; color:#475569; border-left:2px solid #cbd5e1; padding-left:10px; margin-left:15px; display:flex; align-items:center; gap:8px;">
                     <span><strong style="color:#1e293b;">Guía:</strong> <span style="font-weight:600; color:#0f172a;">${gu}</span></span>`;
-      
+
       if (cnf) {
         html += `<button onclick="editarDocentes(event, '${grado}')" style="background:none; border:none; cursor:pointer; font-size:1rem; margin-left:2px;" title="Editar Docente Guía">⚙️</button>`;
       }
@@ -3058,11 +3151,11 @@
     }
 
     function editarDocentes(e, grado) {
-      if(e) e.stopPropagation(); // Evitar que el acordeón se colapse al hacer clic en el botón
+      if (e) e.stopPropagation(); // Evitar que el acordeón se colapse al hacer clic en el botón
       const actualGuia = (appConfig.docentes && appConfig.docentes[grado] && appConfig.docentes[grado].guia) || '';
       const nuevoGuia = prompt(`Ingresa el Docente Guía para la sección "${grado}"\\n(Ejemplo: Prof. Mario López):`, actualGuia);
-      if (nuevoGuia === null) return; 
-      
+      if (nuevoGuia === null) return;
+
       if (!appConfig.docentes) appConfig.docentes = {};
       if (!appConfig.docentes[grado]) appConfig.docentes[grado] = {};
       appConfig.docentes[grado].guia = nuevoGuia.trim();
@@ -3075,16 +3168,16 @@
         codigo: 'CONFIG_APP_DATA',
         nombre: JSON.stringify(appConfig),
         grado: 'CONFIG', foto: '', fecha_nac: '1900-01-01', alergias: 'No', enf: 'No',
-        detalle_enf:'', zurdo:'No', etnia:'', direccion:'', aldea:'', padre:'', 
-        dpi_padre:'', tel_padre:'', madre:'', dpi_madre:'', tel_madre:'', enc_padre:'No',
-        enc_madre:'No', encargado:'', dpi_enc:'', tel_enc:'', dir_enc:'', aldea_enc:'', relacion:'', tel_extra:''
+        detalle_enf: '', zurdo: 'No', etnia: '', direccion: '', aldea: '', padre: '',
+        dpi_padre: '', tel_padre: '', madre: '', dpi_madre: '', tel_madre: '', enc_padre: 'No',
+        enc_madre: 'No', encargado: '', dpi_enc: '', tel_enc: '', dir_enc: '', aldea_enc: '', relacion: '', tel_extra: ''
       };
-      
+
       const action = configExists ? 'actualizar' : 'guardar';
       const res = await callApi(action, data);
       showLoader(false);
-      
-      if(res.success) {
+
+      if (res.success) {
         configExists = true;
         showMessage("Configuración de docentes guardada ✅");
         renderizarTabla(listaFiltradaActual);
@@ -3131,7 +3224,7 @@
           onlineUsersCache.clear();
           nuevosSet.forEach(u => onlineUsersCache.add(u));
         }
-      } catch(e) {}
+      } catch (e) { }
     }
 
     function showMsnToast(user) {

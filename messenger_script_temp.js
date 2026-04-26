@@ -1,0 +1,235 @@
+  <script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbw3iWphkvmtDuDTxS8Uy0UVVHV6EzWAvligf4wxXkKOQUIeBKivYLgJ6cdthFUoBG8_/exec";
+    
+    // --- SONIDOS ORIGINALES ---
+    const sndNudge = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/nudge.mp3");
+    const sndMsg = new Audio("https://cdn.jsdelivr.net/gh/HoussemBahri/MSN-Messenger-Clone/src/assets/sounds/message.mp3");
+    
+    function playNudgeSound() {
+      sndNudge.currentTime = 0;
+      sndNudge.play().catch(e => console.log('Audio blocked', e));
+    }
+    
+    function playMsgSound() {
+      sndMsg.currentTime = 0;
+      sndMsg.play().catch(e => console.log('Audio blocked', e));
+    }
+
+    let lastMsgCount = 0;
+    let myUsername = "Usuario";
+    let currentChat = "TODOS";
+    let isNudging = false;
+    let unreadUsers = new Set();
+    let deferredInstallPrompt = null;
+
+    // --- REGISTRO PWA ---
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    }
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredInstallPrompt = e;
+      document.getElementById('btnInstall').style.display = 'block';
+    });
+    async function installApp() {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      const { outcome } = await deferredInstallPrompt.userChoice;
+      if (outcome === 'accepted') document.getElementById('btnInstall').style.display = 'none';
+      deferredInstallPrompt = null;
+    }
+
+    window.onload = () => {
+      myUsername = sessionStorage.getItem('userName') || "Invitado";
+      document.getElementById('selfName').innerText = myUsername;
+
+      // Desbloquear audio al primer click
+      document.body.addEventListener('click', () => { 
+        sndNudge.play().then(() => { sndNudge.pause(); sndNudge.currentTime = 0; }).catch(()=>{});
+        sndMsg.play().then(() => { sndMsg.pause(); sndMsg.currentTime = 0; }).catch(()=>{});
+      }, { once: true });
+
+      loadMessages();
+      setInterval(loadMessages, 2500);
+
+      document.getElementById('msgInput').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+      });
+    };
+
+    async function callApi(action, data = {}) {
+      try {
+        const response = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action, data }) });
+        return await response.json();
+      } catch (e) { return { success: false }; }
+    }
+
+    async function loadMessages() {
+      const res = await callApi('obtenerMensajes', { usuarioActual: myUsername });
+      if (res.success && res.data) {
+        if (res.data.length > lastMsgCount) {
+          const nuevos = res.data.slice(lastMsgCount);
+          let hayMsgNuevo = false;
+          nuevos.forEach(m => {
+            const emisor = m[1];
+            const receptor = m[4] || 'TODOS';
+            if (emisor !== myUsername && emisor !== currentChat && receptor === myUsername) {
+              unreadUsers.add(emisor);
+            }
+            if (emisor !== myUsername && m[3] !== 'zumbido') {
+              if (receptor === 'TODOS' || receptor === myUsername) hayMsgNuevo = true;
+            }
+          });
+          
+          if (hayMsgNuevo) playMsgSound();
+
+          const lastMsg = res.data[res.data.length - 1];
+          if (lastMsg && lastMsg[3] === 'zumbido') {
+            const emisor = lastMsg[1];
+            const receptor = lastMsg[4] || 'TODOS';
+            if (emisor !== myUsername && (receptor === 'TODOS' || receptor === myUsername)) {
+              triggerVisualNudge();
+            }
+          }
+        }
+        renderMessages(res.data);
+        updateOnlineList(res.data);
+        lastMsgCount = res.data.length;
+      }
+    }
+
+    function selectChat(user) {
+      currentChat = user;
+      unreadUsers.delete(user);
+      document.getElementById('selfName').innerText = myUsername + " > " + user;
+      loadMessages();
+    }
+
+    function updateOnlineList(msgs) {
+      const list = document.getElementById('onlineList');
+      const ahora = Date.now();
+      const TRES_MINUTOS = 180000;
+      const usuariosActivos = msgs.filter(m => (ahora - new Date(m[0]).getTime()) < TRES_MINUTOS).map(m => m[1]);
+      const users = [...new Set(usuariosActivos)].filter(u => u !== myUsername);
+      
+      let html = `<div class="contact-item" onclick="selectChat('TODOS')" style="cursor:pointer; font-weight:bold; color:var(--msn-blue); margin-bottom:5px;">🌐 Chat General</div>`;
+      users.forEach(u => {
+        const isUnread = unreadUsers.has(u);
+        html += `<div class="contact-item ${isUnread?'has-new-msg':''}" style="cursor:pointer;" onclick="selectChat('${u}')"><div class="contact-status"></div> ${u}</div>`;
+      });
+      list.innerHTML = html;
+    }
+
+    // Colores para avatares de usuarios
+    const USER_COLORS = ['#004b91','#10b981','#f97316','#8b5cf6','#ef4444','#0ea5e9','#d97706'];
+    function getUserColor(name) {
+      let hash = 0;
+      for (let c of (name || '?')) hash = (hash * 31 + c.charCodeAt(0)) & 0xFFFFFF;
+      return USER_COLORS[Math.abs(hash) % USER_COLORS.length];
+    }
+
+    function renderMessages(msgs) {
+      const h = document.getElementById('chatHistory');
+      h.innerHTML = '';
+      const filtrados = msgs.filter(m => {
+        const emisor = m[1], receptor = m[4] || 'TODOS';
+        if (currentChat === 'TODOS') return receptor === 'TODOS';
+        return (emisor === myUsername && receptor === currentChat) || (emisor === currentChat && receptor === myUsername);
+      });
+      filtrados.forEach(m => {
+        const d = document.createElement('div');
+        if (m[3] === 'zumbido') {
+          d.className = 'msg-nudge';
+          d.innerHTML = `⚠️ Zumbido de <strong>${m[1]}</strong>`;
+        } else if (m[3] === 'file') {
+          d.className = 'msg-entry';
+          const inicial = (m[1] || '?')[0].toUpperCase();
+          const color = getUserColor(m[1]);
+          let fileData = { nombre: 'Archivo', url: m[2] };
+          try { if(m[2].startsWith('{')) fileData = JSON.parse(m[2]); } catch(e){}
+          
+          d.innerHTML = `
+            <div class="msg-avatar" style="background:${color}">${inicial}</div>
+            <div class="msg-text">
+              <strong>${m[1]}:</strong> ha enviado un archivo:
+              <div style="background:#f1f5f9; border:1px solid #cbd5e1; padding:8px; border-radius:8px; margin-top:5px; display:flex; align-items:center; gap:10px;">
+                <span style="font-size:18px;">📄</span>
+                <div style="flex:1; overflow:hidden">
+                  <div style="font-weight:bold; font-size:10px; white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${fileData.nombre}</div>
+                  <a href="${fileData.url}" target="_blank" style="font-size:9px; color:#2563eb; text-decoration:none;">📥 Descargar</a>
+                </div>
+              </div>
+            </div>`;
+        } else {
+          d.className = 'msg-entry';
+          const inicial = (m[1] || '?')[0].toUpperCase();
+          const color = getUserColor(m[1]);
+          d.innerHTML = `<div class="msg-avatar" style="background:${color}">${inicial}</div><div class="msg-text"><strong>${m[1]}:</strong> ${m[2]}</div>`;
+        }
+        h.appendChild(d);
+      });
+      h.scrollTop = h.scrollHeight;
+    }
+
+    async function manejarArchivo(input) {
+      if (!input.files || !input.files[0]) return;
+      const file = input.files[0];
+      if (file.size > 10 * 1024 * 1024) { alert("El archivo es muy grande (máx 10MB)"); return; }
+
+      const btn = document.querySelector('button[onclick*="fileInput"]');
+      const originalText = btn.innerHTML;
+      btn.innerHTML = "⏳ Subiendo...";
+      btn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result.split(',')[1];
+        const res = await callApi('enviarMensaje', { 
+          usuario: myUsername, 
+          texto: JSON.stringify({ nombre: file.name, url: "" }), 
+          tipo: 'file', 
+          receptor: currentChat,
+          archivo: {
+            nombre: file.name,
+            base64: base64,
+            mimeType: file.type
+          }
+        });
+        
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+        input.value = "";
+        loadMessages();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function sendMsg() {
+      const i = document.getElementById('msgInput');
+      const t = i.value.trim(); if (!t) return; i.value = '';
+      await callApi('enviarMensaje', { usuario: myUsername, texto: t, tipo: 'msg', receptor: currentChat });
+      loadMessages();
+    }
+
+    async function sendNudge() {
+      if (isNudging) return; isNudging = true;
+      await callApi('enviarMensaje', { usuario: myUsername, texto: 'ZUMBIDO', tipo: 'zumbido', receptor: currentChat });
+      triggerVisualNudge();
+      setTimeout(() => isNudging = false, 5000);
+    }
+
+    async function vaciarChat() {
+      const msg = currentChat === 'TODOS' ? "¿Limpiar Chat General?" : `¿Limpiar chat con ${currentChat}?`;
+      if (!confirm(msg)) return;
+      const res = await callApi('vaciarChat', { yo: myUsername, destinatario: currentChat });
+      if (res.success) { lastMsgCount = 0; loadMessages(); }
+    }
+
+    function triggerVisualNudge() {
+      const w = document.getElementById('msnWindow');
+      playNudgeSound();
+      w.classList.add('nudge-vibration', 'nudge-flash');
+      if (window.navigator.vibrate) window.navigator.vibrate([200, 100, 200]);
+      setTimeout(() => w.classList.remove('nudge-vibration', 'nudge-flash'), 1000);
+    }
+  </script>
