@@ -1939,9 +1939,26 @@
           estudiantesGlobal = todosLosRegistros.filter(e => e.codigo !== 'CONFIG_APP_DATA' && e.archivado !== true && e.archivado !== 'true');
 
           filtrarEstudiantes();
+          poblarSelectGrado();
         } else showMessage("Error al cargar: " + (res.msg || ""), true);
       } catch (err) { showMessage("Error de red: " + err.message, true); }
       showLoader(false);
+    }
+
+    // ==================== POBLAR SELECT GRADO ====================
+    function poblarSelectGrado() {
+      const select = document.getElementById('grado');
+      if (!select) return;
+      const existentes = new Set(Array.from(select.options).map(o => o.value.trim()));
+      const gradosBD = [...new Set(estudiantesGlobal.map(e => e.grado).filter(g => g && g.trim()))]
+        .sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+      gradosBD.forEach(g => {
+        if (!existentes.has(g)) {
+          const opt = document.createElement('option');
+          opt.value = g; opt.textContent = g;
+          select.appendChild(opt);
+        }
+      });
     }
 
     // ==================== FILTRAR ====================
